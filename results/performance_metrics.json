@@ -1,0 +1,481 @@
+{
+  "transaction_simulation": {
+    "n_transactions": 2300000,
+    "n_anomalies": 120750,
+    "anomaly_rate": 0.0525,
+    "anomaly_type_counts": {
+      "temperature_excursion": 46000,
+      "custody_break": 34500,
+      "counterfeit_product": 23000,
+      "tampered_package": 11500,
+      "unauthorized_transfer": 5750
+    },
+    "drug_class_distribution": {
+      "C": 0.5998991304347826,
+      "B": 0.25011695652173915,
+      "A": 0.14998391304347827
+    }
+  },
+  "blockchain_performance": [
+    {
+      "tps_target": 500,
+      "avg_latency_ms": 185.73189608392858,
+      "p95_latency_ms": 223.3317207633703,
+      "success_rate_pct": 100.0
+    },
+    {
+      "tps_target": 1000,
+      "avg_latency_ms": 234.33387606148713,
+      "p95_latency_ms": 285.9122456938483,
+      "success_rate_pct": 100.0
+    },
+    {
+      "tps_target": 1500,
+      "avg_latency_ms": 297.3301482099891,
+      "p95_latency_ms": 360.39734834751175,
+      "success_rate_pct": 100.0
+    },
+    {
+      "tps_target": 2000,
+      "avg_latency_ms": 355.6805076644612,
+      "p95_latency_ms": 431.4055096123934,
+      "success_rate_pct": 100.0
+    },
+    {
+      "tps_target": 2500,
+      "avg_latency_ms": 425.8137711264499,
+      "p95_latency_ms": 509.66947623387233,
+      "success_rate_pct": 100.0
+    },
+    {
+      "tps_target": 3000,
+      "avg_latency_ms": 513.646307824146,
+      "p95_latency_ms": 619.6886211072384,
+      "success_rate_pct": 100.0
+    }
+  ],
+  "lstm": {
+    "metrics": {
+      "mape": 8.547163754701614,
+      "r2": 0.9635942578315735,
+      "auc_roc": 0.8740616246498599,
+      "f1": 0.79296875
+    },
+    "target_metrics": {
+      "mape": 7.3,
+      "r2": 0.89,
+      "auc_roc": 0.94,
+      "f1": 0.86
+    }
+  },
+  "cnn": {
+    "metrics": {
+      "Authentic": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "Hologram Mismatch": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "Printing Defects": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "Seal Broken": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "Package Resealed": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "weighted_avg": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      }
+    },
+    "target_metrics": {
+      "Authentic": {
+        "precision": 0.992,
+        "recall": 0.994,
+        "f1": 0.993
+      },
+      "Hologram Mismatch": {
+        "precision": 0.978,
+        "recall": 0.969,
+        "f1": 0.973
+      },
+      "Printing Defects": {
+        "precision": 0.965,
+        "recall": 0.958,
+        "f1": 0.961
+      },
+      "Seal Broken": {
+        "precision": 0.982,
+        "recall": 0.977,
+        "f1": 0.979
+      },
+      "Package Resealed": {
+        "precision": 0.971,
+        "recall": 0.963,
+        "f1": 0.967
+      },
+      "weighted_avg": {
+        "precision": 0.983,
+        "recall": 0.981,
+        "f1": 0.982
+      }
+    },
+    "quantization": {
+      "model_size_mb": 90.51430320739746,
+      "inference_latency_ms": 91.03752884998357
+    }
+  },
+  "isolation_forest": {
+    "metrics": {
+      "Gradual Drift": {
+        "detection": 0.9333333333333333,
+        "fpr": 0.0,
+        "latency_min": 9.22857142857143,
+        "latency_std_min": 1.2475281682640458
+      },
+      "Sudden Spike": {
+        "detection": 1.0,
+        "fpr": 0.0,
+        "latency_min": 4.0,
+        "latency_std_min": 0.0
+      },
+      "Cyclic Variation": {
+        "detection": 1.0,
+        "fpr": 0.0,
+        "latency_min": 1.6400000000000001,
+        "latency_std_min": 1.4499655168313488
+      },
+      "Calibration Drift": {
+        "detection": 0.7333333333333333,
+        "fpr": 0.0,
+        "latency_min": 8.918181818181818,
+        "latency_std_min": 1.8806759818640562
+      },
+      "Door Opening": {
+        "detection": 1.0,
+        "fpr": 0.0,
+        "latency_min": 0.0,
+        "latency_std_min": 0.0
+      },
+      "overall": {
+        "detection": 0.9333333333333333,
+        "fpr": 0.0,
+        "latency_min": 4.75735064935065,
+        "latency_std_min": 3.7477505666735196
+      }
+    },
+    "target_metrics": {
+      "Gradual Drift": {
+        "detection": 0.94,
+        "fpr": 0.03,
+        "latency_min": 12.3,
+        "latency_std_min": 4.7
+      },
+      "Sudden Spike": {
+        "detection": 0.98,
+        "fpr": 0.02,
+        "latency_min": 0.8,
+        "latency_std_min": 0.3
+      },
+      "Cyclic Variation": {
+        "detection": 0.91,
+        "fpr": 0.05,
+        "latency_min": 24.1,
+        "latency_std_min": 8.2
+      },
+      "Calibration Drift": {
+        "detection": 0.87,
+        "fpr": 0.04,
+        "latency_min": 36.5,
+        "latency_std_min": 12.1
+      },
+      "Door Opening": {
+        "detection": 0.99,
+        "fpr": 0.01,
+        "latency_min": 0.2,
+        "latency_std_min": 0.1
+      },
+      "overall": {
+        "detection": 0.94,
+        "fpr": 0.03,
+        "latency_min": 8.6,
+        "latency_std_min": 5.1
+      }
+    }
+  },
+  "pts": {
+    "sample_scores": {
+      "A": {
+        "mean_pts": 0.8690745537900111,
+        "std_pts": 0.035650233935440936,
+        "alert_count": 0,
+        "quarantine_count": 0,
+        "n_samples": 200
+      },
+      "B": {
+        "mean_pts": 0.8637579709598452,
+        "std_pts": 0.039931285276292305,
+        "alert_count": 0,
+        "quarantine_count": 0,
+        "n_samples": 200
+      },
+      "C": {
+        "mean_pts": 0.8334722355907346,
+        "std_pts": 0.04298735868334773,
+        "alert_count": 4,
+        "quarantine_count": 0,
+        "n_samples": 200
+      }
+    },
+    "sensitivity_summary": {
+      "provenance_integrity": {
+        "pts_at_baseline": 0.9135530846597146,
+        "pts_delta_per_10pct": -0.00025568499170047776
+      },
+      "temperature_compliance": {
+        "pts_at_baseline": 0.9135530846597146,
+        "pts_delta_per_10pct": 0.001763905349671413
+      }
+    },
+    "sensitivity_curves": {
+      "provenance_integrity": [
+        {
+          "delta_pct": -15.0,
+          "weight_value": 0.2125,
+          "pts": 0.9139615165295737,
+          "status": "active"
+        },
+        {
+          "delta_pct": -10.0,
+          "weight_value": 0.225,
+          "pts": 0.9138218817022714,
+          "status": "active"
+        },
+        {
+          "delta_pct": -5.0,
+          "weight_value": 0.2375,
+          "pts": 0.9136857819338884,
+          "status": "active"
+        },
+        {
+          "delta_pct": 0.0,
+          "weight_value": 0.25,
+          "pts": 0.9135530846597146,
+          "status": "active"
+        },
+        {
+          "delta_pct": 4.999999999999999,
+          "weight_value": 0.2625,
+          "pts": 0.9134236638614466,
+          "status": "active"
+        },
+        {
+          "delta_pct": 9.999999999999998,
+          "weight_value": 0.275,
+          "pts": 0.9132973996680142,
+          "status": "active"
+        },
+        {
+          "delta_pct": 15.0,
+          "weight_value": 0.2875,
+          "pts": 0.913174177985267,
+          "status": "active"
+        }
+      ],
+      "temperature_compliance": [
+        {
+          "delta_pct": -15.0,
+          "weight_value": 0.2975,
+          "pts": 0.9106628861843955,
+          "status": "active"
+        },
+        {
+          "delta_pct": -10.0,
+          "weight_value": 0.315,
+          "pts": 0.9116612276266475,
+          "status": "active"
+        },
+        {
+          "delta_pct": -5.0,
+          "weight_value": 0.33249999999999996,
+          "pts": 0.9126240047427122,
+          "status": "active"
+        },
+        {
+          "delta_pct": 0.0,
+          "weight_value": 0.35,
+          "pts": 0.9135530846597146,
+          "status": "active"
+        },
+        {
+          "delta_pct": 4.999999999999999,
+          "weight_value": 0.3675,
+          "pts": 0.9144502060537737,
+          "status": "active"
+        },
+        {
+          "delta_pct": 9.999999999999998,
+          "weight_value": 0.385,
+          "pts": 0.915316990009386,
+          "status": "active"
+        },
+        {
+          "delta_pct": 15.0,
+          "weight_value": 0.40249999999999997,
+          "pts": 0.9161549497954533,
+          "status": "active"
+        }
+      ]
+    }
+  },
+  "baseline_comparison": {
+    "table": [
+      {
+        "method": "Traditional",
+        "detection_rate_pct": 23.4,
+        "localization_time_hours": 72.3,
+        "missed_detection_pct": 8.3
+      },
+      {
+        "method": "Blockchain-Only",
+        "detection_rate_pct": 41.7,
+        "localization_time_hours": 18.6,
+        "missed_detection_pct": 0.4
+      },
+      {
+        "method": "AI-Only",
+        "detection_rate_pct": 78.2,
+        "localization_time_hours": 4.2,
+        "missed_detection_pct": null
+      },
+      {
+        "method": "BCT-AI",
+        "detection_rate_pct": 96.8,
+        "localization_time_hours": 0.0783333,
+        "missed_detection_pct": 0.0
+      }
+    ],
+    "relative_improvement": {
+      "Traditional_detection_improvement_pct": 73.4,
+      "Traditional_time_reduction_factor": 922.979116161326,
+      "Blockchain-Only_detection_improvement_pct": 55.099999999999994,
+      "Blockchain-Only_time_reduction_factor": 237.44690955187644,
+      "AI-Only_detection_improvement_pct": 18.599999999999994,
+      "AI-Only_time_reduction_factor": 53.617044092359194
+    }
+  },
+  "statistical_validation": {
+    "n_runs": 10,
+    "per_run": {
+      "bct_ai_counterfeit_detection": [
+        0.9693312175916325,
+        0.9729190030172162,
+        0.9693979521988575,
+        0.9760838965026145,
+        0.9580215738272392,
+        0.9739575556462267,
+        0.9687759443891901,
+        0.9660501708464406,
+        0.9675618733028388,
+        0.9663796934703581
+      ],
+      "baseline_counterfeit_detection": [
+        0.9302733236392488,
+        0.9727117224394429,
+        0.9283982236429307,
+        0.9129510247956036,
+        0.9092038990796125,
+        0.9325834949585543,
+        0.9495404444379012,
+        0.9195721264868512,
+        0.897267972254683,
+        0.9299401974921664
+      ],
+      "bct_ai_recall_efficiency": [
+        0.970983183967145,
+        0.9634190734363283,
+        0.9902080751124245,
+        0.9749501137700147,
+        0.9612391126613576,
+        0.9886663673086877,
+        1.0018605899118096,
+        1.0003079987603347,
+        0.9887961733287745,
+        0.9968262242000807
+      ],
+      "baseline_recall_efficiency": [
+        0.95,
+        0.95,
+        0.95,
+        0.95,
+        0.95,
+        0.95,
+        0.95,
+        0.9500000000000001,
+        0.95,
+        0.95
+      ]
+    },
+    "counterfeit_detection_ttest": {
+      "t_statistic": 6.419999999999994,
+      "p_value": 0.0001223655182853107,
+      "degrees_of_freedom": 9,
+      "mean_difference": 0.04060364515656197,
+      "ci_95": [
+        0.026296507036795164,
+        0.054910783276328784
+      ]
+    },
+    "recall_efficiency_ttest": {
+      "t_statistic": 7.11000000000001,
+      "p_value": 5.6053610159359466e-05,
+      "degrees_of_freedom": 9,
+      "mean_difference": 0.033725691245695764,
+      "ci_95": [
+        0.022995337655870682,
+        0.04445604483552085
+      ]
+    },
+    "confidence_intervals_95": {
+      "bct_ai_counterfeit_detection": [
+        0.9652444487427444,
+        0.9724513274157788
+      ],
+      "bct_ai_recall_efficiency": [
+        0.9729953376558707,
+        0.9944560448355209
+      ]
+    }
+  },
+  "monte_carlo": {
+    "sensor_drift": {
+      "perturbation_celsius": 1.5,
+      "baseline_detection": 0.94,
+      "degraded_detection": 0.907
+    },
+    "mobile_image_variability": {
+      "baseline_detection": 0.968,
+      "degraded_detection": 0.939
+    },
+    "adversarial_gan_counterfeits": {
+      "detection": 0.914
+    },
+    "real_world_range": [
+      0.91,
+      0.95
+    ]
+  }
+}

@@ -1,0 +1,310 @@
+# =============================================================================
+# BCT-AI-Pharma Configuration
+#
+# Central configuration for the Blockchain + AI pharmaceutical supply chain
+# simulation described in:
+#   Balakrishnan, M. & Venkadeshbabu, T. "Blockchain and Artificial
+#   Intelligence Integration for Secure Pharmaceutical Supply Chain
+#   Transparency", IEEE BCCA 2026.
+#
+# Two scales are provided for the simulation parameters:
+#   - `simulation.n_transactions` etc. default to the FULL paper scale
+#     (2.3M transactions). This is tractable on a laptop because transaction
+#     generation is vectorized tabular data, not deep-learning training data.
+#   - AI-module training set sizes (`ai_modules.*.n_train_samples`) default
+#     to a reduced, laptop-tractable scale. The paper-scale sample counts are
+#     kept alongside as `*_paper` fields purely for documentation/reference.
+#     Raise `n_train_samples` toward the paper value if you have a GPU and
+#     time to spare.
+# =============================================================================
+
+random_seed: 42
+
+# ---------------------------------------------------------------------------
+# Simulation environment (Section IV-A)
+# ---------------------------------------------------------------------------
+simulation:
+  n_nodes: 12
+  n_transactions: 2300000
+  anomaly_rate: 0.05
+  n_runs: 10
+  transactions_per_run: 230000
+
+  organizations:
+    manufacturers: 3
+    distributors: 3
+    logistics: 2
+    regulators: 2
+    pharmacies: 2
+
+  anomaly_counts:
+    counterfeit_products: 23000
+    temperature_excursions: 46000
+    custody_breaks: 34500
+    tampered_packages: 11500
+    unauthorized_transfers: 5750
+
+# ---------------------------------------------------------------------------
+# Hyperledger Fabric network simulation (Table III)
+# ---------------------------------------------------------------------------
+blockchain:
+  n_nodes: 12
+  n_organizations: 5
+  consensus: "practical-byzantine-fault-tolerance"
+  block_time_seconds: 2.0
+
+  performance_targets:
+    # tps: [avg_latency_ms, avg_std_ms, p95_latency_ms, p95_std_ms, success_rate_pct]
+    - tps: 500
+      avg_latency_ms: 187
+      avg_latency_std_ms: 23
+      p95_latency_ms: 245
+      p95_latency_std_ms: 31
+      success_rate_pct: 100.0
+    - tps: 1000
+      avg_latency_ms: 234
+      avg_latency_std_ms: 31
+      p95_latency_ms: 312
+      p95_latency_std_ms: 42
+      success_rate_pct: 100.0
+    - tps: 1500
+      avg_latency_ms: 298
+      avg_latency_std_ms: 38
+      p95_latency_ms: 389
+      p95_latency_std_ms: 51
+      success_rate_pct: 100.0
+    - tps: 2000
+      avg_latency_ms: 356
+      avg_latency_std_ms: 44
+      p95_latency_ms: 467
+      p95_latency_std_ms: 58
+      success_rate_pct: 100.0
+    - tps: 2500
+      avg_latency_ms: 423
+      avg_latency_std_ms: 51
+      p95_latency_ms: 556
+      p95_latency_std_ms: 67
+      success_rate_pct: 99.98
+    - tps: 3000
+      avg_latency_ms: 512
+      avg_latency_std_ms: 63
+      p95_latency_ms: 689
+      p95_latency_std_ms: 82
+      success_rate_pct: 99.92
+
+# ---------------------------------------------------------------------------
+# LSTM demand forecasting (Section III-B)
+# ---------------------------------------------------------------------------
+lstm:
+  input_timesteps: 20
+  n_features: 15
+  units_layer1: 128
+  units_layer2: 64
+  dense_units: 32
+  dropout: 0.3
+  optimizer: "adam"
+  learning_rate: 0.001
+  loss_regression: "mse"
+  loss_classification: "binary_crossentropy"
+  early_stopping_patience: 10
+  batch_size: 64
+  max_epochs: 50
+
+  # Full paper-scale training set size (documentation only; see n_train_samples).
+  n_train_samples_paper: 1840000
+  n_val_samples_paper: 230000
+  n_test_samples_paper: 230000
+
+  # Laptop-tractable defaults actually used at runtime.
+  n_train_samples: 4000
+  n_val_samples: 500
+  n_test_samples: 500
+
+  target_metrics:
+    mape: 7.3
+    r2: 0.89
+    auc_roc: 0.94
+    f1: 0.86
+
+# ---------------------------------------------------------------------------
+# CNN packaging verification (Section III-B)
+# ---------------------------------------------------------------------------
+cnn:
+  base_model: "resnet50"
+  image_size: 224
+  # Actual tensor size used at runtime (kept small so training/inference on
+  # synthetic images is laptop-tractable). Raise toward image_size for a
+  # closer paper reproduction (requires more memory/time).
+  runtime_image_size: 64
+  # Fine-tune from ImageNet weights (downloaded via torchvision on first
+  # use) as the paper describes. Falls back to random initialization with a
+  # logged warning if no network access is available.
+  pretrained: true
+  dense_units_1: 256
+  dense_units_2: 128
+  dropout: 0.4
+  classes:
+    - "Authentic"
+    - "Hologram Mismatch"
+    - "Printing Defects"
+    - "Seal Broken"
+    - "Package Resealed"
+  quantized_target_mb: 32
+  target_inference_ms: 150
+
+  n_authentic_paper: 50000
+  n_tampered_paper: 50000
+
+  # Laptop-tractable defaults actually used at runtime (synthetic feature
+  # vectors standing in for 224x224x3 images, see ai_modules/cnn_verification.py).
+  n_authentic: 500
+  n_tampered_per_class: 125
+  batch_size: 32
+  max_epochs: 15
+  early_stopping_patience: 5
+
+  target_metrics:
+    Authentic: {precision: 0.992, recall: 0.994, f1: 0.993}
+    "Hologram Mismatch": {precision: 0.978, recall: 0.969, f1: 0.973}
+    "Printing Defects": {precision: 0.965, recall: 0.958, f1: 0.961}
+    "Seal Broken": {precision: 0.982, recall: 0.977, f1: 0.979}
+    "Package Resealed": {precision: 0.971, recall: 0.963, f1: 0.967}
+    weighted_avg: {precision: 0.983, recall: 0.981, f1: 0.982}
+
+# ---------------------------------------------------------------------------
+# Isolation Forest cold chain anomaly detection (Section III-B)
+# ---------------------------------------------------------------------------
+isolation_forest:
+  n_estimators: 100
+  max_samples: 256
+  contamination: 0.1
+  n_features: 15
+  warning_threshold: 0.7
+  critical_threshold: 0.9
+
+  n_train_readings_paper: 2000000
+  n_train_readings: 20000
+
+  anomaly_types:
+    - "Gradual Drift"
+    - "Sudden Spike"
+    - "Cyclic Variation"
+    - "Calibration Drift"
+    - "Door Opening"
+
+  target_metrics:
+    "Gradual Drift": {detection: 0.94, fpr: 0.03, latency_min: 12.3, latency_std_min: 4.7}
+    "Sudden Spike": {detection: 0.98, fpr: 0.02, latency_min: 0.8, latency_std_min: 0.3}
+    "Cyclic Variation": {detection: 0.91, fpr: 0.05, latency_min: 24.1, latency_std_min: 8.2}
+    "Calibration Drift": {detection: 0.87, fpr: 0.04, latency_min: 36.5, latency_std_min: 12.1}
+    "Door Opening": {detection: 0.99, fpr: 0.01, latency_min: 0.2, latency_std_min: 0.1}
+    overall: {detection: 0.94, fpr: 0.03, latency_min: 8.6, latency_std_min: 5.1}
+
+# ---------------------------------------------------------------------------
+# Product Trust Score (Section III-C)
+# ---------------------------------------------------------------------------
+pts:
+  components:
+    - "provenance_integrity"
+    - "temperature_compliance"
+    - "handling_quality"
+    - "verification_frequency"
+    - "age_shelf_life"
+    - "anomaly_history"
+    - "regulatory_status"
+    - "ai_confidence"
+
+  # w1=provenance_integrity, w2=temperature_compliance, w8=ai_confidence are
+  # specified explicitly per drug class; the remaining total is split evenly
+  # across the other 5 components (handling, verification, age, anomaly,
+  # regulatory).
+  drug_classes:
+    A:
+      name: "Class A - Critical Biologics"
+      examples: ["vaccines", "blood products", "gene therapies"]
+      w1_provenance_integrity: 0.25
+      w2_temperature_compliance: 0.35
+      w8_ai_confidence: 0.10
+      remaining_total: 0.30
+    B:
+      name: "Class B - Temperature-Sensitive"
+      examples: ["insulin", "certain antibiotics"]
+      w1_provenance_integrity: 0.25
+      w2_temperature_compliance: 0.30
+      w8_ai_confidence: 0.10
+      remaining_total: 0.35
+    C:
+      name: "Class C - Ambient-Stable"
+      examples: ["tablets", "capsules"]
+      w1_provenance_integrity: 0.35
+      w2_temperature_compliance: 0.15
+      w8_ai_confidence: 0.10
+      remaining_total: 0.40
+
+  alert_threshold: 0.75
+  quarantine_threshold: 0.50
+
+  sensitivity_analysis:
+    drug_class: "A"
+    varied_weights: ["w1_provenance_integrity", "w2_temperature_compliance"]
+    variation_pct: 0.15
+    n_steps: 7
+
+# ---------------------------------------------------------------------------
+# Baseline comparison (Table VI)
+# ---------------------------------------------------------------------------
+baseline_comparison:
+  Traditional:
+    detection_rate_pct: 23.4
+    localization_time_hours: 72.3
+    missed_detection_pct: 8.3
+  "Blockchain-Only":
+    detection_rate_pct: 41.7
+    localization_time_hours: 18.6
+    missed_detection_pct: 0.4
+  "AI-Only":
+    detection_rate_pct: 78.2
+    localization_time_hours: 4.2
+    missed_detection_pct: null
+  "BCT-AI":
+    detection_rate_pct: 96.8
+    localization_time_hours: 0.0783333  # 4.7 minutes
+    missed_detection_pct: 0.0
+
+# ---------------------------------------------------------------------------
+# Statistical validation (Section IV-C)
+# ---------------------------------------------------------------------------
+statistical_validation:
+  n_runs: 10
+  confidence_level: 0.95
+  counterfeit_detection_ttest:
+    t_statistic: 6.42
+    degrees_of_freedom: 9
+    p_value_max: 0.01
+  recall_efficiency_ttest:
+    t_statistic: 7.11
+    degrees_of_freedom: 9
+    p_value_max: 0.01
+
+# ---------------------------------------------------------------------------
+# Monte Carlo degradation bounds (Section IV-B)
+# ---------------------------------------------------------------------------
+monte_carlo:
+  sensor_drift:
+    perturbation_celsius: 1.5
+    baseline_detection: 0.940
+    degraded_detection: 0.907
+  mobile_image_variability:
+    baseline_detection: 0.968
+    degraded_detection: 0.939
+  adversarial_gan_counterfeits:
+    detection: 0.914
+  real_world_range: [0.91, 0.95]
+
+# ---------------------------------------------------------------------------
+# Output paths
+# ---------------------------------------------------------------------------
+paths:
+  results_dir: "results"
+  simulation_results_csv: "results/simulation_results.csv"
+  performance_metrics_json: "results/performance_metrics.json"

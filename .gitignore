@@ -1,0 +1,19 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+
+.env
+.venv/
+venv/
+env/
+
+*.log
+
+.DS_Store
+
+# Generated results are reproducible from the pipeline; keep the checked-in
+# baseline copies but ignore fresh local re-runs' large scratch artifacts.
+results/*.tmp

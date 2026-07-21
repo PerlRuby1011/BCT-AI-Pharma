@@ -1,0 +1,23 @@
+version: "3.9"
+
+services:
+  bct-ai-pharma:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./results:/app/results
+      - ./config:/app/config
+    command: ["python", "main.py"]
+
+  tests:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+    command: ["pytest", "-v"]
+    profiles:
+      - test
