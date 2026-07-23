@@ -1,4 +1,4 @@
-"""One-factor-at-a-time PTS sensitivity analysis (Section III-C, Table II).
+"""One-factor-at-a-time PTS sensitivity analysis (Table II).
 
 Varies the provenance-integrity weight (w1), temperature-compliance weight
 (w2), and AI-confidence weight (w8) for Class A biologics across three

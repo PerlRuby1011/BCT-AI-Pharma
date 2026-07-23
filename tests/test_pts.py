@@ -207,7 +207,7 @@ def test_vary_weight_preserves_simplex() -> None:
 
 
 def test_sensitivity_analysis_matches_table_ii() -> None:
-    """Table II (Section III-C, ``\\label{tab:pts_sensitivity}``) reports 18
+    """Table II (``\\label{tab:pts_sensitivity}``) reports 18
     PTS-sensitivity values for Class A biologics. Every cell's *sign* must
     match (this is always achievable: shifting weight onto a below-average
     dimension always reduces PTS, and onto an above-average dimension

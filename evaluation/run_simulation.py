@@ -200,7 +200,7 @@ def run_single_simulation_run(config: Dict[str, Any], seed: int) -> Dict[str, An
 
 
 def run_all_simulation_runs(config: Dict[str, Any]) -> list:
-    """Run all ``n_runs`` genuinely independent simulation runs (Section IV-C).
+    """Run all ``n_runs`` genuinely independent simulation runs.
 
     Uses seeds ``[base_seed, base_seed + 1, ..., base_seed + n_runs - 1]``
     (default base seed 42, matching ``config.yaml``'s ``random_seed``), so
@@ -359,7 +359,7 @@ def run_isolation_forest_pipeline(config: Dict[str, Any]) -> Dict[str, Any]:
 def simulate_sensor_drift_monte_carlo(
     if_results: Dict[str, Any], config: Dict[str, Any], n_samples: int = 1000, seed: int = 777
 ) -> Dict[str, Any]:
-    """Monte Carlo simulation of temperature-detection degradation under sensor drift (Section IV-B).
+    """Monte Carlo simulation of temperature-detection degradation under sensor drift.
 
     Models the paper's named "calibration drift (+/-0.5-1.2C over 12
     months)" mechanism: sensor drift corrupts the reference data a deployed
@@ -583,7 +583,7 @@ def simulate_adversarial_gan_monte_carlo(
 def run_monte_carlo_pipeline(
     config: Dict[str, Any], cnn_results: Dict[str, Any], isolation_forest_results: Dict[str, Any]
 ) -> Dict[str, Any]:
-    """Run all three genuine Monte Carlo degradation simulations (Section IV-B).
+    """Run all three genuine Monte Carlo degradation simulations.
 
     Args:
         config: Full project configuration.

@@ -1,9 +1,9 @@
 """Cold chain monitoring smart contract.
 
 Records Isolation Forest anomaly scores for temperature sensor readings and
-applies the paper's two-tier alerting policy: ``score > 0.7`` raises a
-warning to the logistics provider, ``score > 0.9`` triggers an automated
-critical quarantine (Section III-B).
+applies the paper's stated thresholds ("score > 0.7 warning, > 0.9 critical
+quarantine"): ``score > 0.7`` raises a warning to the logistics provider,
+``score > 0.9`` triggers an automated critical quarantine.
 """
 from __future__ import annotations
 

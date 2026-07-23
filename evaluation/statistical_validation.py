@@ -1,4 +1,4 @@
-"""Statistical validation across independent simulation runs (Section IV-C).
+"""Statistical validation across independent simulation runs.
 
 Runs paired t-tests between the BCT-AI framework and an AI-Only baseline
 across ``n_runs`` genuinely independent simulation runs (see

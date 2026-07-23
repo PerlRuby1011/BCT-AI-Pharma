@@ -1,4 +1,4 @@
-"""Baseline comparison across traceability approaches (Table VI).
+"""Baseline comparison across traceability approaches.
 
 Compares the integrated BCT-AI framework against a Traditional (centralized
 database + barcode) system, a Blockchain-Only system, and an AI-Only system

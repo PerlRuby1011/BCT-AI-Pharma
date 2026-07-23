@@ -2,7 +2,8 @@
 
 Records CNN packaging-verification results and Product Trust Score (PTS)
 updates on-chain, and automatically triggers product quarantine when
-``PTS < 0.50`` (Section III-C of the paper).
+``PTS < 0.50`` -- the paper states "values below 0.50 initiate automatic
+quarantine via smart contract execution."
 """
 from __future__ import annotations
 
