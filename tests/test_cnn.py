@@ -31,6 +31,33 @@ def test_generate_synthetic_packaging_images_shapes(small_config: CNNConfig) -> 
     assert images.min() >= 0.0 and images.max() <= 1.0
 
 
+def test_generate_synthetic_packaging_images_has_class_overlap(small_config: CNNConfig) -> None:
+    """A subset of each class's images should be blended toward an adjacent
+    class (not identical to a "pure" same-class image with only noise), so
+    classes are not trivially linearly separable -- otherwise a trained
+    classifier reaches a suspicious 1.000/1.000/1.000 (see
+    generate_synthetic_packaging_images docstring). Verified by comparing
+    per-class mean-pixel-value spread: overlap blending pulls some images'
+    mean color toward the adjacent class, so the per-class standard
+    deviation of mean-pixel-value should be measurably larger with overlap
+    on than with it off (both computed independently, not diffed against
+    each other, since differing overlap_factor consumes the RNG stream
+    differently and would otherwise misalign per-image comparisons)."""
+    n_per_class = 60
+
+    def per_class_mean_pixel_std(overlap_factor: float) -> float:
+        images, _, labels = generate_synthetic_packaging_images(
+            n_per_class, n_per_class, small_config, seed=1, overlap_factor=overlap_factor
+        )
+        mean_pixel = images.reshape(len(images), -1).mean(axis=1)
+        stds = [mean_pixel[labels == c].std() for c in np.unique(labels)]
+        return float(np.mean(stds))
+
+    std_no_overlap = per_class_mean_pixel_std(0.0)
+    std_with_overlap = per_class_mean_pixel_std(0.18)
+    assert std_with_overlap > std_no_overlap * 1.5
+
+
 def test_build_cnn_model_forward_pass(small_config: CNNConfig) -> None:
     import torch
 

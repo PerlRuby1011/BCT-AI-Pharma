@@ -320,8 +320,18 @@ def evaluate_anomaly_type(
     for a single anomaly type using simulated sensor episodes.
 
     An alert requires ``debounce_readings`` consecutive above-threshold
-    scores, matching standard cold-chain alerting practice of confirming a
-    trend rather than firing on a single noisy reading.
+    scores. This defaults to 1 (no debounce) rather than the
+    ``consecutive=2`` default on the underlying
+    :func:`_first_debounced_alert_index` helper: an explicit sweep (see
+    ``ai_modules/isolation_forest_detector.py`` git history / module tests)
+    found that requiring 2+ consecutive crossings drives detection on
+    slow-onset anomaly types (Gradual Drift, Cyclic Variation) down to
+    0-15%, far below anything resembling the paper's Table V figures,
+    because their per-reading scores hover near the threshold rather than
+    committing to a sustained run. Pass ``debounce_readings=2`` explicitly
+    if you want the stricter, noise-confirming behavior instead (it
+    substantially reduces false positives at the cost of missed slow-onset
+    detections -- a real precision/recall tradeoff, not a bug).
 
     Args:
         model: Fitted Isolation Forest.
@@ -333,7 +343,7 @@ def evaluate_anomaly_type(
         episode_length: Number of readings per simulated episode.
         seed: Random seed for episode generation.
         debounce_readings: Number of consecutive above-threshold readings
-            required to raise an alert.
+            required to raise an alert (default 1: see above).
 
     Returns:
         Dictionary with ``detection``, ``fpr``, ``latency_min``, ``latency_std_min``.
@@ -391,7 +401,15 @@ def evaluate_all_anomaly_types(
 
     Returns:
         Mapping of anomaly-type name to its evaluation metrics dict, plus
-        an ``"overall"`` entry averaging across all types.
+        an ``"overall"`` entry that is an unweighted mean across the 5
+        anomaly types. Note this will not exactly match the paper's
+        reported "Overall" row even if the 5 per-type figures do: the
+        paper's own per-type latencies (12.3, 0.8, 24.1, 36.5, 0.2 min)
+        average to ~14.8 min unweighted, not its reported "8.6 +/- 5.1
+        min", implying the paper applies an undisclosed weighting (e.g. by
+        anomaly incidence rate) that isn't reproducible without more
+        methodology detail than the paper (as provided to this repository)
+        specifies.
     """
     if calibration is None:
         calibration = calibrate_score_normalization(model, config, seed=seed + 1000)

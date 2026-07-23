@@ -1,0 +1,489 @@
+================================================================================
+BCT-AI-PHARMA — SCIENTIFIC REPRODUCIBILITY REVIEW (RE-RUN / PASS 2)
+vs. "Blockchain and Artificial Intelligence Integration for Secure
+Pharmaceutical Supply Chain Transparency" (IEEE BCCA 2026)
+================================================================================
+
+Ground truth used: overleaf ltex/overleaf_final_approved version.tex
+  (unchanged since Pass 1 — same file, same timestamp, re-confirmed)
+Repository reviewed: CODE/BCT-AI-Pharma
+Method: substantial code changes were detected since Pass 1 (fabric_network.py,
+  run_simulation.py, statistical_validation.py, pts_sensitivity_analysis.py,
+  isolation_forest_detector.py, config.yaml, utils.py, main.py, requirements.txt,
+  Dockerfile, CI workflow all modified; 5 new test files added). Every changed
+  file was re-read in full; unchanged files were confirmed unchanged by
+  timestamp and were not re-verified line-by-line a second time (their Pass-1
+  findings stand). The full pipeline (python main.py) was re-executed to get
+  fresh output reflecting all current code, and pytest was re-run (49/49 pass,
+  up from 25 in Pass 1).
+
+OVERALL VERDICT: SUBSTANTIALLY IMPROVED, BUT STILL NOT FULLY REPRODUCIBLE —
+AND ONE NEW, MORE SERIOUS PROBLEM HAS BEEN INTRODUCED.
+
+Since Pass 1, nearly every headline "fabricated computation" finding has been
+genuinely fixed: the 10 independent runs are now real, the statistical
+validation is now honestly computed (not solved backward from the target),
+Monte Carlo degradation is now actually simulated, and Raft/MSP/4-channel/
+82ms-overhead are now implemented and tested. This is a large, good-faith,
+competent piece of remediation work.
+
+However, in the one area that could NOT be honestly fixed — PTS sensitivity
+(Table II) — the response was to add a "Honesty note" to the code, config,
+README, and test suite claiming that "no such table exists in the paper as
+provided" and that the paper only reports one figure in a "Section 3.5.4"
+deferring to an "Appendix X". This is factually incorrect against the
+manuscript used as ground truth for this entire review (see CRITICAL finding
+in Section 5 below) — the paper's final approved .tex contains a complete
+Table II with all 6 weight-perturbation rows across 3 excursion-severity
+columns, exactly as reported in Pass 1. This claim appears in FOUR separate
+files and even cites this review's own Pass-1 report (review_report.txt) as
+supporting evidence, while mischaracterizing what that report said. This is
+a more serious integrity problem than the numeric mismatch it was written to
+explain away, because it could mislead the paper's own authors or a
+conference reviewer into believing Table II is unpublished or disputed.
+
+TOTAL FINDINGS THIS PASS: 14 critical, 8 minor, resolved-since-Pass-1 noted
+separately below.
+
+================================================================================
+PART A — RESOLVED SINCE PASS 1 (previously critical, now genuinely fixed)
+================================================================================
+
+[RESOLVED] "Only one simulation run occurs" (was: Section 1 critical #1/#2)
+  evaluation/run_simulation.py now has run_all_simulation_runs() /
+  run_single_simulation_run(), looping over 10 seeds (42..51), each
+  generating its OWN fresh 230,000-transaction dataset via
+  generate_transactions()/inject_anomalies() and computing real PTS-derived
+  counterfeit-detection/recall-efficiency values. Confirmed via fresh
+  results/simulation_results.csv: 10 rows, distinct seeds 42-51, genuinely
+  varying values row to row (counterfeit_detection_rate ranges 0.707-0.727
+  across runs, not identical). tests/test_evaluation.py explicitly asserts
+  different seeds produce different results.
+
+[RESOLVED] "Statistical validation is fabricated by construction"
+  (was: Section 7 headline critical finding)
+  The old _construct_paired_differences() (which algebraically solved for
+  data matching the paper's own t-statistic) is GONE. New
+  evaluation/statistical_validation.py:compute_statistical_validation_from_runs()
+  computes a genuine scipy.stats.ttest_rel() on the real per-run arrays from
+  the 10 independent runs above. The code and README both honestly disclose
+  that the resulting t-statistics will NOT match the paper's t(9)=6.42/7.11
+  and explain why (paper measured at 2.3M-transaction full scale; this
+  repository runs a laptop-scale equivalent). Actual fresh run: t=53.59
+  (counterfeit, p=1.4e-12), t=328.93 (recall, p=1.1e-19) — both far from the
+  paper's values, but now for an honest reason (real, very low run-to-run
+  variance in this simplified proxy model), not a fabricated one.
+
+[RESOLVED] "Monte Carlo degradation bounds are hardcoded, not simulated"
+  (was: Section 8, sole critical finding)
+  evaluation/run_simulation.py now implements three genuine simulations:
+    - simulate_sensor_drift_monte_carlo(): re-calibrates the trained
+      Isolation Forest against a clean vs. +/-1.5C-drift-corrupted reference
+      distribution and scores fresh episodes against both.
+    - simulate_mobile_image_variability_monte_carlo(): applies real
+      brightness-shift + capture-noise perturbation to freshly generated
+      images and reclassifies with the trained CNN.
+    - simulate_adversarial_gan_monte_carlo(): a genuine FGSM (Fast Gradient
+      Sign Method) adversarial attack against the trained CNN.
+  Fresh actual run: sensor drift 0.925->0.904 (paper: 0.940->0.907, close);
+  mobile image 1.000->0.922 (paper: 0.968->0.939, baseline is suspiciously
+  perfect -- see Part B); adversarial 1.000->0.945 (paper: 0.914 -- the
+  FGSM attack under-degrades relative to the paper's claim, again because
+  the underlying CNN baseline is trivially perfect on synthetic data).
+
+[RESOLVED] "No Raft consensus, no MSP identity, no 4 channels anywhere"
+  (was: Section 6, 2 critical findings)
+  blockchain/fabric_network.py now defines CHANNELS (manufacturing/
+  distribution/logistics/dispensing, each scoped to authorized org types),
+  a register_organization()/msp_registry mechanism, and
+  UnauthorizedChannelAccessError raised by simulate_channel_transaction()
+  for unregistered orgs or wrong org-type-for-channel. config.yaml:56 sets
+  consensus: "raft" (was "practical-byzantine-fault-tolerance"). All
+  covered by new tests/test_blockchain.py (channel presence, MSP
+  authorization/rejection, consensus name).
+
+[RESOLVED] "82ms AI-inference overhead is never added anywhere"
+  (was: Section 6 critical finding)
+  fabric_network.py:65 adds ai_inference_overhead_ms=82.0, and a new
+  ai_inference_latency_impact() method reproduces a blockchain-only vs.
+  BCT-AI-integrated comparison. Fresh actual run: blockchain-only 193.8ms,
+  BCT-AI-integrated 274.5ms, overhead 80.6ms (~82ms target, close).
+  NOTE: see Part C — the docstring's specific worked example ("182ms vs.
+  264ms", "Section 5.1.1") is fabricated and doesn't even match this actual
+  output.
+
+[RESOLVED] "Quarantine smart-contract call never invoked from the pipeline"
+  (was: Section 5 critical finding)
+  evaluation/run_simulation.py:run_pts_pipeline() now instantiates a real
+  CounterfeitDetectionContract and calls contract.invoke("register_product",
+  ...) / contract.invoke("update_trust_score", ...) for every sampled
+  product; quarantine/alert counts come from contract.get_quarantine_count()
+  / get_alert_count() (real ledger-history queries), not a bare array
+  comparison. blockchain/chaincode/counterfeit_detection.py was also
+  upgraded (status strings now "OK"/"ALERT"/"QUARANTINE", added
+  get_quarantine_count()/get_alert_count(), a status_updated_at timestamp).
+  Covered by tests/test_pts.py::test_pts_to_smart_contract_chain_for_three_products.
+  Fresh actual run: 600 products evaluated across drug classes A/B/C, 0
+  quarantined, 4 on alert (all Class C) in this particular random sample --
+  a legitimate outcome of the sampled product states, not a bug.
+
+[RESOLVED, PARTIALLY] "PTS sensitivity analysis missing w_AI sweep and
+  3-scenario structure" (was: Section 5, 2 critical findings)
+  pts/pts_sensitivity_analysis.py now sweeps all three weights (w1, w2, w8)
+  across three excursion scenarios (no/minor/major). The STRUCTURE is now
+  present. The VALUES are still substantially wrong -- see the new CRITICAL
+  finding in Part B/Section 5 below; this is not a full resolution.
+
+[RESOLVED] ".env.example variables are entirely non-functional"
+  (was: Section 10 minor finding)
+  utils.py now calls _load_dotenv() at import time and load_config() reads
+  BCT_AI_CONFIG_PATH / BCT_AI_RANDOM_SEED / BCT_AI_RESULTS_DIR as overrides;
+  get_logger() reads BCT_AI_LOG_LEVEL. New tests/test_utils.py (4 tests)
+  confirms this behavior, including that it round-trips correctly.
+
+[RESOLVED] "Missing torchvision / open-ended version bounds"
+  (was: Section 10, 2 minor findings)
+  requirements.txt now exact-pins the reproducibility-critical dependencies:
+  tensorflow==2.16.2, torch==2.2.2, torchvision==0.17.2, scikit-learn==1.6.1,
+  numpy==1.26.4, pandas==2.3.3, grad-cam==1.5.5 (matplotlib/seaborn/jupyter/
+  pyyaml/scipy remain >= -- acceptable, as these are visualization/utility,
+  not reproducibility-critical). A new requirements-dev.txt holds
+  pytest==8.4.2; Dockerfile and CI workflow both updated to install both
+  files.
+
+[RESOLVED] "Debounce logic implemented but silently disabled"
+  (was: Section 4 minor finding)
+  isolation_forest_detector.py:evaluate_anomaly_type()'s debounce_readings=1
+  default is now explicitly justified in the docstring as an empirically
+  chosen tradeoff (requiring 2+ consecutive crossings was tested and found
+  to crater detection on slow-onset anomaly types to 0-15%) rather than an
+  undocumented inconsistency. This is a documentation fix, not a behavior
+  change, but it resolves the "silently contradicts its own docstring"
+  concern from Pass 1.
+
+[RESOLVED] "Isolation Forest 'Overall' latency can't be reproduced by any
+  unweighted average" (was: Section 4 critical finding)
+  evaluate_all_anomaly_types()'s docstring now explicitly states this
+  exact finding (paper's 5 per-type latencies average to ~14.8 min
+  unweighted, not the reported 8.6+/-5.1 min) almost verbatim to Pass 1's
+  finding, crediting it as a known, disclosed limitation rather than a
+  silent gap.
+
+[RESOLVED] "Only 25 tests" -- now 49 tests, all passing (verified by
+  running pytest -q fresh in this session: "49 passed, 15 warnings").
+  Five new test files added: test_blockchain.py, test_evaluation.py,
+  test_monte_carlo.py, test_utils.py, plus test_pts.py substantially
+  expanded (3-scenario sensitivity coverage, smart-contract integration test).
+
+================================================================================
+PART B — STILL OPEN (unchanged from Pass 1, re-confirmed with fresh numbers)
+================================================================================
+
+[CRITICAL] LSTM/CNN/Isolation Forest actual-run metrics still diverge
+  substantially from Tables IV/V (ai_modules/lstm_forecasting.py,
+  cnn_verification.py unchanged since Pass 1; fresh pipeline run confirms
+  same magnitude of divergence):
+    LSTM:  MAPE 8.55% (target 7.3%), R^2 0.964 (target 0.89),
+           AUC-ROC 0.874 (target 0.94), F1 0.793 (target 0.86)
+    CNN:   weighted avg precision/recall/F1 = 1.000/1.000/1.000
+           (target 0.983/0.981/0.982 -- suspiciously perfect, a symptom of
+           the trivially-separable synthetic image proxy task)
+    Isolation Forest: detection 0.893 (target 0.94), FPR 0.000
+           (target 0.03 -- still suspiciously zero), latency 5.15+/-3.83 min
+           (target 8.6+/-5.1 min)
+
+[CRITICAL] CNN quantized model is still 90.5 MB against a 32 MB target
+  (results/performance_metrics.json -> cnn.quantization, fresh run). Inference
+  latency this run was 27.9ms (well under the 150ms budget, actually faster
+  than Pass 1's 91ms reading, likely hardware/JIT variance) -- but size is
+  unchanged and still ~2.8x over target.
+
+[CRITICAL] No ratio-based "4.1x" improvement metric is computed anywhere.
+  evaluation/baseline_comparison.py is UNCHANGED since Pass 1 (confirmed by
+  file timestamp and re-read) -- compute_relative_improvement() still only
+  produces percentage-point differences and time-reduction-factor ratios,
+  never a detection-rate ratio. The paper's own claim ("96.8%... a 4.1x
+  improvement over blockchain-only") still doesn't reconcile with its own
+  Table VI: 96.8/41.7 ~= 2.32x, while 96.8/23.4 (Traditional) ~= 4.14x ~=
+  "4.1x" -- the ratio matches the wrong baseline in the paper's own table.
+
+[CRITICAL] "Recall localization across 847 locations... in 2.8 minutes" still
+  has no corresponding computation anywhere in the repository (re-confirmed:
+  grep for "847" across all .py/.yaml files in this pass returns zero
+  matches outside this review's own commentary).
+
+[CRITICAL] No "priority-aware routing" or "cross-channel coordination"
+  chaincode mechanism exists. The new CHANNELS/MSP work in
+  blockchain/fabric_network.py adds a genuine per-channel AUTHORIZATION
+  boundary (a real improvement -- see Part A), but nothing in the codebase
+  routes a transaction by priority or coordinates state across multiple
+  channels for a single product's lifecycle (grep for "priority" and
+  "cross_channel"/"cross-channel" across all .py files: zero matches).
+
+[CRITICAL] results/simulation_results.csv still does not contain the
+  2.3M-row transaction-level dataset. It is now a genuine 10-row per-run
+  summary table (a real improvement over Pass 1's fabricated 10 rows), but
+  it is still a summary, not the underlying per-transaction ledger, which
+  is generated in memory and discarded, never written to disk anywhere.
+
+[MINOR] Blockchain Table III's underlying mechanism is still fundamentally
+  "sample latency from N(paper's own target mean, paper's own target std)",
+  now layered with a node-count-linear term (0.5ms/node) and the 82ms AI
+  overhead. This is a real refinement (node count now demonstrably affects
+  the output, per tests/test_blockchain.py::test_node_count_affects_latency)
+  but it is still not a first-principles queueing/consensus latency model --
+  n_nodes and channel topology still do not drive the simulation the way an
+  actual Fabric benchmark would. Downgraded from Pass 1's "critical" rating
+  to "minor" given the genuine (if simplistic) node-sensitivity now present.
+
+[MINOR] The "two-day response time -> real-time (<1 sec)" DSCSA claim is
+  still not measured as an explicit end-to-end metric anywhere; it remains
+  inferred narratively from the (now somewhat more principled, but still
+  partially target-anchored) Table III latencies.
+
+================================================================================
+PART C — NEW ISSUES INTRODUCED SINCE PASS 1 (found only in this re-review)
+================================================================================
+
+[CRITICAL -- HEADLINE FINDING OF THIS PASS]
+File: pts/pts_sensitivity_analysis.py:10-37 (module docstring)
+      config/config.yaml:264-272 (comment)
+      README.md:61-67
+      tests/test_pts.py:209-215 (docstring)
+
+The codebase now asserts, in FOUR separate places, that "the PDF copy of the
+paper supplied to build this repository gives exactly one quantitative
+sensitivity figure in Section 3.5.4... and refers to 'Appendix X' for full
+curves, which is not present in that PDF," and that "no such table [Table
+II] exists in the paper as provided."
+
+CODE SAYS: Table II does not exist in the source paper; only one sensitivity
+  figure (~-0.08 under "Section 3.5.4") is published.
+
+PAPER SAYS (overleaf ltex/overleaf_final_approved version.tex, lines 325-342,
+  confirmed present and UNCHANGED since Pass 1 -- same file, same byte size,
+  same timestamp as originally verified):
+
+    \begin{table}[htbp]
+    \caption{PTS Sensitivity Analysis --- Class A Biologics}
+    \label{tab:pts_sensitivity}
+    ...
+    w_temp (0.35)  +10%   -0.02   -0.08   -0.19
+    w_temp (0.35)  -10%   +0.02   +0.07   +0.17
+    w_prov (0.25)  +10%   -0.01   -0.03   -0.06
+    w_prov (0.25)  -10%   +0.01   +0.03   +0.05
+    w_AI   (0.10)  +10%   +0.01   -0.02   -0.04
+    w_AI   (0.10)  -10%   -0.01   +0.01   +0.03
+
+  -- a complete 6-row x 3-column ("No Exc." / "Minor" / "Major") table,
+  exactly as reported and used throughout Pass 1 of this review. The paper
+  also has no numbered subsections at all (it uses named \subsection{Product
+  Trust Score}, not "Section 3.5.4" -- confirmed by grep, zero matches for
+  "3.5.4" or "3\.5\.4" anywhere in the source).
+
+SEVERITY: CRITICAL. This is worse than a numeric mismatch: it is the
+  codebase asserting something demonstrably false about its own primary
+  source of truth, in a way that could mislead the paper's own authors or a
+  BCCA 2026 reviewer into believing Table II is unpublished, fabricated, or
+  in dispute. The claim also cites this review's own Pass-1 report
+  (review_report.txt) by name as supporting evidence, while
+  mischaracterizing its conclusion -- Pass 1 never claimed Table II doesn't
+  exist; it only found the code couldn't reproduce it (a very different
+  claim). Whoever performed this remediation appears to have consulted a
+  different, older, or incomplete PDF extraction of the manuscript instead
+  of the final-approved LaTeX source this review has used throughout (which
+  is the most recently modified copy in the manuscript folder, explicitly
+  named "final_approved"). RECOMMENDATION: remove this claim from all four
+  files and either (a) actually fix the sensitivity module to reproduce
+  Table II, or (b) if that is judged infeasible, disclose the gap honestly
+  ("this module does not yet reproduce Table II's exact magnitudes") without
+  disputing the table's existence.
+
+[CRITICAL] The PTS sensitivity numbers that DO get computed are still
+  substantially wrong -- now with a misleading justification layered on top.
+File: pts/pts_sensitivity_analysis.py (verified by running
+  run_sensitivity_analysis()/summarize_sensitivity() directly, this pass)
+
+CODE (actual fresh run), delta per +10 percentage-point weight increase:
+                          no_excursion   minor_excursion   major_excursion
+  w_prov (provenance)     -0.0013        +0.0396           +0.0099
+  w_temp (temperature)    +0.0016        -0.0829            -0.0394
+  w_AI   (ai_confidence)  -0.0028        +0.0331            +0.0160
+
+PAPER (Table II, +10% direction):
+                          No Exc.        Minor             Major
+  w_prov                  -0.01          -0.03             -0.06
+  w_temp                  -0.02          -0.08             -0.19
+  w_AI                    +0.01          -0.02             -0.04
+
+Only ONE of these nine cells (w_temp / minor excursion: -0.083 vs. paper's
+-0.08) is close -- and the code's own docstring admits the "minor
+excursion" scenario was deliberately hand-calibrated to hit that one number.
+Every other cell is off by a wide margin, and critically, 5 of the 8
+remaining cells have the WRONG SIGN relative to Table II: w_prov is
+wrong-signed in both minor (+0.040 vs. -0.03) and major (+0.010 vs. -0.06)
+excursion; w_AI is wrong-signed in no-excursion (-0.003 vs. +0.01), minor
+(+0.033 vs. -0.02), and major (+0.016 vs. -0.04). This is effectively the
+same defect flagged in Pass 1, now re-packaged with an explanation (see
+finding above) for why it is supposedly not the code's fault.
+
+[MINOR -- fabricated quote] Raft-selection rationale attributed to the paper
+File: config/config.yaml:53-55
+CODE: comment quotes "The Raft protocol was selected to balance crash fault
+  tolerance with high transaction throughput in a permissioned enterprise
+  environment."
+PAPER: contains no such sentence (confirmed by grep for "crash fault" and
+  "balance crash" -- zero matches). The paper's actual, much shorter
+  statement is: "Hyperledger Fabric was selected over public alternatives
+  for its channel-based privacy, pluggable Raft consensus, built-in
+  Membership Service Provider identity management, and enterprise-grade
+  throughput."
+
+[MINOR -- fabricated citation, internally inconsistent with its own code]
+File: blockchain/fabric_network.py:13-16, 206-211
+CODE: cites a paper section "5.1.1" and a specific comparison "Blockchain-
+  only 182 ms vs. BCT-AI Integrated 264 ms."
+PAPER: contains neither figure nor any numbered subsection (confirmed by
+  grep for "182", "264", "5.1.1" -- zero matches; the paper's subsections
+  are named, not numbered).
+ADDITIONALLY: even the code's own actual computed output does not match its
+  invented reference numbers -- this pass's real run of
+  ai_inference_latency_impact() produced blockchain-only=193.8ms,
+  BCT-AI-integrated=274.5ms, nowhere near the docstring's invented
+  "182/264."
+
+[MINOR -- performance regression] Making the 10 runs genuinely independent
+  (a correct, necessary fix) introduced a per-transaction Python for-loop
+  (evaluation/run_simulation.py:_detection_and_recall, one ProductState +
+  compute_pts() call per anomalous/counterfeit transaction row, ~14,000
+  iterations x 10 runs) that measurably slows the pipeline. A full
+  `python main.py` run in this review exceeded a 10-minute foreground
+  execution window (it did complete when left running in the background).
+  README.md still states the pipeline "finishes in a few minutes on a
+  CPU-only machine" -- worth re-verifying/updating, or vectorizing the loop.
+
+================================================================================
+UPDATED KEY NUMBERS (this pass's actual fresh pipeline run vs. Pass 1)
+================================================================================
+Metric                          Pass 1 (fabricated/stale)   Pass 2 (fresh, honest)   Paper target
+LSTM MAPE / R^2                 8.55% / 0.964               8.55% / 0.964            7.3% / 0.89
+LSTM AUC-ROC / F1                0.874 / 0.793               0.874 / 0.793            0.94 / 0.86
+CNN weighted P/R/F1              1.0/1.0/1.0                 1.0/1.0/1.0              0.983/0.981/0.982
+CNN quantized size / latency     90.5MB / 91.0ms             90.5MB / 27.9ms          32MB / <150ms
+Isolation Forest overall D/FPR/L 0.933/0.000/4.76min         0.893/0.000/5.15min      0.94/0.03/8.6min
+Counterfeit t-test               t=6.42 (by construction)    t=53.59 (real, p=1.4e-12) t(9)=6.42
+Recall-efficiency t-test         t=7.11 (by construction)    t=328.93 (real, p=1.1e-19) t(9)=7.11
+AI inference overhead            not implemented             80.6ms (real)            82ms
+Monte Carlo sensor drift         hardcoded passthrough       0.925->0.904 (real)      0.940->0.907
+Monte Carlo mobile image         hardcoded passthrough       1.000->0.922 (real)      0.968->0.939
+Monte Carlo adversarial          hardcoded passthrough       1.000->0.945 (real)      0.914
+PTS quarantine (600 sampled)     not wired to chaincode      0 quarantined, 4 alert   n/a (mechanism check)
+Pytest suite                     25 passed                   49 passed                n/a
+
+================================================================================
+SUMMARY BY SECTION (Pass 2 status)
+================================================================================
+Section                          Status
+1  Simulation Environment          RESOLVED -- genuine 10 independent runs now exist
+2  LSTM Forecasting                UNCHANGED -- same divergence as Pass 1 (file untouched)
+3  CNN Verification                UNCHANGED -- same divergence as Pass 1 (file untouched)
+4  Isolation Forest                MOSTLY RESOLVED -- honest documentation added; numeric
+                                    gap vs. Table V remains
+5  Product Trust Score             MIXED -- quarantine wiring fixed; sensitivity analysis
+                                    still wrong AND now disputes the paper's own Table II
+6  Blockchain Simulation           MOSTLY RESOLVED -- Raft/MSP/channels/82ms all now real;
+                                    Table III still fundamentally target-sampled
+7  Statistical Validation          RESOLVED -- no longer fabricated; genuinely computed
+                                    (values differ from paper, honestly disclosed)
+8  Monte Carlo Degradation         RESOLVED -- genuinely simulated (was hardcoded passthrough)
+9  Results Output Files            PARTIALLY RESOLVED -- real per-run data, still no raw
+                                    2.3M-row transaction ledger persisted
+10 Reproducibility Docs            RESOLVED -- env vars wired, deps pinned, 49/49 tests pass
+11 DSCSA Compliance                MOSTLY RESOLVED -- MSP/identity now real; <1sec claim
+                                    still not directly measured
+
+================================================================================
+PRIORITIZED FIX LIST (Pass 2)
+================================================================================
+
+TIER 1 -- FIX BEFORE SUBMISSION
+--------------------------------------------------------------------------------
+1. Remove the "Table II doesn't exist in the paper" claim from
+   pts/pts_sensitivity_analysis.py, config.yaml, README.md, and
+   tests/test_pts.py. The claim is false against the manuscript this review
+   (and presumably the actual submission) uses. Either fix the sensitivity
+   module to genuinely reproduce Table II's 6x3 grid, or honestly state
+   "this module does not yet reproduce Table II" without disputing the
+   table's existence.
+
+2. Fix the PTS sensitivity magnitudes and signs. 5 of 9 computed ΔPTS values
+   are wrong-signed relative to Table II; only 1 of 9 is close, and that one
+   was hand-calibrated to match. This needs a real methodological fix (e.g.
+   re-deriving the "no/minor/major excursion" product states from the
+   paper's actual severity definitions), not another docstring.
+
+3. Fix the two fabricated quotes/citations (Raft-selection rationale in
+   config.yaml:53-55; "Section 5.1.1"/"182ms vs. 264ms" in
+   fabric_network.py:13-16,206-211). Replace with the paper's actual
+   language or remove the quotation marks and cite it as an engineering
+   rationale, not a paper quote.
+
+4. Implement the "847 locations in 2.8 minutes" recall-localization metric,
+   and either implement a genuine ratio-based improvement metric matching
+   the paper's "4.1x" claim or flag the paper's own Table VI inconsistency
+   (4.1x matches Traditional, not Blockchain-Only) for correction in the
+   manuscript.
+
+TIER 2 -- SCIENTIFIC TIGHTNESS
+--------------------------------------------------------------------------------
+5. LSTM/CNN/Isolation Forest actual-run metrics still diverge from Tables
+   IV-V at default scale; CNN weighted-avg is still a suspicious perfect
+   1.0/1.0/1.0 (synthetic proxy task is too easy). Consider a harder
+   synthetic discrimination task or explicit "achieved this run" vs. "paper
+   target" labeling in the README/JSON.
+6. CNN quantized model still 90.5MB vs. 32MB target -- revisit quantization
+   strategy (static int8, pruning).
+7. Vectorize or otherwise speed up the per-transaction PTS loop in
+   run_single_simulation_run()/_detection_and_recall() -- the genuine
+   10-run fix is scientifically correct but now makes `python main.py` slow
+   enough to challenge the README's "a few minutes" claim.
+8. Persist (or clearly document the absence of) the raw 2.3M-transaction
+   dataset in results/ -- simulation_results.csv is a real per-run summary
+   now, but still not the underlying ledger.
+9. Implement a genuine cross-channel-coordination / priority-routing
+   chaincode mechanism, or scope down the DSCSA/Fig.-1 claims that imply one.
+
+================================================================================
+CLAIMS THE CODE STILL CANNOT SUPPORT
+================================================================================
+- "Recall localization across 847 locations... in 2.8 minutes"
+    -> No corresponding computation anywhere in the repo (unchanged).
+- "4.1x improvement over blockchain-only"
+    -> No ratio metric computed; still arithmetically inconsistent with the
+       paper's own Table VI (unchanged).
+- Table II's exact PTS sensitivity magnitudes (and now, its very existence,
+  per the codebase's own new -- and incorrect -- claim)
+    -> Not reproducible by the shipped code; the code additionally now
+       disputes that the target it should reproduce exists.
+- t(9)=6.42 / t(9)=7.11 exact statistical figures
+    -> No longer claimed to be reproduced (correctly, honestly disclosed as
+       full-scale-only results); this repository's laptop-scale runs
+       produce different, genuinely computed t-statistics instead.
+- "Two-day response time -> real-time (<1 sec)"
+    -> Still not measured as an explicit end-to-end metric.
+- "Quantized model: 32 MB"
+    -> Actual quantized model still measures 90.5 MB.
+- "Raft protocol was selected to balance crash fault tolerance..." (quoted
+  in config.yaml) and "Blockchain-only 182 ms vs. BCT-AI Integrated 264 ms"
+  / "Section 5.1.1" (quoted in fabric_network.py)
+    -> NEW: neither appears anywhere in the paper; both are fabricated.
+
+================================================================================
+END OF RE-RUN REPORT
+Reviewed repository: CODE/BCT-AI-Pharma (state as of this session)
+Ground-truth manuscript: overleaf ltex/overleaf_final_approved version.tex
+  (unchanged since Pass 1)
+Verified by direct file inspection of every changed file, live execution of
+pytest (49/49 passed), a full fresh execution of python main.py, and direct
+execution of pts.pts_sensitivity_analysis.run_sensitivity_analysis().
+================================================================================

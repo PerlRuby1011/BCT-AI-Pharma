@@ -6,9 +6,13 @@ updates on-chain, and automatically triggers product quarantine when
 """
 from __future__ import annotations
 
-from typing import Any, Dict
+from datetime import datetime, timezone
+from typing import Any, Dict, Set
 
 from blockchain.chaincode.smart_contract_base import SmartContractBase
+from utils import get_logger
+
+logger = get_logger(__name__)
 
 QUARANTINE_THRESHOLD = 0.50
 ALERT_THRESHOLD = 0.75
@@ -74,7 +78,7 @@ class CounterfeitDetectionContract(SmartContractBase):
             "product_id": product_id,
             "drug_class": drug_class,
             "manufacturer": manufacturer,
-            "status": "active",
+            "status": "OK",
             "trust_score": 1.0,
             "verification_count": 0,
             "cnn_authenticity_scores": [],
@@ -111,13 +115,20 @@ class CounterfeitDetectionContract(SmartContractBase):
     def update_trust_score(self, product_id: str, trust_score: float) -> Dict[str, Any]:
         """Update a product's PTS and apply automated quarantine/alert logic.
 
+        Implements the paper's rule that "values below 0.50 initiate
+        automatic quarantine via smart contract execution": products with
+        ``trust_score < quarantine_threshold`` are quarantined,
+        ``quarantine_threshold <= trust_score < alert_threshold`` raises a
+        quality alert, otherwise the product remains clear.
+
         Args:
             product_id: Product whose trust score is being updated.
             trust_score: New Product Trust Score in [0, 1].
 
         Returns:
-            The updated product state record, including ``status`` set to
-            one of ``"quarantined"``, ``"alert"``, or ``"active"``.
+            The updated product state record, with ``status`` set to one of
+            ``"QUARANTINE"``, ``"ALERT"``, or ``"OK"``, and a
+            ``status_updated_at`` timestamp.
 
         Raises:
             KeyError: If the product has not been registered.
@@ -129,12 +140,25 @@ class CounterfeitDetectionContract(SmartContractBase):
 
         record["trust_score"] = trust_score
         if trust_score < self.quarantine_threshold:
-            record["status"] = "quarantined"
+            record["status"] = "QUARANTINE"
+            logger.warning(
+                "Product %s QUARANTINED: PTS=%.4f < threshold %.2f",
+                product_id,
+                trust_score,
+                self.quarantine_threshold,
+            )
         elif trust_score < self.alert_threshold:
-            record["status"] = "alert"
+            record["status"] = "ALERT"
+            logger.info(
+                "Product %s flagged ALERT: PTS=%.4f < threshold %.2f",
+                product_id,
+                trust_score,
+                self.alert_threshold,
+            )
         else:
-            record["status"] = "active"
+            record["status"] = "OK"
 
+        record["status_updated_at"] = datetime.now(timezone.utc).isoformat()
         self.put_state(key, record)
         return record
 
@@ -154,3 +178,39 @@ class CounterfeitDetectionContract(SmartContractBase):
         if record is None:
             raise KeyError(f"Product {product_id} is not registered")
         return record
+
+    def get_quarantine_count(self) -> int:
+        """Count distinct products quarantined at least once this session.
+
+        Scans the ledger's ``update_trust_score`` invocation history (not
+        just current world state) so a product that was later re-verified
+        and cleared still counts as having been quarantined this session.
+
+        Returns:
+            Number of distinct product IDs quarantined this session.
+        """
+        quarantined_ids: Set[str] = {
+            tx.args["product_id"]
+            for tx in self.get_ledger_history("update_trust_score")
+            if isinstance(tx.result, dict) and tx.result.get("status") == "QUARANTINE"
+        }
+        return len(quarantined_ids)
+
+    def get_alert_count(self) -> int:
+        """Count distinct products flagged for alert (not quarantine) this session.
+
+        Returns:
+            Number of distinct product IDs whose most severe status this
+            session was ``"ALERT"`` (excludes products that also hit
+            ``"QUARANTINE"`` at some point, to avoid double-counting).
+        """
+        alerted_ids: Set[str] = {
+            tx.args["product_id"]
+            for tx in self.get_ledger_history("update_trust_score")
+            if isinstance(tx.result, dict) and tx.result.get("status") == "ALERT"
+        }
+        return len(alerted_ids - {
+            tx.args["product_id"]
+            for tx in self.get_ledger_history("update_trust_score")
+            if isinstance(tx.result, dict) and tx.result.get("status") == "QUARANTINE"
+        })

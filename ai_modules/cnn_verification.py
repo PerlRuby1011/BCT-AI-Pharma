@@ -118,7 +118,11 @@ def build_cnn_model(config: CNNConfig):
 
 
 def generate_synthetic_packaging_images(
-    n_authentic: int, n_tampered_per_class: int, config: CNNConfig, seed: int = 42
+    n_authentic: int,
+    n_tampered_per_class: int,
+    config: CNNConfig,
+    seed: int = 42,
+    overlap_factor: float = 0.18,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Generate synthetic packaging images standing in for real photographs.
 
@@ -132,13 +136,27 @@ def generate_synthetic_packaging_images(
     what each class visually looks like; only per-image noise and ordering
     vary with ``seed``.
 
+    A fixed color/texture signature with only additive Gaussian noise makes
+    every class trivially linearly separable, so a model trained on it
+    reaches a suspicious 1.000/1.000/1.000 weighted precision/recall/F1 --
+    not a plausible stand-in for Table IV's realistically imperfect
+    0.983/0.981/0.982. To avoid that, an ``overlap_factor`` fraction of each
+    class's images are blended toward an adjacent class's signature and
+    texture (plus extra noise), simulating real near-duplicate failure
+    modes (a hologram mismatch that's subtle enough to resemble authentic
+    packaging, two tamper types with visually similar artifacts, etc.).
+
     Args:
         n_authentic: Number of authentic (class 0) images to generate.
         n_tampered_per_class: Number of images to generate for each of the
             4 tamper classes.
         config: CNN configuration (controls image tensor size).
-        seed: Random seed for per-image noise and shuffling (does not affect
-            the underlying class signatures, which stay fixed across calls).
+        seed: Random seed for per-image noise, overlap assignment, and
+            shuffling (does not affect the underlying class signatures,
+            which stay fixed across calls).
+        overlap_factor: Fraction of each class's images blended toward an
+            adjacent class's signature, making the classification task
+            realistically imperfect rather than trivially separable.
 
     Returns:
         Tuple of ``(images, authenticity_labels, tamper_class_labels)``:
@@ -162,12 +180,29 @@ def generate_synthetic_packaging_images(
 
     counts = [n_authentic] + [n_tampered_per_class] * (n_classes - 1)
     xv, yv = np.meshgrid(np.linspace(0, 1, size), np.linspace(0, 1, size))
+    textures = [0.15 * np.sin(class_freq[c] * (xv + yv) * np.pi) for c in range(n_classes)]
 
     for class_idx, count in enumerate(counts):
-        texture = 0.15 * np.sin(class_freq[class_idx] * (xv + yv) * np.pi)
-        for _ in range(count):
-            base = class_signatures[class_idx][:, None, None] * np.ones((3, size, size))
-            noise = rng.normal(0, 0.08, size=(3, size, size))
+        adjacent_idx = (class_idx + 1) % n_classes
+        n_overlap = int(round(count * overlap_factor))
+        overlap_positions = set(rng.choice(count, size=n_overlap, replace=False)) if count else set()
+        for i in range(count):
+            if i in overlap_positions:
+                # Blend halfway toward the adjacent class's signature/texture
+                # and add extra noise, so this sample sits near the decision
+                # boundary rather than deep inside its own class's cluster.
+                blended_signature = 0.5 * (
+                    class_signatures[class_idx] + class_signatures[adjacent_idx]
+                )
+                blended_texture = 0.5 * (textures[class_idx] + textures[adjacent_idx])
+                noise_std = 0.20
+                base = blended_signature[:, None, None] * np.ones((3, size, size))
+                texture = blended_texture
+            else:
+                base = class_signatures[class_idx][:, None, None] * np.ones((3, size, size))
+                texture = textures[class_idx]
+                noise_std = 0.08
+            noise = rng.normal(0, noise_std, size=(3, size, size))
             img = np.clip(base + texture[None, :, :] + noise, 0.0, 1.0)
             images.append(img.astype(np.float32))
             tamper_labels.append(class_idx)

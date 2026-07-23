@@ -19,41 +19,46 @@
   "blockchain_performance": [
     {
       "tps_target": 500,
-      "avg_latency_ms": 185.73189608392858,
-      "p95_latency_ms": 223.3317207633703,
+      "avg_latency_ms": 191.73189608392858,
+      "p95_latency_ms": 229.3317207633703,
       "success_rate_pct": 100.0
     },
     {
       "tps_target": 1000,
-      "avg_latency_ms": 234.33387606148713,
-      "p95_latency_ms": 285.9122456938483,
+      "avg_latency_ms": 240.33387606148713,
+      "p95_latency_ms": 291.9122456938483,
       "success_rate_pct": 100.0
     },
     {
       "tps_target": 1500,
-      "avg_latency_ms": 297.3301482099891,
-      "p95_latency_ms": 360.39734834751175,
+      "avg_latency_ms": 303.3301482099891,
+      "p95_latency_ms": 366.39734834751175,
       "success_rate_pct": 100.0
     },
     {
       "tps_target": 2000,
-      "avg_latency_ms": 355.6805076644612,
-      "p95_latency_ms": 431.4055096123934,
+      "avg_latency_ms": 361.6805076644612,
+      "p95_latency_ms": 437.4055096123934,
       "success_rate_pct": 100.0
     },
     {
       "tps_target": 2500,
-      "avg_latency_ms": 425.8137711264499,
-      "p95_latency_ms": 509.66947623387233,
+      "avg_latency_ms": 431.8137711264499,
+      "p95_latency_ms": 515.6694762338723,
       "success_rate_pct": 100.0
     },
     {
       "tps_target": 3000,
-      "avg_latency_ms": 513.646307824146,
-      "p95_latency_ms": 619.6886211072384,
+      "avg_latency_ms": 519.646307824146,
+      "p95_latency_ms": 625.6886211072384,
       "success_rate_pct": 100.0
     }
   ],
+  "ai_inference_latency_impact": {
+    "blockchain_only_ms": 193.82522453893446,
+    "bct_ai_integrated_ms": 274.47095688632504,
+    "overhead_ms": 80.64573234739058
+  },
   "lstm": {
     "metrics": {
       "mape": 8.547163754701614,
@@ -71,19 +76,19 @@
   "cnn": {
     "metrics": {
       "Authentic": {
-        "precision": 1.0,
+        "precision": 0.8620689655172413,
         "recall": 1.0,
-        "f1": 1.0
+        "f1": 0.9259259259259259
       },
       "Hologram Mismatch": {
         "precision": 1.0,
-        "recall": 1.0,
-        "f1": 1.0
+        "recall": 0.88,
+        "f1": 0.9361702127659575
       },
       "Printing Defects": {
         "precision": 1.0,
-        "recall": 1.0,
-        "f1": 1.0
+        "recall": 0.96,
+        "f1": 0.9795918367346939
       },
       "Seal Broken": {
         "precision": 1.0,
@@ -96,9 +101,9 @@
         "f1": 1.0
       },
       "weighted_avg": {
-        "precision": 1.0,
-        "recall": 1.0,
-        "f1": 1.0
+        "precision": 0.9724137931034482,
+        "recall": 0.968,
+        "f1": 0.9683375950853155
       }
     },
     "target_metrics": {
@@ -135,16 +140,16 @@
     },
     "quantization": {
       "model_size_mb": 90.51430320739746,
-      "inference_latency_ms": 91.03752884998357
+      "inference_latency_ms": 18.171226950005348
     }
   },
   "isolation_forest": {
     "metrics": {
       "Gradual Drift": {
-        "detection": 0.9333333333333333,
+        "detection": 0.8333333333333334,
         "fpr": 0.0,
-        "latency_min": 9.22857142857143,
-        "latency_std_min": 1.2475281682640458
+        "latency_min": 9.768,
+        "latency_std_min": 1.0758141103369114
       },
       "Sudden Spike": {
         "detection": 1.0,
@@ -155,14 +160,14 @@
       "Cyclic Variation": {
         "detection": 1.0,
         "fpr": 0.0,
-        "latency_min": 1.6400000000000001,
-        "latency_std_min": 1.4499655168313488
+        "latency_min": 2.6199999999999988,
+        "latency_std_min": 2.5478618486880333
       },
       "Calibration Drift": {
-        "detection": 0.7333333333333333,
+        "detection": 0.6333333333333333,
         "fpr": 0.0,
-        "latency_min": 8.918181818181818,
-        "latency_std_min": 1.8806759818640562
+        "latency_min": 9.357894736842105,
+        "latency_std_min": 1.856515068467257
       },
       "Door Opening": {
         "detection": 1.0,
@@ -171,10 +176,10 @@
         "latency_std_min": 0.0
       },
       "overall": {
-        "detection": 0.9333333333333333,
+        "detection": 0.8933333333333333,
         "fpr": 0.0,
-        "latency_min": 4.75735064935065,
-        "latency_std_min": 3.7477505666735196
+        "latency_min": 5.149178947368421,
+        "latency_std_min": 3.828268505361305
       }
     },
     "target_metrics": {
@@ -221,124 +226,483 @@
       "A": {
         "mean_pts": 0.8690745537900111,
         "std_pts": 0.035650233935440936,
-        "alert_count": 0,
-        "quarantine_count": 0,
-        "n_samples": 200
+        "n_samples": 200,
+        "products_evaluated": 200,
+        "products_quarantined": 0,
+        "products_on_alert": 0,
+        "products_clear": 200
       },
       "B": {
         "mean_pts": 0.8637579709598452,
         "std_pts": 0.039931285276292305,
-        "alert_count": 0,
-        "quarantine_count": 0,
-        "n_samples": 200
+        "n_samples": 200,
+        "products_evaluated": 200,
+        "products_quarantined": 0,
+        "products_on_alert": 0,
+        "products_clear": 200
       },
       "C": {
         "mean_pts": 0.8334722355907346,
         "std_pts": 0.04298735868334773,
-        "alert_count": 4,
-        "quarantine_count": 0,
-        "n_samples": 200
+        "n_samples": 200,
+        "products_evaluated": 200,
+        "products_quarantined": 0,
+        "products_on_alert": 4,
+        "products_clear": 196
       }
     },
     "sensitivity_summary": {
-      "provenance_integrity": {
-        "pts_at_baseline": 0.9135530846597146,
-        "pts_delta_per_10pct": -0.00025568499170047776
+      "no_excursion": {
+        "provenance_integrity": {
+          "pts_at_baseline": 0.8032333333333334,
+          "pts_delta_per_10pp": -0.010564444444444598
+        },
+        "temperature_compliance": {
+          "pts_at_baseline": 0.8032333333333335,
+          "pts_delta_per_10pp": -0.021010256410256445
+        },
+        "ai_confidence": {
+          "pts_at_baseline": 0.8032333333333334,
+          "pts_delta_per_10pp": 0.009529629629629666
+        }
       },
-      "temperature_compliance": {
-        "pts_at_baseline": 0.9135530846597146,
-        "pts_delta_per_10pct": 0.001763905349671413
+      "minor_excursion": {
+        "provenance_integrity": {
+          "pts_at_baseline": 0.4037000000000001,
+          "pts_delta_per_10pp": -0.014093333333333402
+        },
+        "temperature_compliance": {
+          "pts_at_baseline": 0.4037000000000001,
+          "pts_delta_per_10pp": -0.062107692307692475
+        },
+        "ai_confidence": {
+          "pts_at_baseline": 0.4037000000000001,
+          "pts_delta_per_10pp": -0.01241111111111115
+        }
+      },
+      "major_excursion": {
+        "provenance_integrity": {
+          "pts_at_baseline": 0.4283500000000001,
+          "pts_delta_per_10pp": -0.00498000000000004
+        },
+        "temperature_compliance": {
+          "pts_at_baseline": 0.4283500000000001,
+          "pts_delta_per_10pp": -0.06590000000000013
+        },
+        "ai_confidence": {
+          "pts_at_baseline": 0.4283500000000001,
+          "pts_delta_per_10pp": -0.01359444444444452
+        }
       }
     },
     "sensitivity_curves": {
-      "provenance_integrity": [
-        {
-          "delta_pct": -15.0,
-          "weight_value": 0.2125,
-          "pts": 0.9139615165295737,
-          "status": "active"
-        },
-        {
-          "delta_pct": -10.0,
-          "weight_value": 0.225,
-          "pts": 0.9138218817022714,
-          "status": "active"
-        },
-        {
-          "delta_pct": -5.0,
-          "weight_value": 0.2375,
-          "pts": 0.9136857819338884,
-          "status": "active"
-        },
-        {
-          "delta_pct": 0.0,
-          "weight_value": 0.25,
-          "pts": 0.9135530846597146,
-          "status": "active"
-        },
-        {
-          "delta_pct": 4.999999999999999,
-          "weight_value": 0.2625,
-          "pts": 0.9134236638614466,
-          "status": "active"
-        },
-        {
-          "delta_pct": 9.999999999999998,
-          "weight_value": 0.275,
-          "pts": 0.9132973996680142,
-          "status": "active"
-        },
-        {
-          "delta_pct": 15.0,
-          "weight_value": 0.2875,
-          "pts": 0.913174177985267,
-          "status": "active"
-        }
-      ],
-      "temperature_compliance": [
-        {
-          "delta_pct": -15.0,
-          "weight_value": 0.2975,
-          "pts": 0.9106628861843955,
-          "status": "active"
-        },
-        {
-          "delta_pct": -10.0,
-          "weight_value": 0.315,
-          "pts": 0.9116612276266475,
-          "status": "active"
-        },
-        {
-          "delta_pct": -5.0,
-          "weight_value": 0.33249999999999996,
-          "pts": 0.9126240047427122,
-          "status": "active"
-        },
-        {
-          "delta_pct": 0.0,
-          "weight_value": 0.35,
-          "pts": 0.9135530846597146,
-          "status": "active"
-        },
-        {
-          "delta_pct": 4.999999999999999,
-          "weight_value": 0.3675,
-          "pts": 0.9144502060537737,
-          "status": "active"
-        },
-        {
-          "delta_pct": 9.999999999999998,
-          "weight_value": 0.385,
-          "pts": 0.915316990009386,
-          "status": "active"
-        },
-        {
-          "delta_pct": 15.0,
-          "weight_value": 0.40249999999999997,
-          "pts": 0.9161549497954533,
-          "status": "active"
-        }
-      ]
+      "no_excursion": {
+        "provenance_integrity": [
+          {
+            "delta_pct": -15.0,
+            "weight_value": 0.1,
+            "pts": 0.81908,
+            "status": "active"
+          },
+          {
+            "delta_pct": -10.0,
+            "weight_value": 0.15,
+            "pts": 0.8137977777777777,
+            "status": "active"
+          },
+          {
+            "delta_pct": -5.0,
+            "weight_value": 0.2,
+            "pts": 0.8085155555555555,
+            "status": "active"
+          },
+          {
+            "delta_pct": 0.0,
+            "weight_value": 0.25,
+            "pts": 0.8032333333333334,
+            "status": "active"
+          },
+          {
+            "delta_pct": 4.999999999999999,
+            "weight_value": 0.3,
+            "pts": 0.7979511111111113,
+            "status": "active"
+          },
+          {
+            "delta_pct": 9.999999999999998,
+            "weight_value": 0.35,
+            "pts": 0.7926688888888888,
+            "status": "active"
+          },
+          {
+            "delta_pct": 15.0,
+            "weight_value": 0.4,
+            "pts": 0.7873866666666666,
+            "status": "active"
+          }
+        ],
+        "temperature_compliance": [
+          {
+            "delta_pct": -15.0,
+            "weight_value": 0.19999999999999998,
+            "pts": 0.8347487179487177,
+            "status": "active"
+          },
+          {
+            "delta_pct": -10.0,
+            "weight_value": 0.24999999999999997,
+            "pts": 0.8242435897435898,
+            "status": "active"
+          },
+          {
+            "delta_pct": -5.0,
+            "weight_value": 0.3,
+            "pts": 0.8137384615384615,
+            "status": "active"
+          },
+          {
+            "delta_pct": 0.0,
+            "weight_value": 0.35,
+            "pts": 0.8032333333333335,
+            "status": "active"
+          },
+          {
+            "delta_pct": 4.999999999999999,
+            "weight_value": 0.39999999999999997,
+            "pts": 0.7927282051282051,
+            "status": "active"
+          },
+          {
+            "delta_pct": 9.999999999999998,
+            "weight_value": 0.44999999999999996,
+            "pts": 0.782223076923077,
+            "status": "active"
+          },
+          {
+            "delta_pct": 15.0,
+            "weight_value": 0.5,
+            "pts": 0.7717179487179486,
+            "status": "active"
+          }
+        ],
+        "ai_confidence": [
+          {
+            "delta_pct": -15.0,
+            "weight_value": 0.0,
+            "pts": 0.7937037037037038,
+            "status": "active"
+          },
+          {
+            "delta_pct": -10.0,
+            "weight_value": 0.0,
+            "pts": 0.7937037037037038,
+            "status": "active"
+          },
+          {
+            "delta_pct": -5.0,
+            "weight_value": 0.05,
+            "pts": 0.7984685185185185,
+            "status": "active"
+          },
+          {
+            "delta_pct": 0.0,
+            "weight_value": 0.1,
+            "pts": 0.8032333333333334,
+            "status": "active"
+          },
+          {
+            "delta_pct": 4.999999999999999,
+            "weight_value": 0.15,
+            "pts": 0.8079981481481482,
+            "status": "active"
+          },
+          {
+            "delta_pct": 9.999999999999998,
+            "weight_value": 0.19999999999999998,
+            "pts": 0.812762962962963,
+            "status": "active"
+          },
+          {
+            "delta_pct": 15.0,
+            "weight_value": 0.25,
+            "pts": 0.8175277777777779,
+            "status": "active"
+          }
+        ]
+      },
+      "minor_excursion": {
+        "provenance_integrity": [
+          {
+            "delta_pct": -15.0,
+            "weight_value": 0.1,
+            "pts": 0.4248400000000001,
+            "status": "quarantine"
+          },
+          {
+            "delta_pct": -10.0,
+            "weight_value": 0.15,
+            "pts": 0.41779333333333324,
+            "status": "quarantine"
+          },
+          {
+            "delta_pct": -5.0,
+            "weight_value": 0.2,
+            "pts": 0.41074666666666676,
+            "status": "quarantine"
+          },
+          {
+            "delta_pct": 0.0,
+            "weight_value": 0.25,
+            "pts": 0.4037000000000001,
+            "status": "quarantine"
+          },
+          {
+            "delta_pct": 4.999999999999999,
+            "weight_value": 0.3,
+            "pts": 0.3966533333333335,
+            "status": "quarantine"
+          },
+          {
+            "delta_pct": 9.999999999999998,
+            "weight_value": 0.35,
+            "pts": 0.3896066666666667,
+            "status": "quarantine"
+          },
+          {
+            "delta_pct": 15.0,
+            "weight_value": 0.4,
+            "pts": 0.38256000000000007,
+            "status": "quarantine"
+          }
+        ],
+        "temperature_compliance": [
+          {
+            "delta_pct": -15.0,
+            "weight_value": 0.19999999999999998,
+            "pts": 0.4968615384615383,
+            "status": "quarantine"
+          },
+          {
+            "delta_pct": -10.0,
+            "weight_value": 0.24999999999999997,
+            "pts": 0.46580769230769226,
+            "status": "quarantine"
+          },
+          {
+            "delta_pct": -5.0,
+            "weight_value": 0.3,
+            "pts": 0.4347538461538461,
+            "status": "quarantine"
+          },
+          {
+            "delta_pct": 0.0,
+            "weight_value": 0.35,
+            "pts": 0.4037000000000001,
+            "status": "quarantine"
+          },
+          {
+            "delta_pct": 4.999999999999999,
+            "weight_value": 0.39999999999999997,
+            "pts": 0.37264615384615385,
+            "status": "quarantine"
+          },
+          {
+            "delta_pct": 9.999999999999998,
+            "weight_value": 0.44999999999999996,
+            "pts": 0.34159230769230764,
+            "status": "quarantine"
+          },
+          {
+            "delta_pct": 15.0,
+            "weight_value": 0.5,
+            "pts": 0.31053846153846165,
+            "status": "quarantine"
+          }
+        ],
+        "ai_confidence": [
+          {
+            "delta_pct": -15.0,
+            "weight_value": 0.0,
+            "pts": 0.4161111111111111,
+            "status": "quarantine"
+          },
+          {
+            "delta_pct": -10.0,
+            "weight_value": 0.0,
+            "pts": 0.4161111111111111,
+            "status": "quarantine"
+          },
+          {
+            "delta_pct": -5.0,
+            "weight_value": 0.05,
+            "pts": 0.4099055555555556,
+            "status": "quarantine"
+          },
+          {
+            "delta_pct": 0.0,
+            "weight_value": 0.1,
+            "pts": 0.4037000000000001,
+            "status": "quarantine"
+          },
+          {
+            "delta_pct": 4.999999999999999,
+            "weight_value": 0.15,
+            "pts": 0.39749444444444443,
+            "status": "quarantine"
+          },
+          {
+            "delta_pct": 9.999999999999998,
+            "weight_value": 0.19999999999999998,
+            "pts": 0.39128888888888896,
+            "status": "quarantine"
+          },
+          {
+            "delta_pct": 15.0,
+            "weight_value": 0.25,
+            "pts": 0.3850833333333333,
+            "status": "quarantine"
+          }
+        ]
+      },
+      "major_excursion": {
+        "provenance_integrity": [
+          {
+            "delta_pct": -15.0,
+            "weight_value": 0.1,
+            "pts": 0.43582000000000004,
+            "status": "quarantine"
+          },
+          {
+            "delta_pct": -10.0,
+            "weight_value": 0.15,
+            "pts": 0.43332999999999994,
+            "status": "quarantine"
+          },
+          {
+            "delta_pct": -5.0,
+            "weight_value": 0.2,
+            "pts": 0.43084000000000017,
+            "status": "quarantine"
+          },
+          {
+            "delta_pct": 0.0,
+            "weight_value": 0.25,
+            "pts": 0.4283500000000001,
+            "status": "quarantine"
+          },
+          {
+            "delta_pct": 4.999999999999999,
+            "weight_value": 0.3,
+            "pts": 0.4258600000000001,
+            "status": "quarantine"
+          },
+          {
+            "delta_pct": 9.999999999999998,
+            "weight_value": 0.35,
+            "pts": 0.4233700000000001,
+            "status": "quarantine"
+          },
+          {
+            "delta_pct": 15.0,
+            "weight_value": 0.4,
+            "pts": 0.4208800000000001,
+            "status": "quarantine"
+          }
+        ],
+        "temperature_compliance": [
+          {
+            "delta_pct": -15.0,
+            "weight_value": 0.19999999999999998,
+            "pts": 0.5271999999999998,
+            "status": "alert"
+          },
+          {
+            "delta_pct": -10.0,
+            "weight_value": 0.24999999999999997,
+            "pts": 0.49424999999999997,
+            "status": "quarantine"
+          },
+          {
+            "delta_pct": -5.0,
+            "weight_value": 0.3,
+            "pts": 0.4613,
+            "status": "quarantine"
+          },
+          {
+            "delta_pct": 0.0,
+            "weight_value": 0.35,
+            "pts": 0.4283500000000001,
+            "status": "quarantine"
+          },
+          {
+            "delta_pct": 4.999999999999999,
+            "weight_value": 0.39999999999999997,
+            "pts": 0.3954,
+            "status": "quarantine"
+          },
+          {
+            "delta_pct": 9.999999999999998,
+            "weight_value": 0.44999999999999996,
+            "pts": 0.36245,
+            "status": "quarantine"
+          },
+          {
+            "delta_pct": 15.0,
+            "weight_value": 0.5,
+            "pts": 0.3295000000000001,
+            "status": "quarantine"
+          }
+        ],
+        "ai_confidence": [
+          {
+            "delta_pct": -15.0,
+            "weight_value": 0.0,
+            "pts": 0.4419444444444445,
+            "status": "quarantine"
+          },
+          {
+            "delta_pct": -10.0,
+            "weight_value": 0.0,
+            "pts": 0.4419444444444445,
+            "status": "quarantine"
+          },
+          {
+            "delta_pct": -5.0,
+            "weight_value": 0.05,
+            "pts": 0.43514722222222213,
+            "status": "quarantine"
+          },
+          {
+            "delta_pct": 0.0,
+            "weight_value": 0.1,
+            "pts": 0.4283500000000001,
+            "status": "quarantine"
+          },
+          {
+            "delta_pct": 4.999999999999999,
+            "weight_value": 0.15,
+            "pts": 0.4215527777777778,
+            "status": "quarantine"
+          },
+          {
+            "delta_pct": 9.999999999999998,
+            "weight_value": 0.19999999999999998,
+            "pts": 0.4147555555555556,
+            "status": "quarantine"
+          },
+          {
+            "delta_pct": 15.0,
+            "weight_value": 0.25,
+            "pts": 0.4079583333333333,
+            "status": "quarantine"
+          }
+        ]
+      }
+    },
+    "smart_contract_summary": {
+      "total_products_evaluated": 600,
+      "total_quarantined": 0,
+      "total_on_alert": 4
     }
   },
   "baseline_comparison": {
@@ -377,101 +741,137 @@
       "AI-Only_time_reduction_factor": 53.617044092359194
     }
   },
+  "recall_localization": {
+    "n_locations": 847,
+    "bct_ai_time_minutes": 1.2,
+    "bct_ai_accuracy_pct": 100.0,
+    "traditional_time_hours": 72.3,
+    "per_location_seconds": 0.0824,
+    "paper_reference": {
+      "time_minutes": 2.8,
+      "accuracy_pct": 100.0
+    }
+  },
+  "improvement_ratios": {
+    "vs_traditional_ratio": 4.14,
+    "vs_blockchain_only_ratio": 2.32,
+    "vs_ai_only_ratio": 1.24,
+    "paper_stated_ratio": 4.1,
+    "paper_ratio_note": "The paper's 4.1x figure matches BCT-AI vs Traditional (96.8/23.4=4.14x), not vs Blockchain-Only (96.8/41.7=2.32x), despite the paper's prose saying \"over blockchain-only.\""
+  },
   "statistical_validation": {
     "n_runs": 10,
     "per_run": {
       "bct_ai_counterfeit_detection": [
-        0.9693312175916325,
-        0.9729190030172162,
-        0.9693979521988575,
-        0.9760838965026145,
-        0.9580215738272392,
-        0.9739575556462267,
-        0.9687759443891901,
-        0.9660501708464406,
-        0.9675618733028388,
-        0.9663796934703581
+        0.7186956521739131,
+        0.7160869565217391,
+        0.7191304347826087,
+        0.7178260869565217,
+        0.7221739130434782,
+        0.7269565217391304,
+        0.7234782608695652,
+        0.7078260869565217,
+        0.7191304347826087,
+        0.707391304347826
       ],
       "baseline_counterfeit_detection": [
-        0.9302733236392488,
-        0.9727117224394429,
-        0.9283982236429307,
-        0.9129510247956036,
-        0.9092038990796125,
-        0.9325834949585543,
-        0.9495404444379012,
-        0.9195721264868512,
-        0.897267972254683,
-        0.9299401974921664
+        0.58,
+        0.5695652173913044,
+        0.5804347826086956,
+        0.5847826086956521,
+        0.5869565217391305,
+        0.577391304347826,
+        0.5721739130434783,
+        0.578695652173913,
+        0.5647826086956522,
+        0.5643478260869565
       ],
       "bct_ai_recall_efficiency": [
-        0.970983183967145,
-        0.9634190734363283,
-        0.9902080751124245,
-        0.9749501137700147,
-        0.9612391126613576,
-        0.9886663673086877,
-        1.0018605899118096,
-        1.0003079987603347,
-        0.9887961733287745,
-        0.9968262242000807
+        0.36207039337474123,
+        0.3667908902691511,
+        0.3667080745341615,
+        0.3708488612836439,
+        0.3641407867494824,
+        0.37010351966873706,
+        0.3672049689440994,
+        0.35975155279503107,
+        0.3609109730848861,
+        0.36496894409937886
       ],
       "baseline_recall_efficiency": [
-        0.95,
-        0.95,
-        0.95,
-        0.95,
-        0.95,
-        0.95,
-        0.95,
-        0.9500000000000001,
-        0.95,
-        0.95
+        0.002070393374741201,
+        0.0017391304347826088,
+        0.0019047619047619048,
+        0.002815734989648033,
+        0.0014906832298136647,
+        0.002650103519668737,
+        0.001987577639751553,
+        0.001987577639751553,
+        0.001987577639751553,
+        0.0014078674948240165
       ]
     },
     "counterfeit_detection_ttest": {
-      "t_statistic": 6.419999999999994,
-      "p_value": 0.0001223655182853107,
+      "t_statistic": 53.591844207901204,
+      "p_value": 1.3785538472929893e-12,
       "degrees_of_freedom": 9,
-      "mean_difference": 0.04060364515656197,
+      "mean_difference": 0.14195652173913045,
       "ci_95": [
-        0.026296507036795164,
-        0.054910783276328784
+        0.13596441664903014,
+        0.14794862682923077
       ]
     },
     "recall_efficiency_ttest": {
-      "t_statistic": 7.11000000000001,
-      "p_value": 5.6053610159359466e-05,
+      "t_statistic": 328.92756525416473,
+      "p_value": 1.1293293462701701e-19,
       "degrees_of_freedom": 9,
-      "mean_difference": 0.033725691245695764,
+      "mean_difference": 0.36334575569358185,
       "ci_95": [
-        0.022995337655870682,
-        0.04445604483552085
+        0.36084689183825325,
+        0.36584461954891045
       ]
     },
     "confidence_intervals_95": {
       "bct_ai_counterfeit_detection": [
-        0.9652444487427444,
-        0.9724513274157788
+        0.7134068448589753,
+        0.7223322855758073
       ],
       "bct_ai_recall_efficiency": [
-        0.9729953376558707,
-        0.9944560448355209
+        0.36269882955050864,
+        0.3680009634101539
       ]
-    }
+    },
+    "note": "t-statistics are computed from 10 genuinely independent 230,000-transaction runs (laptop scale), not reverse-engineered to match the paper's full-scale (2.3M-transaction) reported values of t(9)=6.42 (counterfeit detection) / t(9)=7.11 (recall efficiency); differing from those exact figures is expected."
   },
   "monte_carlo": {
     "sensor_drift": {
-      "perturbation_celsius": 1.5,
-      "baseline_detection": 0.94,
-      "degraded_detection": 0.907
+      "n_samples": 1000,
+      "baseline_detection_mean": 0.925,
+      "baseline_detection_std": 0.008333333333333333,
+      "degraded_detection_mean": 0.904,
+      "degraded_detection_std": 0.009320454434783257,
+      "paper_reference": {
+        "baseline_detection": 0.94,
+        "degraded_detection": 0.907
+      }
     },
     "mobile_image_variability": {
-      "baseline_detection": 0.968,
-      "degraded_detection": 0.939
+      "n_samples": 1000,
+      "baseline_detection_mean": 0.977,
+      "degraded_detection_mean": 0.666,
+      "paper_reference": {
+        "baseline_detection": 0.968,
+        "degraded_detection": 0.939
+      }
     },
     "adversarial_gan_counterfeits": {
-      "detection": 0.914
+      "n_samples": 1000,
+      "epsilon": 0.05,
+      "baseline_detection_mean": 0.975,
+      "adversarial_detection_mean": 0.832,
+      "paper_reference": {
+        "adversarial_detection": 0.914
+      }
     },
     "real_world_range": [
       0.91,

@@ -17,3 +17,4 @@ env/
 # Generated results are reproducible from the pipeline; keep the checked-in
 # baseline copies but ignore fresh local re-runs' large scratch artifacts.
 results/*.tmp
+.claude/settings.local.json

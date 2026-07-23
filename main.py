@@ -11,6 +11,7 @@ baseline comparison, and statistical validation, then writes
 from __future__ import annotations
 
 import argparse
+import os
 import time
 
 from evaluation.run_simulation import run_full_pipeline, write_results
@@ -29,8 +30,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--config",
         type=str,
-        default="config/config.yaml",
-        help="Path to the YAML configuration file.",
+        default=os.environ.get("BCT_AI_CONFIG_PATH", "config/config.yaml"),
+        help="Path to the YAML configuration file (default: $BCT_AI_CONFIG_PATH or config/config.yaml).",
     )
     return parser.parse_args()
 

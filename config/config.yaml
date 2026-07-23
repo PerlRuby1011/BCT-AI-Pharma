@@ -50,8 +50,19 @@ simulation:
 blockchain:
   n_nodes: 12
   n_organizations: 5
-  consensus: "practical-byzantine-fault-tolerance"
+  consensus: "raft"  # Hyperledger Fabric pluggable Raft consensus (Section III-A)
   block_time_seconds: 2.0
+  # Per-transaction mean AI-inference overhead layered on top of raw
+  # consensus latency (paper: "AI inference introduced a mean overhead of
+  # 82 ms per transaction").
+  ai_inference_overhead_ms: 82
+  # Four private channels (paper Section III-A), each scoped to the
+  # organization types authorized to transact on it.
+  channels:
+    manufacturing: ["manufacturers", "regulators"]
+    distribution: ["manufacturers", "distributors", "regulators"]
+    logistics: ["distributors", "logistics", "regulators"]
+    dispensing: ["distributors", "pharmacies", "regulators"]
 
   performance_targets:
     # tps: [avg_latency_ms, avg_std_ms, p95_latency_ms, p95_std_ms, success_rate_pct]
@@ -246,9 +257,19 @@ pts:
 
   sensitivity_analysis:
     drug_class: "A"
-    varied_weights: ["w1_provenance_integrity", "w2_temperature_compliance"]
+    varied_weights: ["w1_provenance_integrity", "w2_temperature_compliance", "w8_ai_confidence"]
+    # Table II (Section III-C) reports the sweep as "+/-15%" and cites a
+    # specific data point at "a 10% increase in w2". Interpreted here as an
+    # ABSOLUTE weight-point swing (simplex-preserving: weight added to the
+    # varied component is proportionally removed from the others so the
+    # total stays 1.0), not a relative percentage: a relative +10%
+    # (0.35 -> 0.385) cannot mathematically move PTS by 0.08-0.19 under
+    # Eq. 1's bounded [0,1] component scores, but an absolute +10-point
+    # shift (0.35 -> 0.45, rebalanced against the other weights) can, at
+    # realistic excursion severity. See pts/pts_sensitivity_analysis.py.
     variation_pct: 0.15
     n_steps: 7
+    excursion_scenarios: ["no_excursion", "minor_excursion", "major_excursion"]
 
 # ---------------------------------------------------------------------------
 # Baseline comparison (Table VI)
@@ -270,6 +291,21 @@ baseline_comparison:
     detection_rate_pct: 96.8
     localization_time_hours: 0.0783333  # 4.7 minutes
     missed_detection_pct: 0.0
+
+  # Paper (Section V-C): "The integrated framework achieved 96.8% counterfeit
+  # detection -- a 4.1x improvement over blockchain-only. Recall localization
+  # across 847 locations completed in 2.8 minutes with 100% accuracy."
+  # tps/ai_overhead_ms match Table III's sustained-load level and the
+  # separately reported 82ms AI-inference overhead (blockchain.ai_inference_overhead_ms).
+  recall_localization:
+    n_locations: 847
+    tps: 2500
+    paper_stated_time_minutes: 2.8
+    paper_stated_accuracy_pct: 100.0
+  # Paper's own text states "4.1x improvement over blockchain-only," but
+  # 96.8/41.7 = 2.32x, not 4.1x -- 96.8/23.4 (Traditional) = 4.14x is the
+  # arithmetic match. Both are reported for transparency (Section V-C).
+  paper_stated_improvement_ratio: 4.1
 
 # ---------------------------------------------------------------------------
 # Statistical validation (Section IV-C)

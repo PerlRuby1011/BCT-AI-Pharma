@@ -234,7 +234,7 @@ def weights_for_drug_class(drug_class_config: Dict[str, Any]) -> Dict[str, float
     ``w1`` (provenance), ``w2`` (temperature), and ``w8`` (AI confidence) are
     specified explicitly; ``remaining_total`` is split evenly across the
     other 5 components, matching the paper's weight-determination scheme
-    (Section III-C.3).
+    (Section III-C).
 
     Args:
         drug_class_config: One entry from ``config.yaml``'s

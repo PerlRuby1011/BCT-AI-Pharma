@@ -33,24 +33,49 @@ Hyperledger Fabric and real pharmaceutical packaging photographs are not
 available in this environment, so this repository:
 
 - **Simulates** the 12-node Fabric network's throughput/latency/success-rate
-  behavior, calibrated to the paper's Table III benchmarks
-  ([blockchain/fabric_network.py](blockchain/fabric_network.py)).
+  behavior, calibrated to the paper's Table III benchmarks (blockchain-only;
+  the separately-reported 82ms AI-inference overhead and Raft consensus /
+  4-channel / MSP-identity architecture are modeled explicitly — see
+  [blockchain/fabric_network.py](blockchain/fabric_network.py)).
 - **Generates synthetic data** (transactions, packaging images, cold-chain
   sensor streams) whose statistical distributions match the paper's reported
-  anomaly counts and class balances.
+  anomaly counts and class balances. CNN packaging images use an 18%
+  cross-class overlap factor (`ai_modules/cnn_verification.py`,
+  `generate_synthetic_packaging_images`) so classes aren't trivially
+  separable by color/texture alone -- reflecting a realistic imperfect
+  classifier (Table IV: weighted F1 0.982) rather than a suspicious
+  1.000/1.000/1.000. Real pharmaceutical packaging photographs would be
+  needed to reproduce Table IV exactly.
 - Implements **real, trainable** model architectures (stacked LSTM, ResNet-50
-  CNN, Isolation Forest) that you can actually fit and evaluate end-to-end
-  on your machine — not stubs.
-- Reports **paper-calibrated headline metrics** (`results/performance_metrics.json`)
-  built from the paper's published values with realistic seeded variance, so
-  the statistical-validation and baseline-comparison outputs closely
-  approximate Sections IV-B/IV-C and Table VI. The models' *own* training
-  runs (Sections III-B) will produce qualitatively similar but not
-  bit-identical metrics, since they train on synthetic proxy data rather
-  than the paper's real 100k-image / 2.3M-transaction corpora.
+  CNN fine-tuned from ImageNet weights, Isolation Forest) that you can
+  actually fit and evaluate end-to-end on your machine — not stubs.
+- Runs **10 genuinely independent simulation runs** (fresh
+  230,000-transaction dataset + fresh anomaly placement per seed 42-51),
+  computes counterfeit-detection and recall-efficiency for each run through
+  the real PTS formula and smart-contract quarantine logic, and derives
+  paired t-tests from that real per-run variance
+  ([evaluation/run_simulation.py](evaluation/run_simulation.py),
+  [evaluation/statistical_validation.py](evaluation/statistical_validation.py)).
+  The resulting t-statistics are **not** reverse-engineered to match the
+  paper's reported `t(9)=6.42`/`t(9)=7.11` (those were measured on the
+  paper's full 2.3M-transaction simulation) — expect different, genuinely
+  computed values here.
+- Runs **genuine Monte Carlo degradation simulations** (1000 samples each)
+  for sensor drift, mobile image variability, and adversarial (FGSM)
+  perturbation, reusing the already-trained CNN/Isolation Forest models
+  rather than passing the paper's numbers through unchanged.
+- The PTS **sensitivity analysis** reproduces all 18 of Table II's values
+  (Section III-C) to within a small tolerance, with one documented
+  exception: the "Major excursion, w_temp" cells (-0.19/+0.17) are
+  mathematically unreachable by a 10-percentage-point simplex-preserving
+  weight shift under Eq. 1, for any scenario -- see
+  [pts/pts_sensitivity_analysis.py](pts/pts_sensitivity_analysis.py)
+  docstring for the proof and the closest achievable value.
 
 This mirrors the paper itself, which is a simulation study — no real-world
-patient or regulatory data is used or claimed.
+patient or regulatory data is used or claimed. Where this repository's own
+computations diverge from the paper's exact reported figures, that
+divergence is disclosed rather than papered over.
 
 ### Reduced-scale defaults
 
@@ -85,12 +110,18 @@ git clone <this-repo-url> BCT-AI-Pharma
 cd BCT-AI-Pharma
 python3 -m venv .venv
 source .venv/bin/activate          # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
+pip install -r requirements.txt -r requirements-dev.txt   # -dev adds pytest
 cp .env.example .env               # optional; defaults work without it
 ```
 
-Requires Python 3.10+. TensorFlow (LSTM) and PyTorch (CNN, Isolation Forest
-dependencies) both run on CPU; no GPU is required for the default config.
+Requires Python 3.9+. `requirements.txt` pins exact runtime versions
+(TensorFlow 2.16.2, PyTorch 2.2.2, torchvision 0.17.2, scikit-learn 1.6.1,
+numpy 1.26.4, pandas 2.3.3, grad-cam 1.5.5) verified to install and run
+together on CPU; no GPU is required for the default config. The CNN
+fine-tunes from downloaded ImageNet weights by default (`cnn.pretrained:
+true` in `config/config.yaml`) — requires network access on first run
+(cached afterward), and falls back to random initialization with a logged
+warning if unavailable.
 
 ## Running the full pipeline
 
@@ -118,9 +149,9 @@ python -c "from utils import load_config; from evaluation.run_simulation import 
 # Just the evaluation/statistics pipeline (equivalent to main.py)
 python evaluation/run_simulation.py
 
-# Product Trust Score sensitivity analysis
-python -c "from utils import load_config; from pts.pts_sensitivity_analysis import run_sensitivity_analysis; \
-           print(run_sensitivity_analysis(load_config()['pts']))"
+# Product Trust Score sensitivity analysis (No/Minor/Major excursion scenarios
+# x provenance/temperature/AI-confidence weight sweeps)
+python -m pts.pts_sensitivity_analysis
 ```
 
 Each module (`simulation/*.py`, `blockchain/*.py`, `ai_modules/*.py`,
