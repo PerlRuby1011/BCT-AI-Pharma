@@ -3,17 +3,18 @@
 A real Fabric deployment is not available in this environment, so this
 module statistically simulates endorsement/ordering/commit latency and
 transaction success rate under varying offered load (TPS), calibrated to
-the empirical benchmarks reported in Table III of the paper (Section
-5.1.1, "Blockchain Network Performance" -- pure blockchain latency, no AI
-inference). Latencies are drawn from normal distributions parameterized by
-the paper's reported mean/std at each load level; transaction
+the empirical benchmarks reported in Table III (pure blockchain latency, no
+AI inference). Latencies are drawn from normal distributions parameterized
+by the paper's reported mean/std at each load level; transaction
 success/failure is drawn Bernoulli-style from the paper's reported success
 rate.
 
-The paper separately reports a mean AI-inference overhead of 82 ms/transaction
-("AI Inference Latency Impact": Blockchain-only 182 ms vs. BCT-AI Integrated
-264 ms) -- a distinct comparison from the Table III sweep, which this module
-also reproduces via :meth:`FabricNetworkSimulator.ai_inference_latency_impact`.
+The paper separately states a mean AI-inference overhead of 82 ms per
+transaction -- a distinct comparison from the Table III sweep, which this
+module also reproduces via
+:meth:`FabricNetworkSimulator.ai_inference_latency_impact` (see that
+method's docstring for the paper's exact wording and the caveat on what
+this simulation actually produces for that comparison).
 """
 from __future__ import annotations
 

@@ -1,11 +1,11 @@
 """Isolation Forest model for real-time cold chain anomaly detection.
 
-Implements the configuration from Section III-B of the paper: 100 isolation
-trees, max_samples=256, contamination=0.1, over a 15-dimensional feature
-vector describing temperature and environmental context. Anomaly scores are
-normalized to [0, 1]; a score above 0.7 raises a warning and above 0.9
-triggers automated quarantine (mirrored in
-``blockchain/chaincode/cold_chain_monitor.py``).
+100 isolation trees, max_samples=256, contamination=0.1, over a
+15-dimensional feature vector describing temperature and environmental
+context. Anomaly scores are normalized to [0, 1]; a score above 0.7 raises
+a warning and above 0.9 triggers automated quarantine (mirrored in
+``blockchain/chaincode/cold_chain_monitor.py``), matching the paper's
+two-tier alerting policy.
 """
 from __future__ import annotations
 

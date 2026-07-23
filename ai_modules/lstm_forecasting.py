@@ -1,11 +1,10 @@
 """Stacked LSTM network for demand forecasting and shipment delay prediction.
 
-Implements the architecture from Section III-B of the paper: a 128-unit LSTM
-feeding a 64-unit LSTM, followed by a 32-unit dense layer, with two output
-heads (demand forecast regression and >24h delay-probability classification).
-Trained with the Adam optimizer, MSE loss for the regression head, and
-binary cross-entropy for the classification head, with dropout regularization
-and early stopping.
+A 128-unit LSTM feeding a 64-unit LSTM, followed by a 32-unit dense layer,
+with two output heads (demand forecast regression and >24h delay-probability
+classification). Trained with the Adam optimizer, MSE loss for the
+regression head, and binary cross-entropy for the classification head, with
+dropout regularization and early stopping.
 """
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-"""Product Trust Score (PTS): mathematical framework (Section III-C).
+"""Product Trust Score (PTS): mathematical framework.
 
 Implements the weighted composite trust score
 

@@ -2,9 +2,10 @@
 
 Generates tabular transaction records that mimic what would be written to a
 12-node Hyperledger Fabric network by 5 organization types (manufacturers,
-distributors, logistics providers, regulators, pharmacies), as described in
-Section IV-A of the paper. Generation is fully vectorized with NumPy so that
-the paper-scale 2.3 million transaction count remains tractable on a laptop.
+distributors, logistics providers, regulators, pharmacies), matching the
+paper's simulation environment. Generation is fully vectorized with NumPy
+so that the paper-scale 2.3 million transaction count remains tractable on
+a laptop.
 """
 from __future__ import annotations
 

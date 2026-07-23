@@ -1,9 +1,8 @@
 """ResNet-50-based CNN for pharmaceutical packaging tamper verification.
 
-Implements the architecture from Section III-B of the paper: a ResNet-50
-backbone with a custom classification head producing (1) a sigmoid
-authenticity score and (2) a softmax tamper-type classification over
-{Authentic, Hologram Mismatch, Printing Defects, Seal Broken, Package
+A ResNet-50 backbone with a custom classification head producing (1) a
+sigmoid authenticity score and (2) a softmax tamper-type classification
+over {Authentic, Hologram Mismatch, Printing Defects, Seal Broken, Package
 Resealed}. Includes Grad-CAM explainability and dynamic quantization to
 approximate the paper's <=32MB / <150ms mobile-inference targets.
 """

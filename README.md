@@ -65,12 +65,17 @@ available in this environment, so this repository:
   perturbation, reusing the already-trained CNN/Isolation Forest models
   rather than passing the paper's numbers through unchanged.
 - The PTS **sensitivity analysis** reproduces all 18 of Table II's values
-  (Section III-C) to within a small tolerance, with one documented
-  exception: the "Major excursion, w_temp" cells (-0.19/+0.17) are
+  to a small tolerance (+/-0.02) for the 12 No-Excursion/Minor-Excursion
+  cells, and gets every sign correct across all 18. The Major-excursion
+  column (5 of its 6 cells, all three weights) falls outside that
+  tolerance: the "Major, w_temp" targets (-0.19/+0.17) are provably
   mathematically unreachable by a 10-percentage-point simplex-preserving
-  weight shift under Eq. 1, for any scenario -- see
+  weight shift under Eq. 1 for any scenario, and a constrained search shows
+  the w_prov/w_AI Major targets are only jointly reachable by abandoning
+  w_temp's fit almost entirely -- see
   [pts/pts_sensitivity_analysis.py](pts/pts_sensitivity_analysis.py)
-  docstring for the proof and the closest achievable value.
+  docstring for the proof and [tests/test_pts.py](tests/test_pts.py) for
+  the exact tolerances used.
 
 This mirrors the paper itself, which is a simulation study — no real-world
 patient or regulatory data is used or claimed. Where this repository's own

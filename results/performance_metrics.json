@@ -140,7 +140,7 @@
     },
     "quantization": {
       "model_size_mb": 90.51430320739746,
-      "inference_latency_ms": 18.171226950005348
+      "inference_latency_ms": 16.12861609998788
     }
   },
   "isolation_forest": {

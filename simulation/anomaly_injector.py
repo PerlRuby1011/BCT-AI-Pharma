@@ -1,9 +1,9 @@
 """Injects labeled anomalies into synthetic blockchain transaction data.
 
-Reproduces the 5% anomaly injection scheme from Section IV-A of the paper:
-counterfeit products, temperature excursions, custody breaks, tampered
-packages, and unauthorized transfers, in the paper's exact proportions
-(scaled to whatever total transaction count is supplied).
+Reproduces the paper's 5% anomaly injection scheme: counterfeit products,
+temperature excursions, custody breaks, tampered packages, and unauthorized
+transfers, in the paper's exact proportions (scaled to whatever total
+transaction count is supplied).
 """
 from __future__ import annotations
 
