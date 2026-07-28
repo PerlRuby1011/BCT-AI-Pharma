@@ -21,6 +21,20 @@
 random_seed: 42
 
 # ---------------------------------------------------------------------------
+# Data quality knobs (used by orchestrate.py Phase 2 "data quality"
+# improvement; defaults below reproduce the historical/baseline generator
+# behavior unchanged). See simulation/transaction_generator.py and
+# simulation/anomaly_injector.py.
+# ---------------------------------------------------------------------------
+data_quality:
+  temperature_mean_c: 5.0
+  temperature_std_c: 1.2
+  custody_timing_distribution: "uniform"  # "uniform" | "exponential"
+  custody_timing_lambda: 0.1
+  cluster_counterfeit_by_manufacturer: false
+  counterfeit_cluster_fraction: 0.3
+
+# ---------------------------------------------------------------------------
 # Simulation environment (Section IV-A)
 # ---------------------------------------------------------------------------
 simulation:
@@ -162,6 +176,10 @@ cnn:
     - "Package Resealed"
   quantized_target_mb: 32
   target_inference_ms: 150
+  # Fraction of each class's synthetic training/eval images blended toward
+  # an adjacent class's signature (see generate_synthetic_packaging_images).
+  # Lower values make classes more separable (less realistic-imperfect).
+  overlap_factor: 0.18
 
   n_authentic_paper: 50000
   n_tampered_paper: 50000

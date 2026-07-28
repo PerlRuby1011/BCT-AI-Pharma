@@ -97,12 +97,27 @@ def run_single_simulation_run(config: Dict[str, Any], seed: int) -> Dict[str, An
     """
     sim_cfg = config["simulation"]
     pts_cfg = config["pts"]
+    dq_cfg = config.get("data_quality", {})
     n_run_transactions = sim_cfg["transactions_per_run"]
 
     transactions = generate_transactions(
-        n_run_transactions, sim_cfg["organizations"], seed=seed
+        n_run_transactions,
+        sim_cfg["organizations"],
+        seed=seed,
+        temperature_mean_c=dq_cfg.get("temperature_mean_c", 5.0),
+        temperature_std_c=dq_cfg.get("temperature_std_c", 1.2),
+        custody_timing_distribution=dq_cfg.get("custody_timing_distribution", "uniform"),
+        custody_timing_lambda=dq_cfg.get("custody_timing_lambda", 0.1),
     )
-    transactions = inject_anomalies(transactions, sim_cfg["anomaly_counts"], seed=seed)
+    transactions = inject_anomalies(
+        transactions,
+        sim_cfg["anomaly_counts"],
+        seed=seed,
+        cluster_counterfeit_by_manufacturer=dq_cfg.get(
+            "cluster_counterfeit_by_manufacturer", False
+        ),
+        counterfeit_cluster_fraction=dq_cfg.get("counterfeit_cluster_fraction", 0.3),
+    )
 
     rng = np.random.default_rng(seed + 10_000)
     ai_only_weights = {"ai_confidence": 1.0}
@@ -303,6 +318,7 @@ def run_cnn_pipeline(config: Dict[str, Any]) -> Dict[str, Any]:
         max_epochs=cnn_cfg["max_epochs"],
         early_stopping_patience=cnn_cfg["early_stopping_patience"],
         pretrained=cnn_cfg.get("pretrained", True),
+        overlap_factor=cnn_cfg.get("overlap_factor", 0.18),
     )
     seed = config.get("random_seed", 42)
     model, _history = cnn_mod.train_cnn(

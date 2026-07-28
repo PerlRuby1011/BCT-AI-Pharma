@@ -1,0 +1,630 @@
+{
+  "phase": 4,
+  "name": "lstm_tuning",
+  "title": "best hyperparams (grid search)",
+  "config_overrides": {
+    "lstm.units_layer1": 96,
+    "lstm.units_layer2": 48,
+    "lstm.dropout": 0.2,
+    "lstm.learning_rate": 0.001
+  },
+  "started_at": "2026-07-27T22:02:13",
+  "status": "OK",
+  "errors": [],
+  "lstm_grid_search": {
+    "grid_results": [
+      {
+        "params": {
+          "units_layer1": 96,
+          "units_layer2": 48,
+          "dropout": 0.2,
+          "learning_rate": 0.001
+        },
+        "metrics": {
+          "mape": 14.042195677757263,
+          "r2": 0.8346802592277527,
+          "auc_roc": 0.8983692860811504,
+          "f1": 0.8065843621399177
+        }
+      },
+      {
+        "params": {
+          "units_layer1": 128,
+          "units_layer2": 64,
+          "dropout": 0.2,
+          "learning_rate": 0.0005
+        },
+        "metrics": {
+          "mape": 23.163607716560364,
+          "r2": 0.5695689916610718,
+          "auc_roc": 0.9002953261427837,
+          "f1": 0.8220338983050848
+        }
+      },
+      {
+        "params": {
+          "units_layer1": 128,
+          "units_layer2": 32,
+          "dropout": 0.3,
+          "learning_rate": 0.001
+        },
+        "metrics": {
+          "mape": 24.11256432533264,
+          "r2": 0.552629292011261,
+          "auc_roc": 0.894517205957884,
+          "f1": 0.7983193277310925
+        }
+      },
+      {
+        "params": {
+          "units_layer1": 160,
+          "units_layer2": 64,
+          "dropout": 0.3,
+          "learning_rate": 0.0005
+        },
+        "metrics": {
+          "mape": 25.161445140838623,
+          "r2": 0.5312338471412659,
+          "auc_roc": 0.8984976887519261,
+          "f1": 0.819672131147541
+        }
+      }
+    ],
+    "best_params": {
+      "units_layer1": 96,
+      "units_layer2": 48,
+      "dropout": 0.2,
+      "learning_rate": 0.001
+    }
+  },
+  "failed_seeds": [],
+  "per_run_results": [
+    {
+      "seed": 42,
+      "n_transactions": 230000,
+      "n_counterfeit": 2300,
+      "n_anomalies": 12075,
+      "bct_ai_counterfeit_detection": 0.7086956521739131,
+      "ai_only_counterfeit_detection": 0.5708695652173913,
+      "bct_ai_recall_efficiency": 0.3648861283643892,
+      "ai_only_recall_efficiency": 0.002898550724637681,
+      "_status": "OK"
+    },
+    {
+      "seed": 43,
+      "n_transactions": 230000,
+      "n_counterfeit": 2300,
+      "n_anomalies": 12075,
+      "bct_ai_counterfeit_detection": 0.701304347826087,
+      "ai_only_counterfeit_detection": 0.5734782608695652,
+      "bct_ai_recall_efficiency": 0.36149068322981365,
+      "ai_only_recall_efficiency": 0.0016563146997929607,
+      "_status": "OK"
+    },
+    {
+      "seed": 44,
+      "n_transactions": 230000,
+      "n_counterfeit": 2300,
+      "n_anomalies": 12075,
+      "bct_ai_counterfeit_detection": 0.73,
+      "ai_only_counterfeit_detection": 0.5991304347826087,
+      "bct_ai_recall_efficiency": 0.3646376811594203,
+      "ai_only_recall_efficiency": 0.001987577639751553,
+      "_status": "OK"
+    },
+    {
+      "seed": 45,
+      "n_transactions": 230000,
+      "n_counterfeit": 2300,
+      "n_anomalies": 12075,
+      "bct_ai_counterfeit_detection": 0.7365217391304347,
+      "ai_only_counterfeit_detection": 0.5904347826086956,
+      "bct_ai_recall_efficiency": 0.36438923395445133,
+      "ai_only_recall_efficiency": 0.002567287784679089,
+      "_status": "OK"
+    },
+    {
+      "seed": 46,
+      "n_transactions": 230000,
+      "n_counterfeit": 2300,
+      "n_anomalies": 12075,
+      "bct_ai_counterfeit_detection": 0.7191304347826087,
+      "ai_only_counterfeit_detection": 0.5791304347826087,
+      "bct_ai_recall_efficiency": 0.3652173913043478,
+      "ai_only_recall_efficiency": 0.0021532091097308487,
+      "_status": "OK"
+    },
+    {
+      "seed": 47,
+      "n_transactions": 230000,
+      "n_counterfeit": 2300,
+      "n_anomalies": 12075,
+      "bct_ai_counterfeit_detection": 0.731304347826087,
+      "ai_only_counterfeit_detection": 0.59,
+      "bct_ai_recall_efficiency": 0.36770186335403726,
+      "ai_only_recall_efficiency": 0.002070393374741201,
+      "_status": "OK"
+    },
+    {
+      "seed": 48,
+      "n_transactions": 230000,
+      "n_counterfeit": 2300,
+      "n_anomalies": 12075,
+      "bct_ai_counterfeit_detection": 0.7239130434782609,
+      "ai_only_counterfeit_detection": 0.558695652173913,
+      "bct_ai_recall_efficiency": 0.37043478260869567,
+      "ai_only_recall_efficiency": 0.002650103519668737,
+      "_status": "OK"
+    },
+    {
+      "seed": 49,
+      "n_transactions": 230000,
+      "n_counterfeit": 2300,
+      "n_anomalies": 12075,
+      "bct_ai_counterfeit_detection": 0.7117391304347827,
+      "ai_only_counterfeit_detection": 0.5808695652173913,
+      "bct_ai_recall_efficiency": 0.373167701863354,
+      "ai_only_recall_efficiency": 0.003229813664596273,
+      "_status": "OK"
+    },
+    {
+      "seed": 50,
+      "n_transactions": 230000,
+      "n_counterfeit": 2300,
+      "n_anomalies": 12075,
+      "bct_ai_counterfeit_detection": 0.7278260869565217,
+      "ai_only_counterfeit_detection": 0.5760869565217391,
+      "bct_ai_recall_efficiency": 0.3755693581780538,
+      "ai_only_recall_efficiency": 0.0022360248447204968,
+      "_status": "OK"
+    },
+    {
+      "seed": 51,
+      "n_transactions": 230000,
+      "n_counterfeit": 2300,
+      "n_anomalies": 12075,
+      "bct_ai_counterfeit_detection": 0.7008695652173913,
+      "ai_only_counterfeit_detection": 0.5717391304347826,
+      "bct_ai_recall_efficiency": 0.3659627329192547,
+      "ai_only_recall_efficiency": 0.0014906832298136647,
+      "_status": "OK"
+    }
+  ],
+  "statistical_validation": {
+    "n_runs": 10,
+    "per_run": {
+      "bct_ai_counterfeit_detection": [
+        0.7086956521739131,
+        0.701304347826087,
+        0.73,
+        0.7365217391304347,
+        0.7191304347826087,
+        0.731304347826087,
+        0.7239130434782609,
+        0.7117391304347827,
+        0.7278260869565217,
+        0.7008695652173913
+      ],
+      "baseline_counterfeit_detection": [
+        0.5708695652173913,
+        0.5734782608695652,
+        0.5991304347826087,
+        0.5904347826086956,
+        0.5791304347826087,
+        0.59,
+        0.558695652173913,
+        0.5808695652173913,
+        0.5760869565217391,
+        0.5717391304347826
+      ],
+      "bct_ai_recall_efficiency": [
+        0.3648861283643892,
+        0.36149068322981365,
+        0.3646376811594203,
+        0.36438923395445133,
+        0.3652173913043478,
+        0.36770186335403726,
+        0.37043478260869567,
+        0.373167701863354,
+        0.3755693581780538,
+        0.3659627329192547
+      ],
+      "baseline_recall_efficiency": [
+        0.002898550724637681,
+        0.0016563146997929607,
+        0.001987577639751553,
+        0.002567287784679089,
+        0.0021532091097308487,
+        0.002070393374741201,
+        0.002650103519668737,
+        0.003229813664596273,
+        0.0022360248447204968,
+        0.0014906832298136647
+      ]
+    },
+    "counterfeit_detection_ttest": {
+      "t_statistic": 37.58614877712226,
+      "p_value": 3.313883367984685e-11,
+      "degrees_of_freedom": 9,
+      "mean_difference": 0.14008695652173914,
+      "ci_95": [
+        0.13165569334558283,
+        0.14851821969789544
+      ]
+    },
+    "recall_efficiency_ttest": {
+      "t_statistic": 276.0757582037635,
+      "p_value": 5.462690417739825e-19,
+      "degrees_of_freedom": 9,
+      "mean_difference": 0.36505175983436855,
+      "ci_95": [
+        0.36206053576350206,
+        0.36804298390523504
+      ]
+    },
+    "confidence_intervals_95": {
+      "bct_ai_counterfeit_detection": [
+        0.7099506665855195,
+        0.7283102029796977
+      ],
+      "bct_ai_recall_efficiency": [
+        0.36419998676471277,
+        0.37049152462245094
+      ]
+    },
+    "note": "t-statistics are computed from 10 genuinely independent 230,000-transaction runs (laptop scale), not reverse-engineered to match the paper's full-scale (2.3M-transaction) reported values of t(9)=6.42 (counterfeit detection) / t(9)=7.11 (recall efficiency); differing from those exact figures is expected."
+  },
+  "simulation_results_table": [
+    {
+      "run_id": 0,
+      "seed": 42,
+      "n_transactions": 230000,
+      "n_counterfeit": 2300,
+      "n_anomalies": 12075,
+      "counterfeit_detection_rate": 0.7086956521739131,
+      "ai_only_counterfeit_detection_rate": 0.5708695652173913,
+      "recall_efficiency": 0.3648861283643892,
+      "ai_only_recall_efficiency": 0.002898550724637681,
+      "temperature_anomaly_detection_rate": 0.8767426506752749,
+      "cnn_weighted_f1": 0.969883494412095,
+      "lstm_mape": 8.2743309768953,
+      "lstm_r2": 0.9643653287274888
+    },
+    {
+      "run_id": 1,
+      "seed": 43,
+      "n_transactions": 230000,
+      "n_counterfeit": 2300,
+      "n_anomalies": 12075,
+      "counterfeit_detection_rate": 0.701304347826087,
+      "ai_only_counterfeit_detection_rate": 0.5734782608695652,
+      "recall_efficiency": 0.36149068322981365,
+      "ai_only_recall_efficiency": 0.0016563146997929607,
+      "temperature_anomaly_detection_rate": 0.8911715837329647,
+      "cnn_weighted_f1": 0.9674035240494441,
+      "lstm_mape": 8.624376595655471,
+      "lstm_r2": 0.9501205053982812
+    },
+    {
+      "run_id": 2,
+      "seed": 44,
+      "n_transactions": 230000,
+      "n_counterfeit": 2300,
+      "n_anomalies": 12075,
+      "counterfeit_detection_rate": 0.73,
+      "ai_only_counterfeit_detection_rate": 0.5991304347826087,
+      "recall_efficiency": 0.3646376811594203,
+      "ai_only_recall_efficiency": 0.001987577639751553,
+      "temperature_anomaly_detection_rate": 0.887411826567117,
+      "cnn_weighted_f1": 0.9618550569860048,
+      "lstm_mape": 8.291776000643726,
+      "lstm_r2": 0.9817977037636123
+    },
+    {
+      "run_id": 3,
+      "seed": 45,
+      "n_transactions": 230000,
+      "n_counterfeit": 2300,
+      "n_anomalies": 12075,
+      "counterfeit_detection_rate": 0.7365217391304347,
+      "ai_only_counterfeit_detection_rate": 0.5904347826086956,
+      "recall_efficiency": 0.36438923395445133,
+      "ai_only_recall_efficiency": 0.002567287784679089,
+      "temperature_anomaly_detection_rate": 0.9043685488575847,
+      "cnn_weighted_f1": 0.9660689576040644,
+      "lstm_mape": 8.254204951572126,
+      "lstm_r2": 0.9611193501575438
+    },
+    {
+      "run_id": 4,
+      "seed": 46,
+      "n_transactions": 230000,
+      "n_counterfeit": 2300,
+      "n_anomalies": 12075,
+      "counterfeit_detection_rate": 0.7191304347826087,
+      "ai_only_counterfeit_detection_rate": 0.5791304347826087,
+      "recall_efficiency": 0.3652173913043478,
+      "ai_only_recall_efficiency": 0.0021532091097308487,
+      "temperature_anomaly_detection_rate": 0.9021423802813991,
+      "cnn_weighted_f1": 0.9706019471216182,
+      "lstm_mape": 8.546139032356237,
+      "lstm_r2": 0.9578203874440585
+    },
+    {
+      "run_id": 5,
+      "seed": 47,
+      "n_transactions": 230000,
+      "n_counterfeit": 2300,
+      "n_anomalies": 12075,
+      "counterfeit_detection_rate": 0.731304347826087,
+      "ai_only_counterfeit_detection_rate": 0.59,
+      "recall_efficiency": 0.36770186335403726,
+      "ai_only_recall_efficiency": 0.002070393374741201,
+      "temperature_anomaly_detection_rate": 0.895066245781966,
+      "cnn_weighted_f1": 0.9665905329419718,
+      "lstm_mape": 8.287172401447314,
+      "lstm_r2": 0.9832443448788954
+    },
+    {
+      "run_id": 6,
+      "seed": 48,
+      "n_transactions": 230000,
+      "n_counterfeit": 2300,
+      "n_anomalies": 12075,
+      "counterfeit_detection_rate": 0.7239130434782609,
+      "ai_only_counterfeit_detection_rate": 0.558695652173913,
+      "recall_efficiency": 0.37043478260869567,
+      "ai_only_recall_efficiency": 0.002650103519668737,
+      "temperature_anomaly_detection_rate": 0.8729033039384496,
+      "cnn_weighted_f1": 0.9631372265652876,
+      "lstm_mape": 8.150695657928527,
+      "lstm_r2": 0.9721570816976374
+    },
+    {
+      "run_id": 7,
+      "seed": 49,
+      "n_transactions": 230000,
+      "n_counterfeit": 2300,
+      "n_anomalies": 12075,
+      "counterfeit_detection_rate": 0.7117391304347827,
+      "ai_only_counterfeit_detection_rate": 0.5808695652173913,
+      "recall_efficiency": 0.373167701863354,
+      "ai_only_recall_efficiency": 0.003229813664596273,
+      "temperature_anomaly_detection_rate": 0.8883593223876658,
+      "cnn_weighted_f1": 0.9745961572361929,
+      "lstm_mape": 8.400820134111047,
+      "lstm_r2": 0.9698134622916388
+    },
+    {
+      "run_id": 8,
+      "seed": 50,
+      "n_transactions": 230000,
+      "n_counterfeit": 2300,
+      "n_anomalies": 12075,
+      "counterfeit_detection_rate": 0.7278260869565217,
+      "ai_only_counterfeit_detection_rate": 0.5760869565217391,
+      "recall_efficiency": 0.3755693581780538,
+      "ai_only_recall_efficiency": 0.0022360248447204968,
+      "temperature_anomaly_detection_rate": 0.8922089898374848,
+      "cnn_weighted_f1": 0.971971415270941,
+      "lstm_mape": 8.027675520273625,
+      "lstm_r2": 0.9719655711944931
+    },
+    {
+      "run_id": 9,
+      "seed": 51,
+      "n_transactions": 230000,
+      "n_counterfeit": 2300,
+      "n_anomalies": 12075,
+      "counterfeit_detection_rate": 0.7008695652173913,
+      "ai_only_counterfeit_detection_rate": 0.5717391304347826,
+      "recall_efficiency": 0.3659627329192547,
+      "ai_only_recall_efficiency": 0.0014906832298136647,
+      "temperature_anomaly_detection_rate": 0.9043503214440208,
+      "cnn_weighted_f1": 0.9748735947918202,
+      "lstm_mape": 8.870799860516637,
+      "lstm_r2": 0.9692789884886266
+    }
+  ],
+  "lstm": {
+    "metrics": {
+      "mape": 8.345752954483032,
+      "r2": 0.9668158292770386,
+      "auc_roc": 0.8720448179271708,
+      "f1": 0.792156862745098
+    },
+    "target_metrics": {
+      "mape": 7.3,
+      "r2": 0.89,
+      "auc_roc": 0.94,
+      "f1": 0.86
+    }
+  },
+  "cnn": {
+    "metrics": {
+      "Authentic": {
+        "precision": 0.8620689655172413,
+        "recall": 1.0,
+        "f1": 0.9259259259259259
+      },
+      "Hologram Mismatch": {
+        "precision": 1.0,
+        "recall": 0.88,
+        "f1": 0.9361702127659575
+      },
+      "Printing Defects": {
+        "precision": 1.0,
+        "recall": 0.96,
+        "f1": 0.9795918367346939
+      },
+      "Seal Broken": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "Package Resealed": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "weighted_avg": {
+        "precision": 0.9724137931034482,
+        "recall": 0.968,
+        "f1": 0.9683375950853155
+      }
+    },
+    "target_metrics": {
+      "Authentic": {
+        "precision": 0.992,
+        "recall": 0.994,
+        "f1": 0.993
+      },
+      "Hologram Mismatch": {
+        "precision": 0.978,
+        "recall": 0.969,
+        "f1": 0.973
+      },
+      "Printing Defects": {
+        "precision": 0.965,
+        "recall": 0.958,
+        "f1": 0.961
+      },
+      "Seal Broken": {
+        "precision": 0.982,
+        "recall": 0.977,
+        "f1": 0.979
+      },
+      "Package Resealed": {
+        "precision": 0.971,
+        "recall": 0.963,
+        "f1": 0.967
+      },
+      "weighted_avg": {
+        "precision": 0.983,
+        "recall": 0.981,
+        "f1": 0.982
+      }
+    },
+    "quantization": {
+      "model_size_mb": 90.51430320739746,
+      "inference_latency_ms": 34.22283540000137
+    },
+    "_reused_from_phase": 1
+  },
+  "isolation_forest": {
+    "metrics": {
+      "Gradual Drift": {
+        "detection": 0.8333333333333334,
+        "fpr": 0.0,
+        "latency_min": 9.768,
+        "latency_std_min": 1.0758141103369114
+      },
+      "Sudden Spike": {
+        "detection": 1.0,
+        "fpr": 0.0,
+        "latency_min": 4.0,
+        "latency_std_min": 0.0
+      },
+      "Cyclic Variation": {
+        "detection": 1.0,
+        "fpr": 0.0,
+        "latency_min": 2.6199999999999988,
+        "latency_std_min": 2.5478618486880333
+      },
+      "Calibration Drift": {
+        "detection": 0.6333333333333333,
+        "fpr": 0.0,
+        "latency_min": 9.357894736842105,
+        "latency_std_min": 1.856515068467257
+      },
+      "Door Opening": {
+        "detection": 1.0,
+        "fpr": 0.0,
+        "latency_min": 0.0,
+        "latency_std_min": 0.0
+      },
+      "overall": {
+        "detection": 0.8933333333333333,
+        "fpr": 0.0,
+        "latency_min": 5.149178947368421,
+        "latency_std_min": 3.828268505361305
+      }
+    },
+    "target_metrics": {
+      "Gradual Drift": {
+        "detection": 0.94,
+        "fpr": 0.03,
+        "latency_min": 12.3,
+        "latency_std_min": 4.7
+      },
+      "Sudden Spike": {
+        "detection": 0.98,
+        "fpr": 0.02,
+        "latency_min": 0.8,
+        "latency_std_min": 0.3
+      },
+      "Cyclic Variation": {
+        "detection": 0.91,
+        "fpr": 0.05,
+        "latency_min": 24.1,
+        "latency_std_min": 8.2
+      },
+      "Calibration Drift": {
+        "detection": 0.87,
+        "fpr": 0.04,
+        "latency_min": 36.5,
+        "latency_std_min": 12.1
+      },
+      "Door Opening": {
+        "detection": 0.99,
+        "fpr": 0.01,
+        "latency_min": 0.2,
+        "latency_std_min": 0.1
+      },
+      "overall": {
+        "detection": 0.94,
+        "fpr": 0.03,
+        "latency_min": 8.6,
+        "latency_std_min": 5.1
+      }
+    },
+    "_reused_from_phase": 1
+  },
+  "summary": {
+    "n_seeds_succeeded": 10,
+    "detection_rate_mean": 0.7191304347826086,
+    "detection_rate_std": 0.01283243108474124,
+    "recall_efficiency_mean": 0.36734575569358185,
+    "recall_efficiency_std": 0.004397481736089312,
+    "cold_chain_detection": 0.8933333333333333,
+    "cold_chain_fpr": 0.0,
+    "lstm_mape": 8.345752954483032,
+    "lstm_r2": 0.9668158292770386,
+    "cnn_weighted_f1": 0.9683375950853155,
+    "t_statistic": 37.58614877712226,
+    "p_value": 3.313883367984685e-11,
+    "cohens_d": 11.885783860965878,
+    "recall_t_statistic": 276.0757582037635,
+    "recall_p_value": 5.462690417739825e-19,
+    "recall_cohens_d": 87.30282026818085,
+    "confidence_interval_95": {
+      "bct_ai_counterfeit_detection": [
+        0.7099506665855195,
+        0.7283102029796977
+      ],
+      "bct_ai_recall_efficiency": [
+        0.36419998676471277,
+        0.37049152462245094
+      ]
+    }
+  },
+  "comparison_to_baseline": {
+    "detection_rate_delta": 0.0,
+    "recall_efficiency_delta": 0.0,
+    "cold_chain_detection_delta": 0.0,
+    "lstm_mape_delta": -0.382008,
+    "cnn_weighted_f1_delta": 0.0
+  },
+  "finished_at": "2026-07-27T22:03:56",
+  "duration_seconds": 102.5
+}

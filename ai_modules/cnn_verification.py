@@ -48,7 +48,26 @@ class CNNConfig:
     early_stopping_patience: int = 5
     learning_rate: float = 1e-4
     pretrained: bool = True
+    overlap_factor: float = 0.18
     class_names: List[str] = field(default_factory=lambda: list(CLASS_NAMES))
+
+
+def select_device() -> "torch.device":
+    """Pick the best available torch device for this machine.
+
+    Prefers Apple Silicon MPS acceleration when available (Mac hardware
+    optimization), falling back to CPU otherwise. Dynamic quantization
+    (:func:`quantize_and_benchmark`) always runs on CPU regardless of this
+    choice, since PyTorch's quantized kernels are CPU-only.
+
+    Returns:
+        ``torch.device("mps")`` if available, else ``torch.device("cpu")``.
+    """
+    import torch
+
+    if torch.backends.mps.is_available():
+        return torch.device("mps")
+    return torch.device("cpu")
 
 
 def build_cnn_model(config: CNNConfig):
@@ -237,13 +256,14 @@ def train_cnn(
     from torch.utils.data import DataLoader, TensorDataset
 
     torch.manual_seed(seed)
-    model = build_cnn_model(config)
+    device = select_device()
+    model = build_cnn_model(config).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=config.learning_rate)
     bce = nn.BCEWithLogitsLoss()
     ce = nn.CrossEntropyLoss()
 
     images, auth_labels, tamper_labels = generate_synthetic_packaging_images(
-        n_authentic, n_tampered_per_class, config, seed=seed
+        n_authentic, n_tampered_per_class, config, seed=seed, overlap_factor=config.overlap_factor
     )
     n_val = max(1, int(0.15 * len(images)))
     val_images, val_auth, val_tamper = images[:n_val], auth_labels[:n_val], tamper_labels[:n_val]
@@ -254,9 +274,9 @@ def train_cnn(
     )
     train_loader = DataLoader(train_ds, batch_size=config.batch_size, shuffle=True)
 
-    val_tensor = torch.from_numpy(val_images)
-    val_auth_tensor = torch.from_numpy(val_auth)
-    val_tamper_tensor = torch.from_numpy(val_tamper)
+    val_tensor = torch.from_numpy(val_images).to(device)
+    val_auth_tensor = torch.from_numpy(val_auth).to(device)
+    val_tamper_tensor = torch.from_numpy(val_tamper).to(device)
 
     history: Dict[str, List[float]] = {"train_loss": [], "val_loss": []}
     best_val_loss = float("inf")
@@ -266,6 +286,9 @@ def train_cnn(
         model.train()
         epoch_losses = []
         for batch_images, batch_auth, batch_tamper in train_loader:
+            batch_images = batch_images.to(device)
+            batch_auth = batch_auth.to(device)
+            batch_tamper = batch_tamper.to(device)
             optimizer.zero_grad()
             auth_logits, tamper_logits = model(batch_images)
             loss = bce(auth_logits, batch_auth) + ce(tamper_logits, batch_tamper)
@@ -291,6 +314,11 @@ def train_cnn(
             if epochs_without_improvement >= config.early_stopping_patience:
                 break
 
+    # Move back to CPU before returning: downstream consumers (evaluate_cnn,
+    # quantize_and_benchmark, Monte Carlo perturbation simulations) build
+    # plain CPU tensors and don't thread a device through, so keeping the
+    # model on an accelerator past training would break them on MPS machines.
+    model.to("cpu")
     return model, history
 
 
@@ -313,7 +341,7 @@ def evaluate_cnn(
     from sklearn.metrics import precision_recall_fscore_support
 
     images, _, tamper_labels = generate_synthetic_packaging_images(
-        n_test_per_class, n_test_per_class, config, seed=seed
+        n_test_per_class, n_test_per_class, config, seed=seed, overlap_factor=config.overlap_factor
     )
     model.eval()
     with torch.no_grad():

@@ -54,6 +54,10 @@ def generate_transactions(
     org_counts: Dict[str, int],
     seed: int = 42,
     start_timestamp: str = "2025-01-01T00:00:00",
+    temperature_mean_c: float = 5.0,
+    temperature_std_c: float = 1.2,
+    custody_timing_distribution: str = "uniform",
+    custody_timing_lambda: float = 0.1,
 ) -> pd.DataFrame:
     """Generate synthetic pharmaceutical supply-chain blockchain transactions.
 
@@ -63,6 +67,24 @@ def generate_transactions(
             logistics, regulators, pharmacies).
         seed: Random seed for reproducibility.
         start_timestamp: ISO timestamp used as the simulation epoch.
+        temperature_mean_c: Mean of the cold-chain temperature reading
+            distribution (degrees Celsius). Realistic pharma cold-chain
+            monitoring clusters tightly around a target (e.g. 5.0C for the
+            2-8C range); narrowing ``temperature_std_c`` models
+            better-calibrated sensors / tighter carrier compliance.
+        temperature_std_c: Standard deviation of the cold-chain temperature
+            reading distribution.
+        custody_timing_distribution: ``"uniform"`` (transaction timestamps
+            spread uniformly across the operational window, the historical
+            default) or ``"exponential"`` (inter-transaction gaps drawn from
+            an exponential distribution, modeling realistic bursty custody
+            handoffs -- most transfers happen in quick succession with
+            occasional long dwell times -- rather than a uniformly-paced
+            stream).
+        custody_timing_lambda: Rate parameter (events per second) for the
+            exponential inter-arrival distribution when
+            ``custody_timing_distribution="exponential"``. Mean gap is
+            ``1 / custody_timing_lambda`` seconds.
 
     Returns:
         DataFrame of ``n_transactions`` rows with columns: ``transaction_id``,
@@ -73,6 +95,10 @@ def generate_transactions(
     """
     if n_transactions <= 0:
         raise ValueError("n_transactions must be positive")
+    if custody_timing_distribution not in ("uniform", "exponential"):
+        raise ValueError(
+            f"Unknown custody_timing_distribution: {custody_timing_distribution!r}"
+        )
 
     rng = np.random.default_rng(seed)
     orgs = _build_organizations(org_counts)
@@ -94,14 +120,22 @@ def generate_transactions(
     start = pd.Timestamp(start_timestamp)
     # Spread transactions over a simulated 18-month operational window.
     total_window_seconds = 18 * 30 * 24 * 3600
-    offsets = np.sort(rng.integers(0, total_window_seconds, size=n_transactions))
+    if custody_timing_distribution == "exponential":
+        # Bursty custody handoffs: cumulative exponential inter-arrival gaps,
+        # rescaled to fill the same 18-month window as the uniform case so
+        # the two distributions remain comparable in span.
+        gaps = rng.exponential(scale=1.0 / custody_timing_lambda, size=n_transactions)
+        cumulative = np.cumsum(gaps)
+        offsets = (cumulative * (total_window_seconds / cumulative[-1])).astype(np.int64)
+    else:
+        offsets = np.sort(rng.integers(0, total_window_seconds, size=n_transactions))
     timestamps = start + pd.to_timedelta(offsets, unit="s")
 
     transaction_types = rng.choice(TRANSACTION_TYPES, size=n_transactions)
     drug_classes = rng.choice(DRUG_CLASSES, size=n_transactions, p=DRUG_CLASS_WEIGHTS)
 
     # Cold-chain-relevant readings cluster around a 2-8C target range.
-    base_temp = rng.normal(loc=5.0, scale=1.2, size=n_transactions)
+    base_temp = rng.normal(loc=temperature_mean_c, scale=temperature_std_c, size=n_transactions)
     ambient_mask = rng.random(n_transactions) < 0.15
     base_temp[ambient_mask] = rng.normal(loc=21.0, scale=2.0, size=ambient_mask.sum())
 
@@ -135,6 +169,11 @@ def generate_transactions(
 def generate_transactions_from_config(config: Dict[str, Any]) -> pd.DataFrame:
     """Convenience wrapper that reads generator parameters from a config dict.
 
+    Honors the optional ``data_quality`` config section
+    (``temperature_mean_c``, ``temperature_std_c``,
+    ``custody_timing_distribution``, ``custody_timing_lambda``) if present;
+    falls back to the historical defaults otherwise.
+
     Args:
         config: Full project configuration (as loaded from ``config.yaml``).
 
@@ -142,8 +181,13 @@ def generate_transactions_from_config(config: Dict[str, Any]) -> pd.DataFrame:
         DataFrame of generated transactions.
     """
     sim_cfg = config["simulation"]
+    dq_cfg = config.get("data_quality", {})
     return generate_transactions(
         n_transactions=sim_cfg["n_transactions"],
         org_counts=sim_cfg["organizations"],
         seed=config.get("random_seed", 42),
+        temperature_mean_c=dq_cfg.get("temperature_mean_c", 5.0),
+        temperature_std_c=dq_cfg.get("temperature_std_c", 1.2),
+        custody_timing_distribution=dq_cfg.get("custody_timing_distribution", "uniform"),
+        custody_timing_lambda=dq_cfg.get("custody_timing_lambda", 0.1),
     )
