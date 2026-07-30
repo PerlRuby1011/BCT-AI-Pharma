@@ -1,0 +1,670 @@
+LIVE-INFERENCE REDESIGN — RESULTS AND OPEN QUESTIONS
+Written:  2026-07-28
+Author:   Claude (Opus 5)
+Purpose:  Handoff for independent review. Another agent or reviewer can read
+          this and respond in-line (OPEN QUESTIONS, section 9).
+
+**** REVIEWED 2026-07-28 by a second independent Claude (Opus 5) session. ****
+     Section 9 answers are filled in. NEW SECTION 10 contains the review,
+     including ONE FINDING THAT CHANGES A CONCLUSION IN THIS DOCUMENT:
+     H1 was tested in the only arm where it had zero power by construction,
+     so "H1 FALSIFIED" is not supportable and must be restated as
+     "not testable in this arm." Sections 0 and 4 item 1 also overstate the
+     coupling result. See 10.2 and 10.3.
+     ACTION REQUIRED before this goes in the manuscript: see 10.6.
+
+**** STATUS 2026-07-28: ALL round-1 actions (10.6 items 1-7) COMPLETE. ****
+     ARM 5 was run and H1 is CONFIRMED in a powered condition (section 11).
+     This document is now the ROUND-1 RECORD. For the current state of the
+     work and the artifacts still needing review, read instead:
+         REVIEW_ROUND2_request.txt
+
+Companion documents in this directory:
+  OPTION2_live_inference_PREREGISTRATION.txt  — the frozen protocol, its
+      amendments, the pre-run predictions (section 13), and the recorded
+      results (section 14). READ SECTION 13 BEFORE SECTION 14: the
+      predictions were written before the run and are the main thing an
+      auditor should check.
+  PTS_CALIBRATION_findings_and_open_questions.txt  — the prior episode that
+      led here (why PTS recalibration could not raise detection).
+
+Raw data:
+  CODE/BCT-AI-Pharma/results/live_inference_results.json
+  CODE/BCT-AI-Pharma/results/live_inference.log
+
+======================================================================
+0. ONE-PARAGRAPH SUMMARY
+======================================================================
+
+CORRECTED 2026-07-28 following independent review (section 10.3). The
+original wording claimed the redesign "achieved its stated objective" on
+the strength of a 3.07 pp effect that was measured on the AI-Only channel
+— the condition defined by having NO blockchain provenance. That
+establishes coupling for AI-Only, not for the integrated system, and the
+claim is withdrawn pending ARM5.
+
+UPDATED after ARM 5 (section 11): the integrated-channel question raised
+below has now been answered affirmatively — degrading the CNN reduces
+integrated BCT-AI detection by 4.76 pp under clustered injection
+(t(9)=19.74, p=1.0e-08). The objective IS met, on arm-based evidence.
+
+The pre-registered live-inference redesign ran once, on 2026-07-28, for 49
+minutes. It established causal coupling on the AI-Only channel: degrading
+the CNN moved AI-Only detection by 3.07 pp, where the published proxy
+design produced exactly 0.00 pp across every phase of the ablation.
+Whether the INTEGRATED (BCT-AI) channel responds to model quality was not
+answered by any arm in that first execution — the registered test had zero
+power (section 2, section 10.2) — and was settled afterwards by ARM 5
+(section 11): 4.76 pp, confirmed. It also
+produced an unflattering primary result: under uniform counterfeit
+injection, BCT-AI detection is 0.00%,
+because the published PTS weights were calibrated when provenance was
+itself a severity-linked proxy and do not transfer to provenance derived
+from real custody history. A third finding is new and substantive:
+blockchain provenance contributes to counterfeit detection ONLY when
+counterfeiting is source-concentrated (+92.34 pp margin). All four pre-run
+predictions held, including the exact 0.00%. RQ1 has NOT been revisited,
+because the rule permitting that (R4) is not satisfied.
+
+======================================================================
+1. RESULTS — 10 seeds (42-51), 230,000 tx/seed, no exclusions, 0 failures
+======================================================================
+
+  arm                      BCT-AI detect     AI-Only   advantage   recall
+  ---------------------------------------------------------------------------
+  ARM0  proxy, full data   71.91% +/- 1.28%   57.90%   +14.01 pp   36.73%
+  ARM0b proxy, eval half   72.19% +/- 1.20%   57.83%   +14.36 pp   36.59%
+  ARM1  live, uniform       0.00% +/- 0.00%   75.09%   -75.09 pp    0.00%
+  ARM2  live, degraded CNN  0.00% +/- 0.00%   72.01%   -72.01 pp    0.00%
+  ARM3  live, degraded IF   0.00% +/- 0.00%   75.51%   -75.51 pp    0.00%
+  ARM4  live, clustered    92.29% +/- 0.64%   75.04%   +17.25 pp    7.52%
+
+  95% CI: ARM0 [70.99%, 72.83%]   ARM0b [71.34%, 73.05%]
+          ARM4 [91.83%, 92.75%]   ARM1-3 undefined (zero variance)
+
+  n counterfeit rows: 2,300/seed (ARM0, full data);
+                      ~1,145/seed (ARM0b and all live arms, evaluation
+                      half only — see section 3 on the burn-in split)
+
+MODEL METRICS AS TRAINED
+  CNN published (overlap 0.10)   weighted F1 = 1.0000
+  CNN degraded  (overlap 0.30)   weighted F1 = 1.0000
+  IF  published (contam. 0.05)   overall detection = 0.9600
+  IF  degraded  (contam. 0.20)   overall detection = 0.9667
+
+PER-ARM DIAGNOSTICS (means over 10 seeds)
+  arm   S1(cf)  S1(other)  CNN P(auth)  degen mass  corr(P,sev)  IF score  trust spread
+  ARM1  0.9744    0.9743      0.2735      0.7118      -0.7714     0.2385      0.0156
+  ARM2  0.9744    0.9743      0.2929      0.8295      -0.8101     0.2385      0.0156
+  ARM3  0.9744    0.9743      0.2735      0.7118      -0.7714     0.2332      0.0156
+  ARM4  0.6008    0.8437      0.2763      0.7054      -0.7669     0.2389      0.3000
+
+======================================================================
+2. GATES AND HYPOTHESES
+======================================================================
+
+R1  HARNESS PARITY — PASS
+    ARM0 = 71.91% reproduces the published 71.4% +/- 1.4%. The harness has
+    not drifted, so the remaining arms are interpretable. (R1 was written
+    to halt all interpretation if this failed.)
+
+R7  CNN DEGENERACY GATE — PASS
+    Degenerate mass 71.18% (gate fails above 90%);
+    corr(P_authentic, severity) = -0.77.
+    The classifier responds continuously to severity rather than reading
+    back the class label assigned from anomaly_type. This gate was added
+    specifically because a degenerate classifier would produce a HIGH
+    detection number that also passes the coupling test, and would
+    otherwise have flowed unchallenged into an RQ1 claim.
+    QUALIFICATION THAT MUST TRAVEL WITH ANY REPORTED NUMBER: 71% degenerate
+    mass is a pass, not a comfortable margin. The distribution is bimodal.
+    Both trained CNNs reached weighted F1 = 1.000 on their own synthetic
+    test sets, i.e. the synthetic packaging classes remain close to
+    trivially separable (already documented in manuscript Section 5.4).
+
+R8  PROVENANCE DEGENERACY GATE — PASS
+    ARM1 S1 = 0.9744 (counterfeit) vs 0.9743 (other): no discrimination
+    under uniform injection, and no uniform-low saturation.
+    ARM4 S1 = 0.6008 (counterfeit) vs 0.8437 (other): clear separation.
+
+H1  CAUSAL COUPLING, AS REGISTERED — NOT TESTABLE IN THE ARM THAT RAN
+    CORRECTED 2026-07-28 following independent review (section 10.2) and
+    re-verified by the original author. This entry previously read
+    "FALSIFIED". That verdict was wrong and is withdrawn.
+
+    R2 judges H1 on |ARM1 - ARM2| and |ARM1 - ARM3| of the BCT-AI
+    detection metric, against a 1.0 pp threshold. Both differences are
+    exactly 0.00 pp.
+
+    But that comparison had ZERO POWER by construction. Holding S8 at each
+    value across its entire physically reachable range [0.38, 0.88] and
+    recomputing from the real per-row S1 values, BCT-AI detection under
+    uniform injection varies by 0.11 pp in total — below the 1.0 pp
+    threshold at EVERY CNN output that can occur. Independently reproduced
+    by both the reviewer and the original author; the author's replication
+    is scratchpad/verify_power.py, which returns 0.11 pp (uniform) and
+    23.84 pp (clustered).
+
+    A test that cannot return a positive result has not falsified
+    anything. Section 2 of the pre-registration ties falsification of H1
+    to "the redesign failed at its stated purpose"; that inference is not
+    available from a zero-power test, so recording FALSIFIED here imported
+    a conclusion the data cannot support.
+
+    CORRECT STATUS: H1 was not testable in ARM1 vs ARM2. See ARM5
+    (section 10.4) for the powered test on the same registered metric.
+
+    Note this strengthens rather than weakens prediction P1: the sweep
+    confirms the structural zero across the full reachable range, not only
+    at the observed mean.
+
+H1  DIAGNOSTIC ON THE AI-ONLY CHANNEL — NOT the registered test
+    Degrading the CNN moved AI-Only detection 75.09% -> 72.01%: a 3.07 pp
+    drop, above the 1.0 pp threshold, in the correct direction.
+    Degrading the Isolation Forest moved it 75.09% -> 75.51%: 0.42 pp, no
+    coupling (expected; see section 4, item 4).
+    This channel is reported as a diagnostic and NOT promoted to the
+    registered test, because R2 fixed which metric H1 is judged on and
+    redefining that after seeing results is precisely the move the
+    protocol exists to prevent.
+
+H3  PROVENANCE REQUIRES SOURCE-CONCENTRATION — CONFIRMED
+    Advantage clustered (+17.25 pp) minus advantage uniform (-75.09 pp)
+    = +92.34 pp margin, against a 1.0 pp threshold.
+
+======================================================================
+3. PRE-RUN PREDICTIONS — ALL FOUR HELD
+======================================================================
+
+Recorded in pre-registration section 13, timestamped before execution,
+derived from the frozen constants plus the feasibility spike's measured
+distributions. This is the part an auditor should check hardest.
+
+  P1  BCT-AI at or near zero under uniform injection; "not low:
+      structurally unable to fire"                -> exactly 0.00%. HELD.
+  P2  AI-Only approximately 80%                   -> 75.09%.
+      PARTIALLY HELD — 5 pp low. [REGRADED 2026-07-28 per review 10.5.
+      Previously recorded as "HELD (close)". A 5 pp miss is not a pass.
+      The direction and rough magnitude were right; the point estimate was
+      not. Recording it as a partial miss rather than a pass is the whole
+      point of grading against a written prediction.]
+  P3  H1 falsified via provenance masking rather than via failure of
+      coupling                                    -> HELD; the AI-Only
+      diagnostic shows the CNN is coupled while BCT-AI is masked.
+  P4  ARM4 BCT-AI high, roughly 90%+              -> 92.29%. HELD.
+
+The derivation for P1, reproduced so it can be checked independently:
+BCT-AI fires when (w1*S1 + w8*S8)/(w1+w8) < 0.75. For Class A
+(w1=0.25, w8=0.10) that is S8 < 2.625 - 2.5*S1. The spike measured
+S1 = 0.976 under uniform injection, requiring S8 < 0.185. With
+S8 = (P_authentic + (1 - isolation))/2 and isolation ~ 0.24, that requires
+P_authentic < -0.37, which is unreachable. Every drug class is
+provenance-weighted at least 2.5:1, so the conclusion generalizes.
+
+======================================================================
+4. WHAT THE EXPERIMENT ESTABLISHED
+======================================================================
+
+1. THE REDESIGN ACHIEVED COUPLING ON THE AI-ONLY CHANNEL, AND THE
+   INTEGRATED CHANNEL REMAINS UNTESTED PENDING ARM5.
+   CORRECTED 2026-07-28 following independent review (section 10.3); the
+   original text claimed the objective was achieved outright.
+   Degrading the CNN moved AI-Only detection by 3.07 pp, against exactly
+   0.00 pp across Phases 3, 4 and 5 of the proxy ablation. That is real
+   coupling, but AI-Only is by definition the no-provenance condition, so
+   it does not establish that the integrated system responds to model
+   quality — which is what the redesign's stated objective asserts.
+   The integrated channel does have the capacity to respond: the section
+   10.2 sweep shows 23.84 pp of CNN-attributable range under clustered
+   injection (0.11 pp under uniform). But capacity measured by a post-hoc
+   sweep is not the same as an effect measured by an arm, and the sweep is
+   not a substitute for one. ARM5 supplies the arm.
+
+   RESOLVED by ARM 5 (section 11). Integrated BCT-AI detection falls
+   92.29% -> 87.53% when the CNN is degraded: 4.76 pp, same sign on all
+   ten seeds, t(9) = 19.74, p = 1.0e-08, Cohen's d = 6.24. The redesign's
+   objective is met on the integrated channel with arm-based evidence.
+   Cite ARM4 vs ARM5 for this claim, NOT the 3.07 pp AI-Only diagnostic.
+   Scope: established under clustered injection. Under uniform injection
+   the integrated channel still cannot respond (0.11 pp reachable), which
+   is the weight-transfer finding at item 2 and is unchanged.
+
+2. THE PUBLISHED PTS WEIGHTS DO NOT TRANSFER. They were calibrated when
+   custody_trust was itself a severity-linked proxy with slope 0.90, so
+   provenance was the strongest signal available and weighting it 2.5:1
+   over AI confidence was reasonable. Once provenance is derived from
+   realized custody history it sits at ~0.974 and is near-uniform under
+   uniform injection, pinning PTS at ~0.84 — above the 0.75 alert
+   threshold — so BCT-AI cannot fire regardless of what the CNN reports.
+   Hence 0.00%, which is a structural zero rather than poor performance —
+   structural AT THE ADOPTED PROVENANCE PENALTY OF 0.10. [Qualifier added
+   2026-07-28, round-2 review. The penalty constant sets S1's absolute
+   level and therefore how far the composite sits from the alert
+   threshold. It was fixed against gate R8 with no detection rate
+   consulted, but it was NOT swept, and the feasibility spike showed S1
+   moves sharply with it (mean S1 0.976 at penalty 0.10 versus 0.887 at
+   0.50 under uniform injection). "Structural" is precise only with the
+   constant named, and the successor pre-registration freezes the same
+   constant, so the qualifier propagates there too. See L-5.]
+
+3. BLOCKCHAIN PROVENANCE CONTRIBUTES ONLY UNDER SOURCE-CONCENTRATED
+   COUNTERFEITING. Under uniform injection no organization accumulates a
+   distinguishing prior record, every trust score converges (spread
+   0.0156), and provenance is correctly uninformative. Under clustered
+   injection the compromised manufacturers are identifiable from prior
+   history alone (spread 0.3000) and BCT-AI reaches 92.29% against
+   AI-Only's 75.04%. This is a claim the conference version does not make,
+   and it is consistent with the 67%-of-incidents-at-wholesale figure
+   already cited in manuscript Section 2.1 (Mackey and Nayyar).
+
+4. THE ISOLATION FOREST DOES NOT CONTRIBUTE TO COUNTERFEIT DETECTION
+   (0.42 pp), and should not be expected to. Counterfeit rows are not
+   temperature-excursion rows, so the forest scores nominal cold-chain
+   data for every counterfeit it sees. This is a domain boundary, not a
+   defect, and it matches the original diagnosis that the Isolation Forest
+   serves cold chain rather than counterfeit detection.
+
+======================================================================
+5. WHAT WAS DELIBERATELY NOT DONE
+======================================================================
+
+RQ1 WAS NOT REVISITED, DESPITE ARM4 = 92.29% EXCEEDING THE 90% BAR.
+    R4 permits revisiting RQ1 only if ALL THREE hold: R1 passed, H1 was
+    confirmed, and ARM 1 exceeds 90%. R1 passed. H1 was NOT TESTABLE on the
+    registered comparison [corrected 2026-07-28; this line read "was
+    FALSIFIED"]. ARM 1 is 0.00%. Two of three conditions fail.
+    ARM 5 subsequently confirmed H1 in a powered condition (section 11),
+    which does NOT rescue R4: R4's third condition names ARM 1, which
+    remains 0.00%, and ARM 5 is a degradation arm.
+    ARM 4 does not substitute for ARM 1. Protocol section 4 designates
+    ARM 1 the primary result; ARM 4 is a different arm under a different
+    injection condition, registered to test H3, and is not comparable to
+    the 71.4% proxy baseline. Promoting it to the headline is exactly the
+    substitution the protocol was written to prevent.
+    RQ1's answer in the manuscript STANDS UNCHANGED.
+
+WEIGHTS WERE NOT RETUNED. Adjusting w1/w8 so BCT-AI can fire under uniform
+    injection is forbidden by R5 as a response to this run. It is a
+    legitimate FUTURE experiment requiring its own pre-registration,
+    approval, and single execution.
+
+NOTHING WAS ADDED TO THE MANUSCRIPT YET. Per R6 this belongs in its own
+    subsection as a NEW experiment, not as a revision of Table VI or of
+    any published number. The proxy results remain the paper's primary
+    reported experiment.
+
+======================================================================
+6. A CORRECTION MADE DURING THE RUN
+======================================================================
+
+Mid-run I stated that the manipulation check had failed, on the grounds
+that both CNNs trained to weighted F1 = 1.0000 and both Isolation Forests
+to ~0.96, so the independent variable appeared not to have moved.
+
+That conclusion was wrong for the CNN. F1 on the standard synthetic test
+set is insensitive here, but per-transaction behaviour on severity-blended
+tensors did differ measurably: degenerate mass 0.7118 (published) vs
+0.8295 (degraded), and a 3.07 pp effect on AI-Only detection. The
+manipulation took; the aggregate metric could not see it.
+
+For the Isolation Forest the original observation stands, but the reason
+is structural (section 4, item 4) rather than a failed manipulation.
+
+======================================================================
+7. THREATS TO VALIDITY THAT A REVIEWER SHOULD PRESS ON
+======================================================================
+
+T-1 SYNTHETIC SEPARABILITY. Both CNNs reach F1 = 1.000 on their own
+    synthetic classes. R7 passed at 71% degenerate mass, but the packaging
+    generator is not a stand-in for real photographs, and the 3.07 pp
+    coupling effect is measured on synthetic tensors. The coupling result
+    would be far stronger on real imagery.
+
+T-2 THE BURN-IN SPLIT HALVES THE SAMPLE. Live arms evaluate ~1,145
+    counterfeit rows per seed against ARM0's 2,300. ARM0b was added as a
+    matched control and shifts only +0.28 pp (71.91% -> 72.19%), so the
+    restriction is not a confound — but a reviewer should confirm that
+    reasoning rather than take it on trust.
+
+T-3 ZERO VARIANCE IN ARMS 1-3 makes the 95% CI undefined and any t-test
+    degenerate. The 0.00% is a structural zero, not a sampling estimate,
+    and should be described that way rather than with inferential
+    statistics.
+
+T-4 ONE PENALTY CONSTANT. The provenance penalty (0.10) was fixed from the
+    spike against gate R8 alone, with no detection rate consulted, but it
+    is a single point in a space that was not swept. A different constant
+    changes S1's absolute level and therefore how far BCT-AI sits from the
+    threshold under uniform injection.
+
+T-5 ARM 4's 92.29% IS UNDER A DIFFERENT DATA CONDITION. It is not evidence
+    about performance under uniform counterfeiting, and must not be quoted
+    without its injection condition attached.
+
+======================================================================
+8. REPRODUCTION
+======================================================================
+
+  cd CODE/BCT-AI-Pharma
+  source .venv/bin/activate
+  python run_live_inference_experiment.py     # ~49 min, single execution
+  python analyze_live_inference.py            # gates + hypotheses
+
+  New code, additive only (no published pipeline was modified):
+    evaluation/live_inference.py         protocol 3.1/3.2/3.3
+    run_live_inference_experiment.py     arms 0-4
+    analyze_live_inference.py            written BEFORE results existed
+  Test suite: 61 passed.
+
+======================================================================
+9. OPEN QUESTIONS — PLEASE ANSWER INLINE
+======================================================================
+
+Q1. Do you agree RQ1 must stay unchanged? ARM4 = 92.29% clears the 90%
+    bar but R4's conditions are not met (section 5). If you think R4 is
+    too strict, say so explicitly rather than quietly quoting 92.29% —
+    the whole value of the pre-registration rests on this point.
+    ANSWER: AGREED, emphatically. R4 is not too strict; it is doing exactly
+    the job it was written for. ARM 4 is a different data condition and is
+    not comparable to the 71.4% proxy baseline, so quoting 92.29% as "RQ1
+    achieved" would be the substitution the protocol exists to prevent.
+    RQ1 stands unchanged. This is the single best decision in the package
+    and it should not be reopened.
+    Note that this answer does NOT depend on the H1 finding in section 10:
+    R4 fails on the ARM-1-exceeds-90% condition alone.
+
+Q2. Should the live-inference experiment go into the manuscript at all?
+    Arguments for: it converts a documented limitation into a finding,
+    demonstrates causal coupling, and adds the source-concentration result
+    (H3). Arguments against: the primary arm reads 0.00%, which is
+    arresting out of context and will need careful framing.
+    ANSWER: YES — but not until the ARM 5 gap in section 10 is closed or
+    explicitly conceded. The weight-transfer finding and H3 are genuine
+    contributions and stand on their own. The 0.00% is explainable in one
+    sentence (provenance at ~0.97 pins PTS at ~0.84, above the 0.75 alert
+    line, so BCT-AI cannot fire regardless of CNN output) and is not
+    embarrassing once stated that way — it is a calibration finding, not a
+    performance failure. What CANNOT go in as currently written is the
+    causal-coupling claim; see 10.3.
+
+Q3. If yes to Q2, where? Options: (a) new subsection in Section 6 with the
+    weight-transfer finding as its contribution; (b) an appendix; (c)
+    Section 7 discussion only, citing the JSON. My recommendation is (a).
+    ANSWER: AGREE WITH (a). New subsection in Section 6, with weight
+    transfer as the headline contribution and H3 as the second. Per R6 it
+    is a NEW experiment, not a revision of Table VI. Recommend the
+    subsection lead with the weight-transfer finding rather than the
+    0.00%, so the number arrives already explained.
+
+Q4. The weight-recalibration follow-up (sweeping w1/w8 under live
+    inference) is the obvious next experiment and is currently forbidden
+    by R5 without its own pre-registration. Do you want that
+    pre-registered now, or left as future work?
+    ANSWER: PRE-REGISTER IT, BUT RUN ARM 5 FIRST. The weight sweep asks
+    "what weights let the integrated channel use the CNN?" — that question
+    is only well-posed once we know the integrated channel responds to the
+    CNN at all, which is precisely what ARM 5 tests and what no arm has yet
+    established. Running the sweep first risks tuning weights toward a
+    channel that may be provenance-saturated.
+
+Q5. Manuscript Future Work item 1 states this redesign needs "an
+    order-of-magnitude increase in computational budget." Measured: 49
+    minutes end to end. That sentence is now demonstrably wrong and
+    should be corrected regardless of Q2. Confirm?
+    ANSWER: CONFIRMED. 49 minutes end to end, against a 28-minute
+    six-phase orchestrator baseline — that is not an order of magnitude,
+    it is under 2x. Correct the sentence regardless of what happens to
+    the rest of this experiment. Suggested replacement: the barrier is
+    implementation effort (custody-chain reconstruction, streaming,
+    determinism), not computational budget.
+
+Q6. T-1 (synthetic separability) is the threat most likely to draw a
+    reviewer comment. Do you want the write-up to foreground it, or to
+    confine it to Limitations?
+    ANSWER: FOREGROUND IT. Both CNNs reaching weighted F1 = 1.000 is the
+    first thing a reviewer will notice, and 71% degenerate mass is a thin
+    pass against a 90% gate, not a comfortable one. Burying it in
+    Limitations invites the reviewer to feel they found something hidden.
+    Stating it in the subsection itself, with the R7 gate shown as a
+    deliberate pre-registered check that was nearly failed, converts the
+    same fact from a vulnerability into evidence of rigor.
+
+======================================================================
+10. INDEPENDENT REVIEW — added 2026-07-28 by a second Claude (Opus 5)
+    session, working from the code and raw JSON rather than this summary
+======================================================================
+
+10.1 WHAT VERIFIES CLEAN
+-----------------------
+  - EVERY number in section 1 and in pre-registration section 14 matches
+    results/live_inference_results.json exactly. Checked programmatically,
+    all six arms, detection and AI-Only both. No transcription drift.
+  - Gates R1, R7, R8 are correctly computed and correctly reported.
+  - The CNN manipulation demonstrably took: degenerate mass 0.7118 (ARM1)
+    vs 0.8295 (ARM2), severity correlation -0.771 vs -0.810. The mid-run
+    correction in section 6 was the right call.
+  - evaluation/live_inference.py implements protocol 3.1/3.2/3.3 faithfully.
+    compute_org_reputation() reads only burn_in rows; metrics are computed
+    only on the evaluation half. NO LABEL LEAKAGE FOUND — trust never sees
+    the label of any row it is later applied to. I specifically looked for
+    this and did not find it.
+  - _pts_metrics() uses the published weights, formula and thresholds
+    unchanged, and applies identical CNN/IF outputs to both conditions.
+    The section 5 asymmetry risk was correctly avoided.
+  - ARM 0b as a matched control (deviation D-2) is the right instinct and
+    the +0.28 pp shift does clear the T-2 confound.
+  - Withholding R4 is correct and I endorse it without qualification
+    (see Q1).
+
+10.2 THE FINDING: H1 WAS TESTED WHERE IT HAD NO POWER
+-----------------------------------------------------
+S8 is not free. S8 = (P_authentic + (1 - isolation))/2, and with the
+measured isolation ~0.239 its REACHABLE range is [0.38, 0.88] — never 0,
+never 1. I recomputed BCT-AI detection holding S8 at a constant value
+across that entire reachable range, everything else fixed, all 10 seeds:
+
+    constant S8        ARM1 (uniform)     ARM4 (clustered)
+    -------------------------------------------------------
+    0.38  (min)             0.11%             100.00%
+    0.45                    0.00%             100.00%
+    0.50                    0.00%             100.00%
+    0.52  (mean obs)        0.00%             100.00%
+    0.60                    0.00%             100.00%
+    0.70                    0.00%             100.00%
+    0.80                    0.00%             100.00%
+    0.88  (max)             0.00%              76.16%
+    -------------------------------------------------------
+    TOTAL RANGE             0.11 pp            ~24 pp
+
+Under uniform injection, BCT-AI detection varies by 0.11 percentage
+points across EVERY CNN OUTPUT THAT CAN PHYSICALLY OCCUR. R2 judges H1 on
+|ARM1 - ARM2| against a 1.0 pp threshold. That comparison was therefore
+pinned below threshold before the CNN was trained, before the arms ran,
+and independently of anything the model did.
+
+  => "H1 FALSIFIED" is a null result from a test with zero power.
+     It is not evidence that coupling is absent. It is not evidence of
+     anything. The correct status is NOT TESTABLE IN THIS ARM.
+
+This is stronger than the document's current framing. Section 2 says H1
+was falsified "for a reason that is NOT 'the redesign failed to couple'"
+and points at provenance masking — correct as far as it goes, but it
+still records a FALSIFIED verdict and carries that into section 0. A
+test that cannot return a positive result has not falsified anything.
+
+Note this VINDICATES prediction P1 more strongly than section 3 claims.
+P1's derivation argued the zero was structural; the sweep confirms it
+empirically across the full reachable range, not just at the mean.
+
+10.3 CONSEQUENT OVERSTATEMENT IN SECTIONS 0 AND 4
+-------------------------------------------------
+Section 0:      "It achieved its stated objective: system-level counterfeit
+                 detection now responds causally to CNN quality (3.07 pp)"
+Section 4 (1):  "THE REDESIGN ACHIEVED ITS OBJECTIVE. Detection now
+                 responds to CNN quality (3.07 pp)"
+
+The 3.07 pp is measured on the AI-ONLY channel — the condition defined by
+having no blockchain provenance. It establishes that the CNN is coupled to
+AI-Only. It does NOT establish that the INTEGRATED system responds to
+model quality, which is what "the redesign achieved its objective" claims.
+
+The document is scrupulous about this in section 2 ("reported as a
+diagnostic and NOT promoted to the registered test") and then leans on it
+anyway in the summary and the findings list. Those two statements need to
+be brought into line with section 2's own standard.
+
+The irony worth recording: per 10.2, the integrated channel has ~24 pp of
+CNN-attributable dynamic range under clustered injection. That is BETTER
+evidence for the redesign's objective than the 3.07 pp being quoted. It
+just does not come from any arm that was run — it comes from this
+post-hoc sweep, which is not a substitute for an arm.
+
+10.4 THE MISSING ARM
+--------------------
+ARM 5 = CLUSTERED injection + DEGRADED CNN (overlap 0.30).
+        ARM 4's data condition, ARM 2's manipulation. All else identical.
+
+This runs the REGISTERED H1 test, on the REGISTERED metric (BCT-AI
+detection), in the one condition where that metric demonstrably can move.
+Estimated cost ~14 min (one arm x 10 seeds at the measured 6.76 ms/row;
+the degraded CNN from ARM 2 already exists and is not retrained).
+
+WHY THIS IS NOT R5-FORBIDDEN. R5 forbids varying parameters in search of
+a better number after a disappointing result. ARM 5 varies nothing to
+improve anything: it holds every frozen constant, reuses both existing
+models, and its registered prediction is that detection will GO DOWN. It
+completes a test that was specified in the protocol and executed in a
+condition that could not answer it. If the reviewer of this document
+disagrees, the honest alternative is to report H1 as untested and say so
+in the manuscript — NOT to leave "falsified" standing.
+
+PRE-REGISTERED PREDICTION FOR ARM 5, recorded 2026-07-28 BEFORE any run:
+
+  P5. ARM 5 BCT-AI detection will fall BELOW ARM 4's 92.29%, by more than
+      1.0 pp. Mechanism: the degraded CNN raises P(Authentic) on
+      counterfeits (degenerate mass 0.7118 -> 0.8295 with more mass at the
+      authentic end), pushing rows toward the high-S8 region where the
+      clustered sweep shows detection dropping to 76.16%.
+      => If confirmed, H1 IS CONFIRMED on the registered metric, and the
+         redesign's stated objective is met with arm-based evidence.
+      => If ARM 5 stays within 1.0 pp of 92.29%, the integrated channel is
+         provenance-saturated under clustering, H1 genuinely fails on the
+         BCT-AI metric, and that must be reported plainly — the redesign
+         would then have coupled AI-Only but not the integrated system.
+      Either outcome is reportable. Neither licenses further arms.
+
+10.5 MINOR — SELF-GRADING
+-------------------------
+P2 predicted AI-Only "approximately 80%"; the measured value is 75.09%,
+graded "HELD (close)" in both documents. That is a 5 pp miss recorded as
+a pass. Pre-registration's whole value is that the grading is stricter
+than one would like; generous self-grading spends that credibility for
+nothing. Recommend regrading to "PARTIALLY HELD — 5 pp low" and leaving
+it visible. It costs nothing and it is the kind of detail that persuades
+a skeptical reviewer that the other grades are honest.
+
+Everything else in section 3 grades correctly. P1, P3 and P4 all held.
+
+10.6 ACTION LIST FOR THE NEXT AGENT
+-----------------------------------
+In order. Items 1-3 are required before any of this enters the manuscript.
+
+  1. RESTATE H1's verdict, in this document, in pre-registration section
+     14, and anywhere else it appears: "NOT TESTABLE IN ARM 1 — the metric
+     has 0.11 pp of reachable range under uniform injection" replaces
+     "FALSIFIED". Keep the AI-Only diagnostic, keep its 3.07 pp, keep it
+     labelled a diagnostic.
+  2. CORRECT sections 0 and 4 item 1 so the causal-coupling claim is
+     attributed to the AI-Only channel, or drop the claim until ARM 5
+     supplies arm-based evidence for it.
+  3. RUN ARM 5 (10.4), with P5 already recorded above. Single execution.
+     Report the outcome whatever it is. Update section 14 of the
+     pre-registration with the result and the P5 grade.
+  4. REGRADE P2 per 10.5.
+  5. CORRECT manuscript Future Work item 1's compute claim (Q5) — this is
+     independent of everything else and can be done immediately.
+  6. THEN draft the Section 6 subsection per Q2/Q3, leading with the
+     weight-transfer finding, foregrounding T-1 per Q6.
+  7. Pre-register the w1/w8 sweep (Q4) only after ARM 5 lands.
+     DONE 2026-07-28: OPTION3_weight_sweep_PREREGISTRATION.txt, awaiting
+     approval. Selection criterion is responsiveness (R-C), NOT detection
+     rate, and R-E keeps the manuscript's existing numbers as measured
+     under the published weights regardless of what the sweep finds.
+
+VERIFICATION ARTIFACTS from this review are reproducible with the sweep
+described in 10.2: build_transactions() + split_timeline() +
+compute_org_reputation() + compute_provenance_scores(), then evaluate
+(w1*S1 + w8*S8)/(w1+w8) < 0.75 at constant S8. No CNN inference required,
+runs in ~2 minutes for all 10 seeds and both injection modes.
+
+======================================================================
+11. ARM 5 — POWERED H1 TEST. Run 2026-07-28 19:52-21:12.
+======================================================================
+
+Executed in response to review finding 10.2/10.4. Prediction P5 was
+recorded in section 10.4 BEFORE this arm ran. Single execution, seeds
+42-51, all ten, no exclusions, no failures.
+
+DETERMINISM CHECK. ARM 4 was re-run in the same job and reproduced the
+original result in every digit: 92.29% +/- 0.64%, AI-Only 75.04%,
+advantage +17.25 pp. All four models retrained bit-identically (CNN
+1.0000/1.0000, IF 0.9600/0.9667). Any ARM4-ARM5 difference is therefore
+attributable to the CNN swap alone.
+
+RESULT
+  arm                                    BCT-AI detect      AI-Only    95% CI
+  ------------------------------------------------------------------------------
+  ARM4  clustered, published CNN        92.29% +/- 0.64%    75.04%   [91.83, 92.75]
+  ARM5  clustered, DEGRADED CNN         87.53% +/- 0.74%    71.23%   [87.00, 88.07]
+
+  |ARM4 - ARM5| on BCT-AI detection = 4.76 pp   (H1 threshold 1.0 pp)
+  AI-Only channel moved                 3.81 pp
+
+  Paired across the 10 shared seeds (identical data, identical models
+  except the CNN): mean difference 4.76 pp, same sign on all 10 seeds,
+  t(9) = 19.74, p = 1.02e-08, Cohen's d = 6.24.
+  ARM5 diagnostics: degenerate mass 0.8280 (vs 0.7118 published),
+  corr(P_authentic, severity) = -0.8114, mean P(Authentic) 0.2995.
+
+H1 — CONFIRMED ON THE REGISTERED METRIC, IN A POWERED CONDITION
+  Degrading the CNN reduces integrated BCT-AI counterfeit detection by
+  4.76 pp, well above the 1.0 pp threshold, in the predicted direction,
+  consistently across every seed.
+
+P5 — CONFIRMED. Predicted "below ARM 4's 92.29% by more than 1.0 pp";
+  measured 4.76 pp below. Mechanism also as predicted: the degraded CNN
+  raised P(Authentic) on counterfeits (0.2735 -> 0.2995, degenerate mass
+  0.7118 -> 0.8280), pushing rows toward the high-S8 region where the
+  section 10.2 sweep showed detection falling.
+
+WHAT THIS DOES AND DOES NOT LICENSE
+  DOES: the redesign's stated objective is now met with ARM-BASED
+  evidence on the integrated channel, not only on AI-Only and not only
+  via the post-hoc sweep. The proxy design moved 0.00 pp under every
+  ablation phase; the live design moves 4.76 pp when the CNN is degraded.
+  Sections 0 and 4 item 1 may now claim coupling for the integrated
+  system, citing ARM4 vs ARM5 — NOT the 3.07 pp AI-Only figure.
+
+  DOES NOT: ARM 5 is NOT the originally registered H1 test. That test was
+  ARM1 vs ARM2 and was unanswerable (0.11 pp reachable range). ARM 5 was
+  added after the primary results were seen, and must be reported as a
+  post-hoc-motivated but pre-predicted test. The honest sentence is:
+  "the registered comparison had no power; a powered comparison in the
+  clustered condition confirms coupling."
+
+  DOES NOT: change RQ1. ARM 5 is a degradation arm. R4's conditions
+  concern ARM 1, which remains 0.00%. RQ1 stands unchanged.
+
+  DOES NOT: license further arms. Per section 10.4, neither outcome of
+  ARM 5 authorized additional runs, and this one does not either.
+
+STILL OPEN
+  Uniform injection remains the condition where the integrated system
+  cannot respond at all (0.11 pp reachable). ARM 5 establishes coupling
+  under source-concentrated counterfeiting only. The weight-transfer
+  finding (section 4 item 2) is unaffected: under uniform injection the
+  published weights still make BCT-AI structurally unable to fire.
+
+======================================================================
+END
+======================================================================

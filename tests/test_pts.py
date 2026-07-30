@@ -6,6 +6,7 @@ import pytest
 from blockchain.chaincode.counterfeit_detection import CounterfeitDetectionContract
 from pts.product_trust_score import (
     ProductState,
+    compute_component_scores,
     compute_pts,
     compute_pts_for_drug_class,
     score_age_shelf_life,
@@ -15,7 +16,10 @@ from pts.product_trust_score import (
     score_provenance_integrity,
     score_regulatory_status,
     score_temperature_compliance,
+    quarantine_override_triggered,
+    quarantine_threshold_for_drug_class,
     score_verification_frequency,
+    validate_drug_class_weights,
     weights_for_drug_class,
 )
 from pts.pts_sensitivity_analysis import run_sensitivity_analysis, summarize_sensitivity
@@ -376,3 +380,139 @@ def test_pts_to_smart_contract_chain_for_three_products() -> None:
 
     assert contract.get_quarantine_count() == 1
     assert contract.get_alert_count() == 1
+
+
+# ---------------------------------------------------------------------------
+# Calibration fixes A/B/C (see pts/calibration_diagnostic.py)
+# ---------------------------------------------------------------------------
+
+
+def test_validate_drug_class_weights_accepts_baseline_classes() -> None:
+    for class_cfg in PTS_CONFIG["drug_classes"].values():
+        assert validate_drug_class_weights(class_cfg) == pytest.approx(1.0)
+
+
+def test_validate_drug_class_weights_rejects_non_unit_sum() -> None:
+    bad = dict(PTS_CONFIG["drug_classes"]["A"], w8_ai_confidence=0.20)
+    with pytest.raises(ValueError, match="must sum to 1.0"):
+        validate_drug_class_weights(bad)
+
+
+def test_fix_a_rescaling_preserves_unit_sum_and_proportions() -> None:
+    """Fix A: w8 0.10 -> 0.20 with the residual redistributed proportionally."""
+    class_a = dict(PTS_CONFIG["drug_classes"]["A"])
+    scale = (1.0 - 0.20) / (1.0 - 0.10)
+    rescaled = {
+        "w1_provenance_integrity": class_a["w1_provenance_integrity"] * scale,
+        "w2_temperature_compliance": class_a["w2_temperature_compliance"] * scale,
+        "remaining_total": class_a["remaining_total"] * scale,
+        "w8_ai_confidence": 0.20,
+    }
+    assert validate_drug_class_weights(rescaled) == pytest.approx(1.0)
+    # Relative proportions among the non-w8 weights are unchanged.
+    assert rescaled["w1_provenance_integrity"] / rescaled["w2_temperature_compliance"] == (
+        pytest.approx(
+            class_a["w1_provenance_integrity"] / class_a["w2_temperature_compliance"]
+        )
+    )
+
+
+def test_fix_b_override_forces_quarantine_above_composite_threshold() -> None:
+    """Fix B: both gates breached forces quarantine even when PTS >= threshold."""
+    cfg = dict(
+        PTS_CONFIG,
+        quarantine_override={
+            "enabled": True,
+            "drug_classes": ["A"],
+            "cnn_authenticity_max": 0.30,
+            "temperature_compliance_max": 0.20,
+        },
+    )
+    # 17C reading against a 5C/2C target: S2 collapses, CNN score is 0.2.
+    state = ProductState(
+        temperature_readings_c=[17.0] * 30,
+        cnn_authenticity_score=0.2,
+    )
+    components = compute_component_scores(state)
+    assert components["temperature_compliance"] < 0.20
+
+    assert quarantine_override_triggered("A", state, components, cfg) is True
+    result = compute_pts_for_drug_class(state, "A", cfg)
+    assert result["quarantine_override"] is True
+    assert result["status"] == "quarantine"
+    # The override is what quarantined it -- the composite alone would not.
+    assert result["pts"] >= cfg["quarantine_threshold"]
+
+
+def test_fix_b_override_requires_both_gates_and_class_membership() -> None:
+    cfg = dict(
+        PTS_CONFIG,
+        quarantine_override={
+            "enabled": True,
+            "drug_classes": ["A"],
+            "cnn_authenticity_max": 0.30,
+            "temperature_compliance_max": 0.20,
+        },
+    )
+    # Temperature fine, CNN bad -> no override.
+    cnn_only = ProductState(temperature_readings_c=[5.0], cnn_authenticity_score=0.2)
+    assert (
+        quarantine_override_triggered(
+            "A", cnn_only, compute_component_scores(cnn_only), cfg
+        )
+        is False
+    )
+    # Both gates breached but Class B is not covered -> no override.
+    both = ProductState(temperature_readings_c=[17.0] * 30, cnn_authenticity_score=0.2)
+    assert (
+        quarantine_override_triggered("B", both, compute_component_scores(both), cfg)
+        is False
+    )
+    # Disabled by default (baseline config carries no override block).
+    assert (
+        quarantine_override_triggered(
+            "A", both, compute_component_scores(both), PTS_CONFIG
+        )
+        is False
+    )
+
+
+def test_fix_b_never_fires_without_temperature_readings() -> None:
+    """No readings => S2 == 1.0, so the S2 gate is unreachable by construction.
+
+    This is exactly why Fix B leaves the counterfeit-detection metric
+    unchanged: that code path builds ProductStates with no temperature data.
+    """
+    cfg = dict(
+        PTS_CONFIG,
+        quarantine_override={
+            "enabled": True,
+            "drug_classes": ["A"],
+            "cnn_authenticity_max": 0.30,
+            "temperature_compliance_max": 0.20,
+        },
+    )
+    state = ProductState(temperature_readings_c=[], cnn_authenticity_score=0.0)
+    components = compute_component_scores(state)
+    assert components["temperature_compliance"] == 1.0
+    assert quarantine_override_triggered("A", state, components, cfg) is False
+
+
+def test_fix_c_per_class_quarantine_threshold_overrides_global() -> None:
+    cfg = dict(PTS_CONFIG)
+    cfg["drug_classes"] = dict(
+        PTS_CONFIG["drug_classes"],
+        A=dict(PTS_CONFIG["drug_classes"]["A"], quarantine_threshold=0.45),
+    )
+    assert quarantine_threshold_for_drug_class("A", cfg) == 0.45
+    assert quarantine_threshold_for_drug_class("B", cfg) == 0.50
+
+
+def test_quarantine_threshold_must_stay_below_alert_threshold() -> None:
+    cfg = dict(PTS_CONFIG)
+    cfg["drug_classes"] = dict(
+        PTS_CONFIG["drug_classes"],
+        A=dict(PTS_CONFIG["drug_classes"]["A"], quarantine_threshold=0.80),
+    )
+    with pytest.raises(ValueError, match="strictly below the alert threshold"):
+        quarantine_threshold_for_drug_class("A", cfg)

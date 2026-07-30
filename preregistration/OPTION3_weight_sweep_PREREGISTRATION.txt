@@ -1,0 +1,341 @@
+PRE-REGISTRATION: PTS WEIGHT SWEEP UNDER LIVE INFERENCE
+(successor to the live-inference redesign; Future Work item 1)
+
+Status:   DRAFT FOR APPROVAL — NOTHING HAS BEEN RUN
+Written:  2026-07-28
+Author:   Claude (Opus 5)
+Purpose:  Fix the methodology in writing BEFORE any result is observed.
+          This experiment is unusually exposed to outcome selection and the
+          guards in sections 5 and 6 are the substance of the document, not
+          boilerplate.
+
+Prior documents:
+  OPTION2_live_inference_PREREGISTRATION.txt   — the completed redesign
+  LIVE_INFERENCE_RESULTS_for_review.txt        — its results and review
+
+======================================================================
+1. WHY THIS EXPERIMENT EXISTS
+======================================================================
+
+The live-inference experiment established two things. Detection is now
+causally coupled to classifier quality: degrading the CNN moves integrated
+detection 92.29% -> 87.53% under clustered injection (4.76 pp, t(9)=19.7,
+p=1.0e-08). And under UNIFORM injection the integrated channel cannot
+respond at all: holding S8 across its entire physically reachable range
+[0.38, 0.88] moves integrated detection by 0.11 pp in total.
+
+The cause is a weight-transfer failure, not a model failure. Detection
+requires (w1*S1 + w8*S8)/(w1+w8) < 0.75. With provenance derived from real
+custody history S1 = 0.974 under uniform injection, so for Class A
+(w1=0.25, w8=0.10) detection requires S8 < 0.185, which requires a negative
+authenticity probability. The published weights were calibrated when
+custody trust was itself a severity-linked proxy with slope 0.90 —
+provenance was then the most discriminative signal and weighting it 2.5:1
+was correct. It is no longer correct once provenance is real.
+
+The question this experiment asks is whether ANY allocation of weight
+between provenance and AI confidence restores responsiveness under uniform
+injection without destroying the integrated framework's advantage over
+AI-Only.
+
+======================================================================
+2. HYPOTHESES
+======================================================================
+
+H6 [RESTATED 2026-07-28 BEFORE APPROVAL, round-2 review. The original
+    wording asked whether there exists a (w1, w8) allocation under which
+    BOTH (a) responsiveness exceeds 1.0 pp under uniform injection AND
+    (b) the integrated condition still beats AI-Only under clustering.
+
+    Leg (a) IS NOW ANSWERED, and not by this sweep. The geometry diagnosis
+    that withdrew R-C also settled it: responsiveness is monotone in
+    r = w8/(w1+w8) and saturates at the maximum possible 100 pp for every
+    r >= 0.4050, i.e. across ~60% of the grid. Leg (a) is satisfied
+    trivially and abundantly. Continuing to pose it as a hypothesis would
+    be pre-registering a question already on the record — which is its own
+    small species of dishonesty, since a "confirmed" H6(a) would read as
+    an experimental finding when it is a capacity calculation that
+    preceded the run.]
+
+H6 (RESTATED). The live question is entirely leg (b), now conditioned on
+    (a): does ANY allocation with usable responsiveness under uniform
+    injection keep the integrated condition ahead of AI-Only under
+    clustered injection, at the published 0.75 threshold?
+      Operationalized: among allocations with r >= 0.4050 (where
+      responsiveness is known to be saturated), does at least one satisfy
+      integrated detection > AI-Only detection under clustered injection?
+    FALSIFIED IF: no such allocation exists — i.e. every allocation that
+    can respond to classifier quality under uniform injection has already
+    surrendered the integrated advantage under clustering.
+    That outcome is the substantive architectural result: provenance and AI
+    confidence could not then be combined by ANY single fixed linear
+    weighting serving both regimes, and the framework would require either
+    regime-dependent weights or a non-linear combination. It must be
+    reported in those terms rather than as a null.
+
+    NOTE ON WHERE THE ANSWER COMES FROM. Because (a) is settled by
+    geometry and (b) is a detection comparison, this experiment's live
+    question is now unavoidably a detection question. That does not make
+    it illegitimate — it makes R-G and R-H load-bearing, since a detection
+    comparison is exactly what must not leak into the abstract, the
+    conclusion, or an RQ answer.
+
+H7 (the responsive region trades against uniform-injection detection).
+    Allocations that satisfy H6(a) will show LOWER integrated detection
+    under clustered injection than the published weights do.
+    Rationale: responsiveness requires the AI term to be able to move the
+    composite across the threshold, which necessarily reduces the
+    provenance term's ability to carry rows across it on its own.
+    FALSIFIED IF: some allocation improves both simultaneously.
+
+NOT A HYPOTHESIS: "some weighting produces detection above 90%", or above
+any other number. Detection magnitude is an outcome to be reported, never
+a criterion for selecting a weighting. See section 5.
+
+======================================================================
+3. PROTOCOL
+======================================================================
+
+3.1 SIGNAL CACHING. Weights enter only the PTS aggregation, never model
+    inference. Therefore per-row S1 and S8 are computed ONCE per seed per
+    injection mode using the frozen live-inference pipeline
+    (evaluation/live_inference.py, unchanged), cached, and the weight grid
+    is evaluated analytically over the cache. This makes the sweep cost
+    minutes rather than hours and guarantees that every grid point sees
+    numerically identical model outputs.
+
+3.2 GRID. w1 and w8 are varied over the two-component simplex actually
+    used by the detection path, in steps of 0.01, subject to
+    w1 + w8 <= 1.0 and both > 0. Only their RATIO affects the outcome
+    (compute_pts normalizes by the weight sum), so the reported surface is
+    parameterized by r = w8 / (w1 + w8) over [0.01, 0.99] in steps of 0.01.
+    The published Class A allocation is r = 0.286.
+
+3.3 CONDITIONS. Every grid point is evaluated under BOTH uniform and
+    clustered injection, on all ten seeds (42-51), 230,000 transactions
+    per seed. No condition is dropped.
+
+3.4 FROZEN. Alert threshold 0.75, quarantine threshold 0.50, anomaly
+    injection, transaction generation, the provenance penalty (0.10), the
+    burn-in split, and both trained models are held exactly as in the
+    live-inference experiment. NO THRESHOLD IS TO BE ADJUSTED IN THIS
+    EXPERIMENT FOR ANY REASON.
+
+3.5 COUPLING MEASUREMENT. Reachable range at a grid point is computed by
+    holding S8 constant across [0.38, 0.88] as in the verified sweep, not
+    by re-running the degraded CNN. If a specific allocation is later
+    reported as recommended, its coupling must be CONFIRMED by an actual
+    degraded-CNN arm at that allocation before any coupling claim is made
+    for it — a reachable-range calculation is a capacity measure, not an
+    effect measure. This distinction is the one the review of the previous
+    experiment turned on.
+
+======================================================================
+4. DECISION RULES
+======================================================================
+
+R-A The full surface is reported: detection under both injection modes and
+    reachable range, across the entire grid. No region is omitted for
+    being unflattering, and the surface is published as data alongside the
+    manuscript.
+
+R-B H6 is judged on whether ANY grid point satisfies both 2(a) and 2(b),
+    stated plainly either way.
+
+R-C [AMENDED 2026-07-28 BEFORE APPROVAL, following round-2 review. The
+    original text read: "among allocations satisfying H6(a) and H6(b), the
+    one MAXIMIZING REACHABLE RANGE under uniform injection ... If two
+    allocations tie on reachable range, the one closer to the published
+    r = 0.286 wins." That criterion is WITHDRAWN as structurally unsound.
+    Reasons, both verified numerically before approval:
+
+    (i) CORNER SOLUTION. Writing r = w8/(w1+w8), the composite is
+        PTS = (1-r)*S1 + r*S8, and the S1-window within which a row can be
+        swung by S8 across [0.38, 0.88] has width 0.5r/(1-r) — zero at
+        r = 0, unbounded as r -> 1. Reachable range is therefore monotone
+        non-decreasing in r, and maximizing it alone selects r = 1, which
+        is PTS = S8: the AI-Only condition. An unconstrained
+        responsiveness objective recommends deleting the blockchain term.
+
+    (ii) WORSE THAN A CORNER: A PLATEAU. Measured against the real
+        per-row S1 values over all ten seeds, reachable range under
+        uniform injection is 0.25 pp at the published r = 0.286, 91.6 pp
+        at r = 0.400, 95.3 pp at r = 0.4025, and exactly 100.00 pp for
+        EVERY r from 0.4050 upward.
+        [Onset corrected 2026-07-28 after round-2 re-verification on a
+        finer grid. This paragraph first said the plateau ran "from
+        r = 0.50", covering "half" the space; that was an artifact of a
+        coarse sampling grid (0.40, 0.50, 0.60, ...). True onset is
+        r = 0.4050, so the plateau covers 59.5% of the simplex, not 50%.
+        The closed form agrees: saturation begins once even the
+        highest-provenance row is swingable, at
+        r = (S1_max - 0.75)/(S1_max - 0.38), which is 0.403 for
+        S1_max ~ 1.0. The error made the finding sound milder than it is.]
+        The objective is FLAT across roughly 60% of the parameter space,
+        and informative over only about a tenth of it (0.38 to 0.405). It
+        cannot discriminate among allocations on the plateau at all, so
+        the tie-break would have performed the entire selection while the
+        stated objective performed none of it. A tie-break is not a
+        criterion.
+
+    (iii) THE OBJECTIVE WAS NOT WELL DEFINED. "Reachable range" admits at
+        least two reasonable readings that disagree materially: sweeping
+        S8 at its observed per-row values gives 23.84 pp at the published
+        allocation, while sweeping the interval endpoints gives 60.27 pp.
+        Same allocation, same data, different number.
+
+    (iv) H6(b) WAS LOAD-BEARING, NOT A FILTER. Because the objective
+        climbs monotonically into the constraint, the selected allocation
+        would have sat ON the H6(b) boundary — i.e. been fixed by a
+        DETECTION comparison despite the stated objective being
+        responsiveness. The reader check offered in section 5 of this
+        document ("verify the recommendation is not the
+        detection-maximizing one") would have passed while being
+        substantially weaker than it appeared.]
+
+R-C (REPLACEMENT) THE PRIMARY DELIVERABLE IS THE SURFACE, NOT A
+    RECOMMENDED POINT. The experiment reports detection under both
+    injection modes and responsiveness across the whole grid, and
+    characterizes the trade-off between them. It does NOT nominate a
+    single recommended allocation, because no criterion available to this
+    experiment selects one honestly: responsiveness degenerates as shown
+    above, and detection is disqualified by construction.
+
+    If a later experiment wishes to recommend an operating point, it needs
+    a criterion with an INTERIOR optimum — for example maximizing
+    counterfeit/clean separation (AUC or Cohen's d) in the composite score
+    under CLUSTERED injection, where both terms carry signal and the
+    optimum is therefore genuinely interior rather than at a corner. That
+    criterion must be pre-registered separately, with the corner-solution
+    geometry above disclosed in advance so the choice cannot be presented
+    as a discovery.
+
+    Whatever is reported, the corner-solution property is stated in the
+    write-up as geometry rather than as anyone's preference, so that a
+    reader can see it was known before the sweep ran.
+
+R-D The detection rate at the recommended allocation is reported as
+    measured, including if it is lower than the 71.4% the paper reports
+    under the published weights.
+
+R-E The published weights REMAIN the paper's operating point. This
+    experiment characterizes the weight surface; it does not retroactively
+    re-specify the evaluation. Table VI, the ablation, the t-statistics
+    and every headline number in the manuscript stay as measured under the
+    published weights. Any recommended allocation is offered as guidance
+    for future deployments and future work, in its own subsection, clearly
+    marked as not the configuration under which this paper's results were
+    obtained.
+
+R-F Single execution. If an implementation defect is found after results
+    are seen, the fix, the re-run and the discarded result are all recorded
+    with the reason.
+
+R-G [ADDED 2026-07-28 before approval, round-2 review.] NO DETECTION
+    FIGURE FROM THIS SWEEP APPEARS IN THE ABSTRACT, THE CONCLUSION, OR ANY
+    RESEARCH-QUESTION ANSWER. R-E protects Table VI and the reported
+    results, but those are not the channel through which a flattering
+    number would actually travel. This line of work began by being asked
+    to reach 78.2%, then 90%; the abstract and the RQ answers are where
+    such a number would be most useful and least scrutinized. Sweep
+    figures are confined to the sweep's own subsection, always paired with
+    their injection condition and their allocation.
+
+R-H [ADDED 2026-07-28.] H6(b) IS LOAD-BEARING AND MUST BE REPORTED AS
+    SUCH. It is not a sanity filter. Any allocation-dependent conclusion
+    must state which of H6(a) and H6(b) is binding at the allocation
+    discussed, because a conclusion resting on the constraint rather than
+    the objective is a conclusion about detection, whatever the stated
+    objective was.
+
+======================================================================
+5. THE CENTRAL RISK, STATED PLAINLY
+======================================================================
+
+This experiment sweeps a parameter that directly controls the headline
+metric, immediately after a result that made the headline metric look bad
+under one condition. That is the exact configuration in which outcome
+selection happens, and it would be easy to dress up: the sweep will almost
+certainly contain an allocation with detection above 71.4% under uniform
+injection, and possibly one above 90% under clustered injection. Adopting
+such a point because of its detection rate — however it is subsequently
+justified — would invalidate this experiment and retroactively damage the
+credibility of the two that preceded it.
+
+The guards are now: R-C declines to nominate an allocation at all, because
+the only non-detection criterion available degenerates (see R-C's amendment
+notes); R-E keeps sweep results out of the paper's reported numbers; R-G
+keeps them out of the abstract, conclusion and RQ answers, which is where
+such a number would be most useful and least examined; R-H forces
+disclosure of which condition is binding wherever an allocation-dependent
+claim is made.
+
+The reader check originally offered here — "verify the recommended
+allocation is not the detection-maximizing one" — has been WITHDRAWN as
+misleading. Round-2 review established that it would have passed while the
+recommendation was in fact fixed by the H6(b) detection constraint. It is
+replaced by: verify that no allocation is recommended, that no sweep
+detection figure appears outside the sweep's own subsection, and that
+Table VI is unchanged.
+
+If a later experiment does nominate an allocation, and its
+separation-maximizing choice coincides with the detection-maximizing one,
+that coincidence must be stated explicitly rather than left for a reader to
+notice.
+
+A prior expectation, recorded now: the responsiveness-maximizing allocation
+will place substantially MORE weight on AI confidence than the published
+r = 0.286, and will show LOWER clustered-injection detection than 92.29%.
+If the recommended allocation instead turns out to raise detection
+everywhere, that is a surprising result and should be treated with more
+suspicion, not less.
+
+======================================================================
+6. WHAT THIS EXPERIMENT CANNOT DO
+======================================================================
+
+It cannot revisit RQ1. RQ1's decision rule was fixed in the previous
+pre-registration and concerns the primary live-inference arm under the
+published weights. A weight sweep is a different experiment and does not
+inherit that question.
+
+It cannot establish coupling at any allocation on its own. Reachable range
+is a capacity measure; a coupling claim requires a degraded-CNN arm at that
+allocation (3.5).
+
+It cannot resolve the synthetic-separability limitation, which bounds every
+result in this line of work and is recorded in the manuscript's Limitations.
+
+======================================================================
+7. COST
+======================================================================
+
+Signal caching: one live-inference pass per injection mode over ten seeds,
+approximately 30 minutes total at the measured 6.76 ms/row, reusing the
+already-trained models. Grid evaluation over the cache: minutes. A
+confirmatory degraded-CNN arm at the recommended allocation, if one is
+reported, adds approximately 30 minutes.
+
+======================================================================
+8. APPROVAL
+======================================================================
+
+  [ ] APPROVED AS WRITTEN
+  [ ] APPROVED WITH AMENDMENTS BELOW
+  [ ] REJECTED
+
+  Approver: ______________________   Date: ____________
+
+Explicit acknowledgement required:
+
+  "I accept that the recommended allocation will be selected by
+   responsiveness and not by detection rate, that its detection rate will
+   be reported as measured, and that the manuscript's existing results
+   remain as measured under the published weights regardless of what this
+   sweep finds."
+
+  Initials: ________
+
+======================================================================
+END
+======================================================================

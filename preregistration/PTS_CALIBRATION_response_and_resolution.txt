@@ -1,0 +1,284 @@
+PTS CALIBRATION — RESPONSE, RECONCILIATION, AND RESOLUTION
+Written: 2026-07-28
+Author: Claude (Opus 5), second independent session
+Responds to: PTS_CALIBRATION_findings_and_open_questions.txt
+
+======================================================================
+0. ONE-PARAGRAPH SUMMARY
+======================================================================
+
+I ran the calibration exercise independently, without having seen the
+handoff document, from a different fix list (A/B/C rather than A-E) and
+a different code path (fixes implemented in the repo with tests, rather
+than in-memory overrides). I reached the same conclusion by the same
+mechanism, and I confirm every one of the handoff's Facts 1-5. I then
+found something neither session had: the premise of the whole exercise
+was false. RQ1's threshold in the manuscript is 90%, not 78.2%, and the
+manuscript already reports AI-Only as the measured 57.6% with a footnote
+retiring 78.2% as an unreproduced conference design target. Exceeding
+78.2% would not have flipped RQ1. Separately, I ran the alert-threshold
+sweep the handoff proposed as Option 1, and it produced the decisive
+result: the one setting that delivers the requested number (alert=0.80
+-> 78.24%) is the same setting at which AI-Only overtakes BCT-AI
+(78.53%) and RQ2 inverts. No manuscript change is warranted on this
+axis; one optional addition is identified in section 5.
+
+======================================================================
+1. ANSWERS TO THE OPEN QUESTIONS
+======================================================================
+
+Q1. Do you accept that Fixes A-E cannot achieve the stated goal?
+
+ANSWER: Yes, confirmed independently. I did not review your numbers and
+then agree with them; I ran my own and then compared. All five of your
+FACTs hold. Specifically re-verified:
+
+  FACT 1 (detection thresholds on ALERT, not quarantine) — confirmed at
+  run_simulation.py:193/195. Structural, not empirical.
+
+  FACT 2 (Fix B unreachable) — confirmed, and STRENGTHENED. You showed
+  S2 == 1.0 always and composite S8 in [0.461, 0.992]. I additionally
+  instrumented the RAW cnn_authenticity score, because the fix as
+  specified to me said "CNN authenticity score (S8)", and the composite
+  ai_confidence is not the same quantity (it averages the CNN score with
+  the inverse Isolation Forest score). Raw CNN range over 2,300
+  counterfeit rows: [0.5357, 1.0000], fraction below 0.30: 0.000000.
+  So the override is dead under BOTH readings of the spec. Neither gate
+  is reachable. I also ran a positive control ("B-obs") with the gates
+  widened to reachable values, which moved quarantine +4.66 pp,
+  proving the override is correctly wired and the null is a coverage
+  artifact rather than a bug.
+
+  FACT 3 (A and D push the wrong way) — confirmed. Your boundary
+  algebra (s > 0.284 -> 0.292) and mine (s > 0.286 -> 0.294) agree.
+
+  FACT 4 (Fix E lowers the bar the wrong way) — confirmed by my sweep:
+  alert 0.70 gives 64.49% (yours: 64.97%).
+
+  FACT 5 (only metric inflation reaches the target) — confirmed, and
+  see section 3 below, which makes this much sharper than either of us
+  had it.
+
+Q2. Is the real goal (a) beat the measured AI-only baseline, (b) match
+    the conference headline numbers, or (c) something else?
+
+ANSWER: The question is well-posed but is aimed at a target that the
+manuscript has already retired. See section 2. Short version: (a) is
+already done AND already correctly written up as RQ2's "Yes". 78.2%
+appears nowhere as a live comparison — it survives only in a Table VI
+footnote that explicitly labels it a design target not reproduced here.
+Nothing needs deciding.
+
+Q3. Proceed with OPTION 1 (threshold sensitivity)? y/n
+
+ANSWER: Done — I ran it (section 3). Recommend including it, but for a
+different and stronger reason than "threshold dependence is worth
+showing". It demonstrates that RQ2's advantage is operating-point
+specific and reverses above ~0.80. That is a real qualification of a
+live claim in the paper.
+
+Q4. Proceed with OPTION 2 (per-transaction inference redesign)?
+
+ANSWER: Cannot be answered by an agent; it is the author's call, and it
+is now the only open decision. One correction to your framing, though:
+your cost estimate is, I believe, too high. See section 4.
+
+Q5. Is there external pressure driving the 78.2% target?
+
+ANSWER: Unknown to me — this is for the author. But note that whatever
+the pressure is, 78.2% is the wrong response to it, because RQ1 asks
+for 90%.
+
+Q6. Should commit fabf487 be pushed to GitHub?
+
+ANSWER: Not for me to decide, and I have not pushed anything. Flagging
+one consideration for the author: the repo is public and the paper
+cites it as the reference implementation, so whatever is pushed should
+be the state the paper describes. My calibration machinery is
+default-OFF and baseline-reproducing, so it does not change any
+published number — but it does add code implementing fixes that were
+found not to work, which is worth a deliberate decision rather than an
+incidental one.
+
+======================================================================
+2. THE PREMISE WAS FALSE (the finding neither session had)
+======================================================================
+
+Both of us treated "exceed 78.2% -> flip RQ1 to Yes" as the goal and
+argued about whether it was reachable. It is worth checking what the
+manuscript actually says. It says this:
+
+  RQ1 (line 223, restated line 2492):
+    "Can a permissioned blockchain ... achieve counterfeit detection
+     above 90% in a simulation configured at national pharmaceutical
+     supply chain scale ...?"
+
+  THE THRESHOLD IS 90%, NOT 78.2%.
+
+Even a fix that had worked perfectly and delivered 78.3% would have
+left RQ1 answered "no". The entire calibration exercise was aimed at a
+number that does not appear in the question it was meant to answer.
+
+Further, the manuscript has already made every correction that the
+"78.2% problem" would call for:
+
+  - Table (line 1953): "AI-Only (measured)  57.6%", with the footnote
+    "The conference version lists 78.2% for this row as a design
+     target; that figure is not reproduced here."
+  - RQ2 (line 2516) is already answered "Yes": 71.4% vs 57.6% vs 41.7%,
+    t(9)=52.20, p<0.0001, "the 13.8-percentage-point detection
+    advantage is stable across every seed tested".
+  - RQ1's "no" already carries the correct qualification (line 2505ff):
+    71.4% "measures the sensitivity of the PTS aggregation to anomaly
+    composition over per-seed synthetic proxies, not the accuracy of
+    live model inference", and "resolving it requires the
+    per-transaction inference redesign that Section 8 places first".
+  - Future Work item 1 is already exactly your Option 2.
+
+The paired t-test the manuscript reports as its headline statistic
+(t(9)=52.20, d=16.51) is computed at statistical_validation.py:113 as
+run_paired_ttest(ai_only_counterfeit, bct_ai_counterfeit) — i.e. it is
+ALREADY BCT-AI vs the measured AI-Only condition, on the same draws.
+
+Conclusion: the manuscript is correct as written on this axis. It does
+not need the RQ1 answer flipped, the baseline changed, or the numbers
+revised. I made no manuscript edits.
+
+I record for completeness that in my own first write-up I asserted the
+manuscript "places a measured number (71.4%) against a non-measured one
+(78.2%)". That was wrong; I had not read the manuscript at that point,
+only the task framing. It is corrected in CHANGES.md.
+
+======================================================================
+3. THE ALERT-THRESHOLD SWEEP (Option 1) — DECISIVE RESULT
+======================================================================
+
+10 seeds x 230,000 transactions, Phase 6 data-quality settings.
+Sensitivity analysis only; the operating point remains 0.75 and no
+threshold was chosen on the basis of the value it produces.
+
+  alert     BCT-AI      AI-Only      gap (pp)
+  ------------------------------------------------
+  0.60      50.91%       5.57%        +45.34
+  0.65      57.85%      16.21%        +41.64
+  0.70      64.49%      34.16%        +30.33
+  0.75      71.40%      57.59%        +13.82   <- operating point
+  0.80      78.24%      78.53%         -0.29   <- "target reached"
+  0.85      85.31%      92.39%         -7.08
+  0.90      92.47%      98.23%         -5.77
+
+READ THE 0.80 ROW.
+
+At alert=0.80, BCT-AI detection is 78.24% — it clears 78.2%. Any search
+that used "exceeds 78.2%" as its stopping criterion terminates exactly
+here and reports success. And at that same threshold AI-Only is 78.53%,
+i.e. HIGHER. RQ2's entire comparative claim inverts at the moment the
+target is met.
+
+This is a stronger statement than "threshold tuning is dishonest". It
+is: threshold tuning toward this target is self-defeating on its own
+terms. The setting that buys the headline number destroys the result
+the paper actually rests on.
+
+Mechanism: AI-Only's score is tightly concentrated (S8 ~ 0.81 - 0.15s,
+observed range [0.456, 0.973]), so it crosses a high threshold nearly
+all at once; BCT-AI's provenance term spreads its distribution (S1
+range [0.000, 1.000]). Above ~0.80 the entire AI-Only mass drops below
+the line.
+
+Substantive consequence for the paper: the 13.8 pp advantage is
+specific to the 0.75 operating point and REVERSES above ~0.80. The
+manuscript does not currently say this. It is a genuine qualification
+of a live claim, and it is the one thing from this whole exercise that
+may be worth adding.
+
+Data: CODE/BCT-AI-Pharma/results/alert_threshold_sensitivity.json
+
+======================================================================
+4. CORRECTION TO THE OPTION 2 COST ESTIMATE
+======================================================================
+
+Your handoff estimates Option 2 at "~10x current compute budget", and
+the manuscript's Future Work item 1 says "an estimated order-of-
+magnitude increase in computational budget". I think that is too
+pessimistic, and it matters because it may be deterring a decision.
+
+The 28-minute figure for the 6-phase orchestrator run is dominated by
+MODEL TRAINING (LSTM + CNN + Isolation Forest, six times over). The
+detection metric itself is cheap: I re-ran all ten seeds at full
+230,000-transaction scale in ~12 seconds.
+
+Option 2 does not require retraining anything per seed. It requires:
+  - the already-trained CNN and Isolation Forest (trained once), and
+  - a forward pass per anomaly-labelled transaction:
+    2,300 counterfeit rows/seed x 10 seeds = 23,000 CNN inferences,
+    plus cold-chain sequences through the Isolation Forest.
+
+23,000 forward passes through a 64x64 model is seconds of compute, not
+hours. The real cost of Option 2 is DESIGN AND ENGINEERING time —
+generating a packaging feature vector and a cold-chain reading sequence
+per anomaly-labelled transaction that are distributionally consistent
+with what the models were trained on — not GPU budget. My estimate is
+hours of implementation, not an order of magnitude more compute.
+
+That correction should probably propagate to the manuscript's Future
+Work item 1 if Option 2 is not undertaken, since the paper currently
+overstates the barrier to its own highest-priority follow-up.
+
+I have NOT implemented Option 2. It needs the author's go-ahead,
+because its result must be accepted in advance whatever it is —
+including a value below 71.4%. Pre-registering the methodology before
+seeing any output is the whole point; the moment it is run with a
+target in mind it becomes the same operation as threshold tuning.
+
+======================================================================
+5. WHAT I CHANGED, AND WHAT I DID NOT
+======================================================================
+
+CHANGED (code only; no published number moves):
+  - pts/product_trust_score.py — added validate_drug_class_weights(),
+    quarantine_threshold_for_drug_class() (per-class thresholds, with a
+    guard that raises if threshold >= alert), and
+    quarantine_override_triggered(). All default-OFF.
+  - config/config.yaml — added pts.quarantine_override (enabled: false)
+    and documented the optional per-class quarantine_threshold key.
+    NO baseline weight or threshold value changed.
+  - evaluation/run_simulation.py — recall path now honours per-class
+    thresholds and the override. Verified metric-neutral: baseline
+    reproduces the published 71.40% +/- 1.35% exactly.
+  - tests/test_pts.py — 8 new tests. Full suite 61 passed.
+  - pts/calibration_diagnostic.py — new, reproducible.
+  - CHANGES.md — full record including the correction in section 2.
+
+NOT CHANGED (deliberately):
+  - BCT_AI_Pharma_CompInd.tex — no edits. It is correct as written.
+  - All published results/phase*.json — intact.
+  - No alert threshold, anywhere, for any purpose.
+  - Nothing pushed to GitHub.
+
+I concur with your section 9 without reservation, and I add one item:
+I will not tune, and did not tune, any parameter with "exceeds 78.2%"
+as the stopping rule — which, per section 3, would in any case have
+inverted RQ2 at the exact moment it succeeded.
+
+======================================================================
+6. THE ONE OPEN DECISION
+======================================================================
+
+Everything else is resolved. What remains is Q4, restated with the
+corrected cost:
+
+  Undertake the per-transaction live-inference redesign (Future Work
+  item 1) as a NEW, pre-registered experiment — methodology fixed and
+  written down before any result is seen, reported as a separate
+  experiment rather than a revision of current numbers, and the outcome
+  accepted in advance whatever it is, including below 71.4%?
+
+If yes, that is the only route by which RQ1's 90% question can be
+legitimately answered at all — in either direction.
+If no, the paper stands as written, which on the evidence above is a
+defensible place for it to stand.
+
+======================================================================
+END
+======================================================================

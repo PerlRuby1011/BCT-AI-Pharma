@@ -1,0 +1,1796 @@
+{
+  "generated_at": "2026-07-28T19:13:58",
+  "smoke_test": false,
+  "seeds": [
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51
+  ],
+  "transactions_per_run": 230000,
+  "model_metrics": {
+    "cnn_published_f1": 1.0,
+    "cnn_degraded_f1": 1.0,
+    "if_published_calibration": [
+      0.38455093041034394,
+      0.6921659090319385
+    ],
+    "if_published_detection": 0.96,
+    "if_degraded_calibration": [
+      0.3789844019018542,
+      0.6323360628155354
+    ],
+    "if_degraded_detection": 0.9666666666666666
+  },
+  "arms": [
+    {
+      "arm": "ARM0",
+      "label": "Proxy baseline (published design, full data)",
+      "config": {
+        "id": "ARM0",
+        "label": "Proxy baseline (published design, full data)",
+        "mode": "proxy",
+        "clustered": false,
+        "half": false
+      },
+      "per_seed": [
+        {
+          "seed": 42,
+          "n_transactions": 230000,
+          "n_counterfeit": 2300,
+          "n_anomalies": 12075,
+          "bct_ai_counterfeit_detection": 0.7086956521739131,
+          "ai_only_counterfeit_detection": 0.5708695652173913,
+          "bct_ai_recall_efficiency": 0.3648861283643892,
+          "ai_only_recall_efficiency": 0.002898550724637681
+        },
+        {
+          "seed": 43,
+          "n_transactions": 230000,
+          "n_counterfeit": 2300,
+          "n_anomalies": 12075,
+          "bct_ai_counterfeit_detection": 0.701304347826087,
+          "ai_only_counterfeit_detection": 0.5734782608695652,
+          "bct_ai_recall_efficiency": 0.36149068322981365,
+          "ai_only_recall_efficiency": 0.0016563146997929607
+        },
+        {
+          "seed": 44,
+          "n_transactions": 230000,
+          "n_counterfeit": 2300,
+          "n_anomalies": 12075,
+          "bct_ai_counterfeit_detection": 0.73,
+          "ai_only_counterfeit_detection": 0.5991304347826087,
+          "bct_ai_recall_efficiency": 0.3646376811594203,
+          "ai_only_recall_efficiency": 0.001987577639751553
+        },
+        {
+          "seed": 45,
+          "n_transactions": 230000,
+          "n_counterfeit": 2300,
+          "n_anomalies": 12075,
+          "bct_ai_counterfeit_detection": 0.7365217391304347,
+          "ai_only_counterfeit_detection": 0.5904347826086956,
+          "bct_ai_recall_efficiency": 0.36438923395445133,
+          "ai_only_recall_efficiency": 0.002567287784679089
+        },
+        {
+          "seed": 46,
+          "n_transactions": 230000,
+          "n_counterfeit": 2300,
+          "n_anomalies": 12075,
+          "bct_ai_counterfeit_detection": 0.7191304347826087,
+          "ai_only_counterfeit_detection": 0.5791304347826087,
+          "bct_ai_recall_efficiency": 0.3652173913043478,
+          "ai_only_recall_efficiency": 0.0021532091097308487
+        },
+        {
+          "seed": 47,
+          "n_transactions": 230000,
+          "n_counterfeit": 2300,
+          "n_anomalies": 12075,
+          "bct_ai_counterfeit_detection": 0.731304347826087,
+          "ai_only_counterfeit_detection": 0.59,
+          "bct_ai_recall_efficiency": 0.36770186335403726,
+          "ai_only_recall_efficiency": 0.002070393374741201
+        },
+        {
+          "seed": 48,
+          "n_transactions": 230000,
+          "n_counterfeit": 2300,
+          "n_anomalies": 12075,
+          "bct_ai_counterfeit_detection": 0.7239130434782609,
+          "ai_only_counterfeit_detection": 0.558695652173913,
+          "bct_ai_recall_efficiency": 0.37043478260869567,
+          "ai_only_recall_efficiency": 0.002650103519668737
+        },
+        {
+          "seed": 49,
+          "n_transactions": 230000,
+          "n_counterfeit": 2300,
+          "n_anomalies": 12075,
+          "bct_ai_counterfeit_detection": 0.7117391304347827,
+          "ai_only_counterfeit_detection": 0.5808695652173913,
+          "bct_ai_recall_efficiency": 0.373167701863354,
+          "ai_only_recall_efficiency": 0.003229813664596273
+        },
+        {
+          "seed": 50,
+          "n_transactions": 230000,
+          "n_counterfeit": 2300,
+          "n_anomalies": 12075,
+          "bct_ai_counterfeit_detection": 0.7278260869565217,
+          "ai_only_counterfeit_detection": 0.5760869565217391,
+          "bct_ai_recall_efficiency": 0.3755693581780538,
+          "ai_only_recall_efficiency": 0.0022360248447204968
+        },
+        {
+          "seed": 51,
+          "n_transactions": 230000,
+          "n_counterfeit": 2300,
+          "n_anomalies": 12075,
+          "bct_ai_counterfeit_detection": 0.7008695652173913,
+          "ai_only_counterfeit_detection": 0.5717391304347826,
+          "bct_ai_recall_efficiency": 0.3659627329192547,
+          "ai_only_recall_efficiency": 0.0014906832298136647
+        }
+      ],
+      "failures": [],
+      "summary": {
+        "n_seeds": 10,
+        "detection_mean": 0.7191304347826086,
+        "detection_std": 0.01283243108474124,
+        "ai_only_detection_mean": 0.5790434782608695,
+        "bct_ai_advantage_pp": 14.008695652173909,
+        "recall_mean": 0.36734575569358185,
+        "ci95_detection": [
+          0.7099506665855195,
+          0.7283102029796977
+        ],
+        "t_statistic": 37.58614877712226,
+        "p_value": 3.313883367984685e-11
+      },
+      "statistical_validation": {
+        "n_runs": 10,
+        "per_run": {
+          "bct_ai_counterfeit_detection": [
+            0.7086956521739131,
+            0.701304347826087,
+            0.73,
+            0.7365217391304347,
+            0.7191304347826087,
+            0.731304347826087,
+            0.7239130434782609,
+            0.7117391304347827,
+            0.7278260869565217,
+            0.7008695652173913
+          ],
+          "baseline_counterfeit_detection": [
+            0.5708695652173913,
+            0.5734782608695652,
+            0.5991304347826087,
+            0.5904347826086956,
+            0.5791304347826087,
+            0.59,
+            0.558695652173913,
+            0.5808695652173913,
+            0.5760869565217391,
+            0.5717391304347826
+          ],
+          "bct_ai_recall_efficiency": [
+            0.3648861283643892,
+            0.36149068322981365,
+            0.3646376811594203,
+            0.36438923395445133,
+            0.3652173913043478,
+            0.36770186335403726,
+            0.37043478260869567,
+            0.373167701863354,
+            0.3755693581780538,
+            0.3659627329192547
+          ],
+          "baseline_recall_efficiency": [
+            0.002898550724637681,
+            0.0016563146997929607,
+            0.001987577639751553,
+            0.002567287784679089,
+            0.0021532091097308487,
+            0.002070393374741201,
+            0.002650103519668737,
+            0.003229813664596273,
+            0.0022360248447204968,
+            0.0014906832298136647
+          ]
+        },
+        "counterfeit_detection_ttest": {
+          "t_statistic": 37.58614877712226,
+          "p_value": 3.313883367984685e-11,
+          "degrees_of_freedom": 9,
+          "mean_difference": 0.14008695652173914,
+          "ci_95": [
+            0.13165569334558283,
+            0.14851821969789544
+          ]
+        },
+        "recall_efficiency_ttest": {
+          "t_statistic": 276.0757582037635,
+          "p_value": 5.462690417739825e-19,
+          "degrees_of_freedom": 9,
+          "mean_difference": 0.36505175983436855,
+          "ci_95": [
+            0.36206053576350206,
+            0.36804298390523504
+          ]
+        },
+        "confidence_intervals_95": {
+          "bct_ai_counterfeit_detection": [
+            0.7099506665855195,
+            0.7283102029796977
+          ],
+          "bct_ai_recall_efficiency": [
+            0.36419998676471277,
+            0.37049152462245094
+          ]
+        },
+        "note": "t-statistics are computed from 10 genuinely independent 230,000-transaction runs (laptop scale), not reverse-engineered to match the paper's full-scale (2.3M-transaction) reported values of t(9)=6.42 (counterfeit detection) / t(9)=7.11 (recall efficiency); differing from those exact figures is expected."
+      },
+      "duration_seconds": 11.9
+    },
+    {
+      "arm": "ARM0b",
+      "label": "Proxy baseline, evaluation half only (matched control)",
+      "config": {
+        "id": "ARM0b",
+        "label": "Proxy baseline, evaluation half only (matched control)",
+        "mode": "proxy",
+        "clustered": false,
+        "half": true
+      },
+      "per_seed": [
+        {
+          "seed": 42,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1155,
+          "n_anomalies": 6009,
+          "bct_ai_counterfeit_detection": 0.716017316017316,
+          "ai_only_counterfeit_detection": 0.554978354978355,
+          "bct_ai_recall_efficiency": 0.36262273256781496,
+          "ai_only_recall_efficiency": 0.00199700449326011
+        },
+        {
+          "seed": 43,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1153,
+          "n_anomalies": 6022,
+          "bct_ai_counterfeit_detection": 0.7033824804856895,
+          "ai_only_counterfeit_detection": 0.5698178664353859,
+          "bct_ai_recall_efficiency": 0.3542012620391896,
+          "ai_only_recall_efficiency": 0.0014945200929923613
+        },
+        {
+          "seed": 44,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1118,
+          "n_anomalies": 5978,
+          "bct_ai_counterfeit_detection": 0.7316636851520573,
+          "ai_only_counterfeit_detection": 0.5948121645796064,
+          "bct_ai_recall_efficiency": 0.374372699899632,
+          "ai_only_recall_efficiency": 0.0018400802944128472
+        },
+        {
+          "seed": 45,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1147,
+          "n_anomalies": 6053,
+          "bct_ai_counterfeit_detection": 0.7340889276373147,
+          "ai_only_counterfeit_detection": 0.5832606800348736,
+          "bct_ai_recall_efficiency": 0.36494300346935404,
+          "ai_only_recall_efficiency": 0.002312902692879564
+        },
+        {
+          "seed": 46,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1135,
+          "n_anomalies": 6045,
+          "bct_ai_counterfeit_detection": 0.7101321585903083,
+          "ai_only_counterfeit_detection": 0.5797356828193833,
+          "bct_ai_recall_efficiency": 0.3607940446650124,
+          "ai_only_recall_efficiency": 0.002150537634408602
+        },
+        {
+          "seed": 47,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1157,
+          "n_anomalies": 6002,
+          "bct_ai_counterfeit_detection": 0.742437337942956,
+          "ai_only_counterfeit_detection": 0.6101987899740708,
+          "bct_ai_recall_efficiency": 0.3733755414861713,
+          "ai_only_recall_efficiency": 0.0023325558147284237
+        },
+        {
+          "seed": 48,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1132,
+          "n_anomalies": 6027,
+          "bct_ai_counterfeit_detection": 0.7243816254416962,
+          "ai_only_counterfeit_detection": 0.5777385159010601,
+          "bct_ai_recall_efficiency": 0.3675128588020574,
+          "ai_only_recall_efficiency": 0.002654720424755268
+        },
+        {
+          "seed": 49,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1159,
+          "n_anomalies": 6058,
+          "bct_ai_counterfeit_detection": 0.7118205349439172,
+          "ai_only_counterfeit_detection": 0.5625539257981018,
+          "bct_ai_recall_efficiency": 0.3709144932320898,
+          "ai_only_recall_efficiency": 0.0013205678441729944
+        },
+        {
+          "seed": 50,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1152,
+          "n_anomalies": 6115,
+          "bct_ai_counterfeit_detection": 0.7213541666666666,
+          "ai_only_counterfeit_detection": 0.5815972222222222,
+          "bct_ai_recall_efficiency": 0.3676206050695012,
+          "ai_only_recall_efficiency": 0.0022894521668029434
+        },
+        {
+          "seed": 51,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1142,
+          "n_anomalies": 5979,
+          "bct_ai_counterfeit_detection": 0.7241681260945709,
+          "ai_only_counterfeit_detection": 0.5683012259194395,
+          "bct_ai_recall_efficiency": 0.3622679377822378,
+          "ai_only_recall_efficiency": 0.0018397725372135808
+        }
+      ],
+      "failures": [],
+      "summary": {
+        "n_seeds": 10,
+        "detection_mean": 0.7219446358972493,
+        "detection_std": 0.011994650811234863,
+        "ai_only_detection_mean": 0.5782994428662499,
+        "bct_ai_advantage_pp": 14.364519303099943,
+        "recall_mean": 0.3658625179013061,
+        "ci95_detection": [
+          0.7133641796045138,
+          0.7305250921899848
+        ],
+        "t_statistic": 42.82401572721148,
+        "p_value": 1.0303534874690321e-11
+      },
+      "statistical_validation": {
+        "n_runs": 10,
+        "per_run": {
+          "bct_ai_counterfeit_detection": [
+            0.716017316017316,
+            0.7033824804856895,
+            0.7316636851520573,
+            0.7340889276373147,
+            0.7101321585903083,
+            0.742437337942956,
+            0.7243816254416962,
+            0.7118205349439172,
+            0.7213541666666666,
+            0.7241681260945709
+          ],
+          "baseline_counterfeit_detection": [
+            0.554978354978355,
+            0.5698178664353859,
+            0.5948121645796064,
+            0.5832606800348736,
+            0.5797356828193833,
+            0.6101987899740708,
+            0.5777385159010601,
+            0.5625539257981018,
+            0.5815972222222222,
+            0.5683012259194395
+          ],
+          "bct_ai_recall_efficiency": [
+            0.36262273256781496,
+            0.3542012620391896,
+            0.374372699899632,
+            0.36494300346935404,
+            0.3607940446650124,
+            0.3733755414861713,
+            0.3675128588020574,
+            0.3709144932320898,
+            0.3676206050695012,
+            0.3622679377822378
+          ],
+          "baseline_recall_efficiency": [
+            0.00199700449326011,
+            0.0014945200929923613,
+            0.0018400802944128472,
+            0.002312902692879564,
+            0.002150537634408602,
+            0.0023325558147284237,
+            0.002654720424755268,
+            0.0013205678441729944,
+            0.0022894521668029434,
+            0.0018397725372135808
+          ]
+        },
+        "counterfeit_detection_ttest": {
+          "t_statistic": 42.82401572721148,
+          "p_value": 1.0303534874690321e-11,
+          "degrees_of_freedom": 9,
+          "mean_difference": 0.1436451930309994,
+          "ci_95": [
+            0.13605720771933338,
+            0.15123317834266542
+          ]
+        },
+        "recall_efficiency_ttest": {
+          "t_statistic": 187.69087283207458,
+          "p_value": 1.759659355196547e-17,
+          "degrees_of_freedom": 9,
+          "mean_difference": 0.3638393065017434,
+          "ci_95": [
+            0.3594541082184621,
+            0.3682245047850247
+          ]
+        },
+        "confidence_intervals_95": {
+          "bct_ai_counterfeit_detection": [
+            0.7133641796045138,
+            0.7305250921899848
+          ],
+          "bct_ai_recall_efficiency": [
+            0.36142613411352553,
+            0.37029890168908663
+          ]
+        },
+        "note": "t-statistics are computed from 10 genuinely independent 230,000-transaction runs (laptop scale), not reverse-engineered to match the paper's full-scale (2.3M-transaction) reported values of t(9)=6.42 (counterfeit detection) / t(9)=7.11 (recall efficiency); differing from those exact figures is expected."
+      },
+      "duration_seconds": 9.9
+    },
+    {
+      "arm": "ARM1",
+      "label": "Live inference, published CNN, uniform injection",
+      "config": {
+        "id": "ARM1",
+        "label": "Live inference, published CNN, uniform injection",
+        "mode": "live",
+        "clustered": false,
+        "cnn": "published",
+        "if": "published"
+      },
+      "per_seed": [
+        {
+          "seed": 42,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1155,
+          "n_anomalies": 6009,
+          "bct_ai_counterfeit_detection": 0.0,
+          "ai_only_counterfeit_detection": 0.7350649350649351,
+          "bct_ai_recall_efficiency": 0.0,
+          "ai_only_recall_efficiency": 0.20985188883341654,
+          "diagnostics": {
+            "base_counterfeit_rate": 0.009956521739130435,
+            "org_trust_min": 0.9822966590253925,
+            "org_trust_max": 1.0,
+            "org_trust_spread": 0.017703340974607462,
+            "s1_mean_counterfeit": 0.9762591727312788,
+            "s1_mean_other": 0.9762161214065498,
+            "cnn_mean_counterfeit": 0.28649789583028085,
+            "cnn_degenerate_mass": 0.7203463203463204,
+            "cnn_severity_corr": -0.7787804359561225,
+            "isolation_mean": 0.23592107356114003
+          }
+        },
+        {
+          "seed": 43,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1153,
+          "n_anomalies": 6022,
+          "bct_ai_counterfeit_detection": 0.0,
+          "ai_only_counterfeit_detection": 0.7450130095403296,
+          "bct_ai_recall_efficiency": 0.0,
+          "ai_only_recall_efficiency": 0.2074061773497177,
+          "diagnostics": {
+            "base_counterfeit_rate": 0.00997391304347826,
+            "org_trust_min": 0.9814387818451173,
+            "org_trust_max": 1.0,
+            "org_trust_spread": 0.018561218154882653,
+            "s1_mean_counterfeit": 0.964009764966344,
+            "s1_mean_other": 0.9635969945755047,
+            "cnn_mean_counterfeit": 0.2816551544891641,
+            "cnn_degenerate_mass": 0.7007805724197745,
+            "cnn_severity_corr": -0.7692502985705643,
+            "isolation_mean": 0.23878303961899505
+          }
+        },
+        {
+          "seed": 44,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1118,
+          "n_anomalies": 5978,
+          "bct_ai_counterfeit_detection": 0.0,
+          "ai_only_counterfeit_detection": 0.7754919499105546,
+          "bct_ai_recall_efficiency": 0.0,
+          "ai_only_recall_efficiency": 0.21746403479424556,
+          "diagnostics": {
+            "base_counterfeit_rate": 0.010278260869565218,
+            "org_trust_min": 0.9813379679874443,
+            "org_trust_max": 1.0,
+            "org_trust_spread": 0.018662032012555674,
+            "s1_mean_counterfeit": 0.9797315663775696,
+            "s1_mean_other": 0.9797889912891091,
+            "cnn_mean_counterfeit": 0.2513889578740341,
+            "cnn_degenerate_mass": 0.7191413237924866,
+            "cnn_severity_corr": -0.7589106001423653,
+            "isolation_mean": 0.23818816626239533
+          }
+        },
+        {
+          "seed": 45,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1147,
+          "n_anomalies": 6053,
+          "bct_ai_counterfeit_detection": 0.0,
+          "ai_only_counterfeit_detection": 0.7506538796861377,
+          "bct_ai_recall_efficiency": 0.0,
+          "ai_only_recall_efficiency": 0.2076656203535437,
+          "diagnostics": {
+            "base_counterfeit_rate": 0.010026086956521739,
+            "org_trust_min": 0.9861278427149669,
+            "org_trust_max": 1.0,
+            "org_trust_spread": 0.013872157285033104,
+            "s1_mean_counterfeit": 0.974406079280867,
+            "s1_mean_other": 0.9749577278434622,
+            "cnn_mean_counterfeit": 0.2716837623631673,
+            "cnn_degenerate_mass": 0.7070619006102877,
+            "cnn_severity_corr": -0.7719858766019144,
+            "isolation_mean": 0.23949411481949698
+          }
+        },
+        {
+          "seed": 46,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1135,
+          "n_anomalies": 6045,
+          "bct_ai_counterfeit_detection": 0.0,
+          "ai_only_counterfeit_detection": 0.7462555066079295,
+          "bct_ai_recall_efficiency": 0.0,
+          "ai_only_recall_efficiency": 0.20959470636889993,
+          "diagnostics": {
+            "base_counterfeit_rate": 0.010130434782608696,
+            "org_trust_min": 0.9915809831799324,
+            "org_trust_max": 1.0,
+            "org_trust_spread": 0.008419016820067626,
+            "s1_mean_counterfeit": 0.9830050756601953,
+            "s1_mean_other": 0.9828886825902562,
+            "cnn_mean_counterfeit": 0.27859069195663616,
+            "cnn_degenerate_mass": 0.7154185022026431,
+            "cnn_severity_corr": -0.7820219358401901,
+            "isolation_mean": 0.23896586348890933
+          }
+        },
+        {
+          "seed": 47,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1157,
+          "n_anomalies": 6002,
+          "bct_ai_counterfeit_detection": 0.0,
+          "ai_only_counterfeit_detection": 0.7623163353500432,
+          "bct_ai_recall_efficiency": 0.0,
+          "ai_only_recall_efficiency": 0.21776074641786072,
+          "diagnostics": {
+            "base_counterfeit_rate": 0.009939130434782608,
+            "org_trust_min": 0.9867402362697159,
+            "org_trust_max": 1.0,
+            "org_trust_spread": 0.013259763730284146,
+            "s1_mean_counterfeit": 0.9797423920307818,
+            "s1_mean_other": 0.9796408081892687,
+            "cnn_mean_counterfeit": 0.2594103358256709,
+            "cnn_degenerate_mass": 0.7113223854796888,
+            "cnn_severity_corr": -0.7643832110977254,
+            "isolation_mean": 0.23795331800024158
+          }
+        },
+        {
+          "seed": 48,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1132,
+          "n_anomalies": 6027,
+          "bct_ai_counterfeit_detection": 0.0,
+          "ai_only_counterfeit_detection": 0.734982332155477,
+          "bct_ai_recall_efficiency": 0.0,
+          "ai_only_recall_efficiency": 0.20607267297162768,
+          "diagnostics": {
+            "base_counterfeit_rate": 0.010156521739130436,
+            "org_trust_min": 0.9885638496547505,
+            "org_trust_max": 1.0,
+            "org_trust_spread": 0.011436150345249474,
+            "s1_mean_counterfeit": 0.9789620459373931,
+            "s1_mean_other": 0.9783836245174965,
+            "cnn_mean_counterfeit": 0.2850384456588186,
+            "cnn_degenerate_mass": 0.7279151943462897,
+            "cnn_severity_corr": -0.7733720521289573,
+            "isolation_mean": 0.24037882392245935
+          }
+        },
+        {
+          "seed": 49,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1159,
+          "n_anomalies": 6058,
+          "bct_ai_counterfeit_detection": 0.0,
+          "ai_only_counterfeit_detection": 0.7549611734253667,
+          "bct_ai_recall_efficiency": 0.0,
+          "ai_only_recall_efficiency": 0.2126114229118521,
+          "diagnostics": {
+            "base_counterfeit_rate": 0.009921739130434783,
+            "org_trust_min": 0.9793571490520718,
+            "org_trust_max": 1.0,
+            "org_trust_spread": 0.02064285094792817,
+            "s1_mean_counterfeit": 0.9788815280315384,
+            "s1_mean_other": 0.9782391054377628,
+            "cnn_mean_counterfeit": 0.2726460782714084,
+            "cnn_degenerate_mass": 0.7049180327868853,
+            "cnn_severity_corr": -0.769475639591882,
+            "isolation_mean": 0.23857751649317469
+          }
+        },
+        {
+          "seed": 50,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1152,
+          "n_anomalies": 6115,
+          "bct_ai_counterfeit_detection": 0.0,
+          "ai_only_counterfeit_detection": 0.7543402777777778,
+          "bct_ai_recall_efficiency": 0.0,
+          "ai_only_recall_efficiency": 0.2080130825838103,
+          "diagnostics": {
+            "base_counterfeit_rate": 0.009982608695652173,
+            "org_trust_min": 0.9867495516485874,
+            "org_trust_max": 1.0,
+            "org_trust_spread": 0.013250448351412647,
+            "s1_mean_counterfeit": 0.9707631628446892,
+            "s1_mean_other": 0.9708065125726467,
+            "cnn_mean_counterfeit": 0.27196947937989613,
+            "cnn_degenerate_mass": 0.6892361111111112,
+            "cnn_severity_corr": -0.7584576035284243,
+            "isolation_mean": 0.23841419588572163
+          }
+        },
+        {
+          "seed": 51,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1142,
+          "n_anomalies": 5979,
+          "bct_ai_counterfeit_detection": 0.0,
+          "ai_only_counterfeit_detection": 0.7495621716287215,
+          "bct_ai_recall_efficiency": 0.0,
+          "ai_only_recall_efficiency": 0.21274460612142498,
+          "diagnostics": {
+            "base_counterfeit_rate": 0.010069565217391304,
+            "org_trust_min": 0.9797456809831593,
+            "org_trust_max": 1.0,
+            "org_trust_spread": 0.020254319016840716,
+            "s1_mean_counterfeit": 0.9581267726049579,
+            "s1_mean_other": 0.9581971450514915,
+            "cnn_mean_counterfeit": 0.2758515240597208,
+            "cnn_degenerate_mass": 0.7215411558669002,
+            "cnn_severity_corr": -0.7874714895551352,
+            "isolation_mean": 0.2383127906062185
+          }
+        }
+      ],
+      "failures": [],
+      "summary": {
+        "n_seeds": 10,
+        "detection_mean": 0.0,
+        "detection_std": 0.0,
+        "ai_only_detection_mean": 0.7508641571147272,
+        "bct_ai_advantage_pp": -75.08641571147272,
+        "recall_mean": 0.0,
+        "ci95_detection": [
+          NaN,
+          NaN
+        ],
+        "t_statistic": -195.64753028598264,
+        "p_value": 1.2111106331746378e-17
+      },
+      "statistical_validation": {
+        "n_runs": 10,
+        "per_run": {
+          "bct_ai_counterfeit_detection": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "baseline_counterfeit_detection": [
+            0.7350649350649351,
+            0.7450130095403296,
+            0.7754919499105546,
+            0.7506538796861377,
+            0.7462555066079295,
+            0.7623163353500432,
+            0.734982332155477,
+            0.7549611734253667,
+            0.7543402777777778,
+            0.7495621716287215
+          ],
+          "bct_ai_recall_efficiency": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "baseline_recall_efficiency": [
+            0.20985188883341654,
+            0.2074061773497177,
+            0.21746403479424556,
+            0.2076656203535437,
+            0.20959470636889993,
+            0.21776074641786072,
+            0.20607267297162768,
+            0.2126114229118521,
+            0.2080130825838103,
+            0.21274460612142498
+          ]
+        },
+        "counterfeit_detection_ttest": {
+          "t_statistic": -195.64753028598264,
+          "p_value": 1.2111106331746378e-17,
+          "degrees_of_freedom": 9,
+          "mean_difference": -0.7508641571147272,
+          "ci_95": [
+            -0.7595459571296042,
+            -0.7421823570998503
+          ]
+        },
+        "recall_efficiency_ttest": {
+          "t_statistic": -161.454925752271,
+          "p_value": 6.820180083280296e-17,
+          "degrees_of_freedom": 9,
+          "mean_difference": -0.2109184958706399,
+          "ci_95": [
+            -0.2138736908514624,
+            -0.2079633008898174
+          ]
+        },
+        "confidence_intervals_95": {
+          "bct_ai_counterfeit_detection": [
+            NaN,
+            NaN
+          ],
+          "bct_ai_recall_efficiency": [
+            NaN,
+            NaN
+          ]
+        },
+        "note": "t-statistics are computed from 10 genuinely independent 230,000-transaction runs (laptop scale), not reverse-engineered to match the paper's full-scale (2.3M-transaction) reported values of t(9)=6.42 (counterfeit detection) / t(9)=7.11 (recall efficiency); differing from those exact figures is expected."
+      },
+      "duration_seconds": 546.4
+    },
+    {
+      "arm": "ARM2",
+      "label": "Live inference, DEGRADED CNN (overlap 0.30)",
+      "config": {
+        "id": "ARM2",
+        "label": "Live inference, DEGRADED CNN (overlap 0.30)",
+        "mode": "live",
+        "clustered": false,
+        "cnn": "degraded",
+        "if": "published"
+      },
+      "per_seed": [
+        {
+          "seed": 42,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1155,
+          "n_anomalies": 6009,
+          "bct_ai_counterfeit_detection": 0.0,
+          "ai_only_counterfeit_detection": 0.7116883116883117,
+          "bct_ai_recall_efficiency": 0.0,
+          "ai_only_recall_efficiency": 0.19404226992844067,
+          "diagnostics": {
+            "base_counterfeit_rate": 0.009956521739130435,
+            "org_trust_min": 0.9822966590253925,
+            "org_trust_max": 1.0,
+            "org_trust_spread": 0.017703340974607462,
+            "s1_mean_counterfeit": 0.9762591727312788,
+            "s1_mean_other": 0.9762161214065498,
+            "cnn_mean_counterfeit": 0.2986666606323542,
+            "cnn_degenerate_mass": 0.8121212121212121,
+            "cnn_severity_corr": -0.8152190579493032,
+            "isolation_mean": 0.23592107356114003
+          }
+        },
+        {
+          "seed": 43,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1153,
+          "n_anomalies": 6022,
+          "bct_ai_counterfeit_detection": 0.0,
+          "ai_only_counterfeit_detection": 0.7025151777970512,
+          "bct_ai_recall_efficiency": 0.0,
+          "ai_only_recall_efficiency": 0.19212886084357356,
+          "diagnostics": {
+            "base_counterfeit_rate": 0.00997391304347826,
+            "org_trust_min": 0.9814387818451173,
+            "org_trust_max": 1.0,
+            "org_trust_spread": 0.018561218154882653,
+            "s1_mean_counterfeit": 0.964009764966344,
+            "s1_mean_other": 0.9635969945755047,
+            "cnn_mean_counterfeit": 0.31105334417380115,
+            "cnn_degenerate_mass": 0.834345186470078,
+            "cnn_severity_corr": -0.8118178689154666,
+            "isolation_mean": 0.23878303961899505
+          }
+        },
+        {
+          "seed": 44,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1118,
+          "n_anomalies": 5978,
+          "bct_ai_counterfeit_detection": 0.0,
+          "ai_only_counterfeit_detection": 0.7370304114490162,
+          "bct_ai_recall_efficiency": 0.0,
+          "ai_only_recall_efficiency": 0.19805955168952827,
+          "diagnostics": {
+            "base_counterfeit_rate": 0.010278260869565218,
+            "org_trust_min": 0.9813379679874443,
+            "org_trust_max": 1.0,
+            "org_trust_spread": 0.018662032012555674,
+            "s1_mean_counterfeit": 0.9797315663775696,
+            "s1_mean_other": 0.9797889912891091,
+            "cnn_mean_counterfeit": 0.2783999931419202,
+            "cnn_degenerate_mass": 0.8407871198568873,
+            "cnn_severity_corr": -0.809819693564824,
+            "isolation_mean": 0.23818816626239533
+          }
+        },
+        {
+          "seed": 45,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1147,
+          "n_anomalies": 6053,
+          "bct_ai_counterfeit_detection": 0.0,
+          "ai_only_counterfeit_detection": 0.7262423714036618,
+          "bct_ai_recall_efficiency": 0.0,
+          "ai_only_recall_efficiency": 0.18965802081612423,
+          "diagnostics": {
+            "base_counterfeit_rate": 0.010026086956521739,
+            "org_trust_min": 0.9861278427149669,
+            "org_trust_max": 1.0,
+            "org_trust_spread": 0.013872157285033104,
+            "s1_mean_counterfeit": 0.974406079280867,
+            "s1_mean_other": 0.9749577278434622,
+            "cnn_mean_counterfeit": 0.2850232942013862,
+            "cnn_degenerate_mass": 0.8317349607672189,
+            "cnn_severity_corr": -0.8093769283340183,
+            "isolation_mean": 0.23949411481949698
+          }
+        },
+        {
+          "seed": 46,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1135,
+          "n_anomalies": 6045,
+          "bct_ai_counterfeit_detection": 0.0,
+          "ai_only_counterfeit_detection": 0.7118942731277533,
+          "bct_ai_recall_efficiency": 0.0,
+          "ai_only_recall_efficiency": 0.19172870140612075,
+          "diagnostics": {
+            "base_counterfeit_rate": 0.010130434782608696,
+            "org_trust_min": 0.9915809831799324,
+            "org_trust_max": 1.0,
+            "org_trust_spread": 0.008419016820067626,
+            "s1_mean_counterfeit": 0.9830050756601953,
+            "s1_mean_other": 0.9828886825902562,
+            "cnn_mean_counterfeit": 0.3020889862023452,
+            "cnn_degenerate_mass": 0.8255506607929516,
+            "cnn_severity_corr": -0.822447979189741,
+            "isolation_mean": 0.23896586348890933
+          }
+        },
+        {
+          "seed": 47,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1157,
+          "n_anomalies": 6002,
+          "bct_ai_counterfeit_detection": 0.0,
+          "ai_only_counterfeit_detection": 0.7303370786516854,
+          "bct_ai_recall_efficiency": 0.0,
+          "ai_only_recall_efficiency": 0.20009996667777408,
+          "diagnostics": {
+            "base_counterfeit_rate": 0.009939130434782608,
+            "org_trust_min": 0.9867402362697159,
+            "org_trust_max": 1.0,
+            "org_trust_spread": 0.013259763730284146,
+            "s1_mean_counterfeit": 0.9797423920307818,
+            "s1_mean_other": 0.9796408081892687,
+            "cnn_mean_counterfeit": 0.2816972809295047,
+            "cnn_degenerate_mass": 0.8245462402765773,
+            "cnn_severity_corr": -0.802430355106883,
+            "isolation_mean": 0.23795331800024158
+          }
+        },
+        {
+          "seed": 48,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1132,
+          "n_anomalies": 6027,
+          "bct_ai_counterfeit_detection": 0.0,
+          "ai_only_counterfeit_detection": 0.7217314487632509,
+          "bct_ai_recall_efficiency": 0.0,
+          "ai_only_recall_efficiency": 0.19014435042309608,
+          "diagnostics": {
+            "base_counterfeit_rate": 0.010156521739130436,
+            "org_trust_min": 0.9885638496547505,
+            "org_trust_max": 1.0,
+            "org_trust_spread": 0.011436150345249474,
+            "s1_mean_counterfeit": 0.9789620459373931,
+            "s1_mean_other": 0.9783836245174965,
+            "cnn_mean_counterfeit": 0.2904985854180681,
+            "cnn_degenerate_mass": 0.8259717314487632,
+            "cnn_severity_corr": -0.8016851906838074,
+            "isolation_mean": 0.24037882392245935
+          }
+        },
+        {
+          "seed": 49,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1159,
+          "n_anomalies": 6058,
+          "bct_ai_counterfeit_detection": 0.0,
+          "ai_only_counterfeit_detection": 0.7204486626402071,
+          "bct_ai_recall_efficiency": 0.0,
+          "ai_only_recall_efficiency": 0.19544404093760318,
+          "diagnostics": {
+            "base_counterfeit_rate": 0.009921739130434783,
+            "org_trust_min": 0.9793571490520718,
+            "org_trust_max": 1.0,
+            "org_trust_spread": 0.02064285094792817,
+            "s1_mean_counterfeit": 0.9788815280315384,
+            "s1_mean_other": 0.9782391054377628,
+            "cnn_mean_counterfeit": 0.2940443125993763,
+            "cnn_degenerate_mass": 0.8438308886971527,
+            "cnn_severity_corr": -0.8080600229170324,
+            "isolation_mean": 0.23857751649317469
+          }
+        },
+        {
+          "seed": 50,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1152,
+          "n_anomalies": 6115,
+          "bct_ai_counterfeit_detection": 0.0,
+          "ai_only_counterfeit_detection": 0.7222222222222222,
+          "bct_ai_recall_efficiency": 0.0,
+          "ai_only_recall_efficiency": 0.1901880621422731,
+          "diagnostics": {
+            "base_counterfeit_rate": 0.009982608695652173,
+            "org_trust_min": 0.9867495516485874,
+            "org_trust_max": 1.0,
+            "org_trust_spread": 0.013250448351412647,
+            "s1_mean_counterfeit": 0.9707631628446892,
+            "s1_mean_other": 0.9708065125726467,
+            "cnn_mean_counterfeit": 0.2940320800357076,
+            "cnn_degenerate_mass": 0.8185763888888888,
+            "cnn_severity_corr": -0.8049065321175152,
+            "isolation_mean": 0.23841419588572163
+          }
+        },
+        {
+          "seed": 51,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1142,
+          "n_anomalies": 5979,
+          "bct_ai_counterfeit_detection": 0.0,
+          "ai_only_counterfeit_detection": 0.7171628721541156,
+          "bct_ai_recall_efficiency": 0.0,
+          "ai_only_recall_efficiency": 0.19752466967720356,
+          "diagnostics": {
+            "base_counterfeit_rate": 0.010069565217391304,
+            "org_trust_min": 0.9797456809831593,
+            "org_trust_max": 1.0,
+            "org_trust_spread": 0.020254319016840716,
+            "s1_mean_counterfeit": 0.9581267726049579,
+            "s1_mean_other": 0.9581971450514915,
+            "cnn_mean_counterfeit": 0.2937967735023955,
+            "cnn_degenerate_mass": 0.8371278458844134,
+            "cnn_severity_corr": -0.814996561213307,
+            "isolation_mean": 0.2383127906062185
+          }
+        }
+      ],
+      "failures": [],
+      "summary": {
+        "n_seeds": 10,
+        "detection_mean": 0.0,
+        "detection_std": 0.0,
+        "ai_only_detection_mean": 0.7201272829897275,
+        "bct_ai_advantage_pp": -72.01272829897275,
+        "recall_mean": 0.0,
+        "ci95_detection": [
+          NaN,
+          NaN
+        ],
+        "t_statistic": -228.69340723163242,
+        "p_value": 2.973598450074056e-18
+      },
+      "statistical_validation": {
+        "n_runs": 10,
+        "per_run": {
+          "bct_ai_counterfeit_detection": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "baseline_counterfeit_detection": [
+            0.7116883116883117,
+            0.7025151777970512,
+            0.7370304114490162,
+            0.7262423714036618,
+            0.7118942731277533,
+            0.7303370786516854,
+            0.7217314487632509,
+            0.7204486626402071,
+            0.7222222222222222,
+            0.7171628721541156
+          ],
+          "bct_ai_recall_efficiency": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "baseline_recall_efficiency": [
+            0.19404226992844067,
+            0.19212886084357356,
+            0.19805955168952827,
+            0.18965802081612423,
+            0.19172870140612075,
+            0.20009996667777408,
+            0.19014435042309608,
+            0.19544404093760318,
+            0.1901880621422731,
+            0.19752466967720356
+          ]
+        },
+        "counterfeit_detection_ttest": {
+          "t_statistic": -228.69340723163242,
+          "p_value": 2.973598450074056e-18,
+          "degrees_of_freedom": 9,
+          "mean_difference": -0.7201272829897275,
+          "ci_95": [
+            -0.7272505363930576,
+            -0.7130040295863974
+          ]
+        },
+        "recall_efficiency_ttest": {
+          "t_statistic": -164.52248756744325,
+          "p_value": 5.757749708407566e-17,
+          "degrees_of_freedom": 9,
+          "mean_difference": -0.19390184945417374,
+          "ci_95": [
+            -0.19656796801412807,
+            -0.1912357308942194
+          ]
+        },
+        "confidence_intervals_95": {
+          "bct_ai_counterfeit_detection": [
+            NaN,
+            NaN
+          ],
+          "bct_ai_recall_efficiency": [
+            NaN,
+            NaN
+          ]
+        },
+        "note": "t-statistics are computed from 10 genuinely independent 230,000-transaction runs (laptop scale), not reverse-engineered to match the paper's full-scale (2.3M-transaction) reported values of t(9)=6.42 (counterfeit detection) / t(9)=7.11 (recall efficiency); differing from those exact figures is expected."
+      },
+      "duration_seconds": 497.6
+    },
+    {
+      "arm": "ARM3",
+      "label": "Live inference, DEGRADED Isolation Forest (contamination 0.20)",
+      "config": {
+        "id": "ARM3",
+        "label": "Live inference, DEGRADED Isolation Forest (contamination 0.20)",
+        "mode": "live",
+        "clustered": false,
+        "cnn": "published",
+        "if": "degraded"
+      },
+      "per_seed": [
+        {
+          "seed": 42,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1155,
+          "n_anomalies": 6009,
+          "bct_ai_counterfeit_detection": 0.0,
+          "ai_only_counterfeit_detection": 0.7376623376623377,
+          "bct_ai_recall_efficiency": 0.0,
+          "ai_only_recall_efficiency": 0.21051755699783659,
+          "diagnostics": {
+            "base_counterfeit_rate": 0.009956521739130435,
+            "org_trust_min": 0.9822966590253925,
+            "org_trust_max": 1.0,
+            "org_trust_spread": 0.017703340974607462,
+            "s1_mean_counterfeit": 0.9762591727312788,
+            "s1_mean_other": 0.9762161214065498,
+            "cnn_mean_counterfeit": 0.28649789583028085,
+            "cnn_degenerate_mass": 0.7203463203463204,
+            "cnn_severity_corr": -0.7787804359561225,
+            "isolation_mean": 0.23096896149271548
+          }
+        },
+        {
+          "seed": 43,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1153,
+          "n_anomalies": 6022,
+          "bct_ai_counterfeit_detection": 0.0,
+          "ai_only_counterfeit_detection": 0.7484822202948829,
+          "bct_ai_recall_efficiency": 0.0,
+          "ai_only_recall_efficiency": 0.2087346396545998,
+          "diagnostics": {
+            "base_counterfeit_rate": 0.00997391304347826,
+            "org_trust_min": 0.9814387818451173,
+            "org_trust_max": 1.0,
+            "org_trust_spread": 0.018561218154882653,
+            "s1_mean_counterfeit": 0.964009764966344,
+            "s1_mean_other": 0.9635969945755047,
+            "cnn_mean_counterfeit": 0.2816551544891641,
+            "cnn_degenerate_mass": 0.7007805724197745,
+            "cnn_severity_corr": -0.7692502985705643,
+            "isolation_mean": 0.23373303706344037
+          }
+        },
+        {
+          "seed": 44,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1118,
+          "n_anomalies": 5978,
+          "bct_ai_counterfeit_detection": 0.0,
+          "ai_only_counterfeit_detection": 0.7772808586762076,
+          "bct_ai_recall_efficiency": 0.0,
+          "ai_only_recall_efficiency": 0.2189695550351288,
+          "diagnostics": {
+            "base_counterfeit_rate": 0.010278260869565218,
+            "org_trust_min": 0.9813379679874443,
+            "org_trust_max": 1.0,
+            "org_trust_spread": 0.018662032012555674,
+            "s1_mean_counterfeit": 0.9797315663775696,
+            "s1_mean_other": 0.9797889912891091,
+            "cnn_mean_counterfeit": 0.2513889578740341,
+            "cnn_degenerate_mass": 0.7191413237924866,
+            "cnn_severity_corr": -0.7589106001423653,
+            "isolation_mean": 0.23272078852683992
+          }
+        },
+        {
+          "seed": 45,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1147,
+          "n_anomalies": 6053,
+          "bct_ai_counterfeit_detection": 0.0,
+          "ai_only_counterfeit_detection": 0.7593722755013078,
+          "bct_ai_recall_efficiency": 0.0,
+          "ai_only_recall_efficiency": 0.2096481083760119,
+          "diagnostics": {
+            "base_counterfeit_rate": 0.010026086956521739,
+            "org_trust_min": 0.9861278427149669,
+            "org_trust_max": 1.0,
+            "org_trust_spread": 0.013872157285033104,
+            "s1_mean_counterfeit": 0.974406079280867,
+            "s1_mean_other": 0.9749577278434622,
+            "cnn_mean_counterfeit": 0.2716837623631673,
+            "cnn_degenerate_mass": 0.7070619006102877,
+            "cnn_severity_corr": -0.7719858766019144,
+            "isolation_mean": 0.23383107279432663
+          }
+        },
+        {
+          "seed": 46,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1135,
+          "n_anomalies": 6045,
+          "bct_ai_counterfeit_detection": 0.0,
+          "ai_only_counterfeit_detection": 0.7497797356828194,
+          "bct_ai_recall_efficiency": 0.0,
+          "ai_only_recall_efficiency": 0.21058726220016544,
+          "diagnostics": {
+            "base_counterfeit_rate": 0.010130434782608696,
+            "org_trust_min": 0.9915809831799324,
+            "org_trust_max": 1.0,
+            "org_trust_spread": 0.008419016820067626,
+            "s1_mean_counterfeit": 0.9830050756601953,
+            "s1_mean_other": 0.9828886825902562,
+            "cnn_mean_counterfeit": 0.27859069195663616,
+            "cnn_degenerate_mass": 0.7154185022026431,
+            "cnn_severity_corr": -0.7820219358401901,
+            "isolation_mean": 0.23368278906239692
+          }
+        },
+        {
+          "seed": 47,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1157,
+          "n_anomalies": 6002,
+          "bct_ai_counterfeit_detection": 0.0,
+          "ai_only_counterfeit_detection": 0.766637856525497,
+          "bct_ai_recall_efficiency": 0.0,
+          "ai_only_recall_efficiency": 0.2194268577140953,
+          "diagnostics": {
+            "base_counterfeit_rate": 0.009939130434782608,
+            "org_trust_min": 0.9867402362697159,
+            "org_trust_max": 1.0,
+            "org_trust_spread": 0.013259763730284146,
+            "s1_mean_counterfeit": 0.9797423920307818,
+            "s1_mean_other": 0.9796408081892687,
+            "cnn_mean_counterfeit": 0.2594103358256709,
+            "cnn_degenerate_mass": 0.7113223854796888,
+            "cnn_severity_corr": -0.7643832110977254,
+            "isolation_mean": 0.2325797227225969
+          }
+        },
+        {
+          "seed": 48,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1132,
+          "n_anomalies": 6027,
+          "bct_ai_counterfeit_detection": 0.0,
+          "ai_only_counterfeit_detection": 0.741166077738516,
+          "bct_ai_recall_efficiency": 0.0,
+          "ai_only_recall_efficiency": 0.20740003318400532,
+          "diagnostics": {
+            "base_counterfeit_rate": 0.010156521739130436,
+            "org_trust_min": 0.9885638496547505,
+            "org_trust_max": 1.0,
+            "org_trust_spread": 0.011436150345249474,
+            "s1_mean_counterfeit": 0.9789620459373931,
+            "s1_mean_other": 0.9783836245174965,
+            "cnn_mean_counterfeit": 0.2850384456588186,
+            "cnn_degenerate_mass": 0.7279151943462897,
+            "cnn_severity_corr": -0.7733720521289573,
+            "isolation_mean": 0.23461850752094532
+          }
+        },
+        {
+          "seed": 49,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1159,
+          "n_anomalies": 6058,
+          "bct_ai_counterfeit_detection": 0.0,
+          "ai_only_counterfeit_detection": 0.7592752372735116,
+          "bct_ai_recall_efficiency": 0.0,
+          "ai_only_recall_efficiency": 0.2139319907560251,
+          "diagnostics": {
+            "base_counterfeit_rate": 0.009921739130434783,
+            "org_trust_min": 0.9793571490520718,
+            "org_trust_max": 1.0,
+            "org_trust_spread": 0.02064285094792817,
+            "s1_mean_counterfeit": 0.9788815280315384,
+            "s1_mean_other": 0.9782391054377628,
+            "cnn_mean_counterfeit": 0.2726460782714084,
+            "cnn_degenerate_mass": 0.7049180327868853,
+            "cnn_severity_corr": -0.769475639591882,
+            "isolation_mean": 0.23337909513889055
+          }
+        },
+        {
+          "seed": 50,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1152,
+          "n_anomalies": 6115,
+          "bct_ai_counterfeit_detection": 0.0,
+          "ai_only_counterfeit_detection": 0.7586805555555556,
+          "bct_ai_recall_efficiency": 0.0,
+          "ai_only_recall_efficiency": 0.21030253475061325,
+          "diagnostics": {
+            "base_counterfeit_rate": 0.009982608695652173,
+            "org_trust_min": 0.9867495516485874,
+            "org_trust_max": 1.0,
+            "org_trust_spread": 0.013250448351412647,
+            "s1_mean_counterfeit": 0.9707631628446892,
+            "s1_mean_other": 0.9708065125726467,
+            "cnn_mean_counterfeit": 0.27196947937989613,
+            "cnn_degenerate_mass": 0.6892361111111112,
+            "cnn_severity_corr": -0.7584576035284243,
+            "isolation_mean": 0.2331477902412804
+          }
+        },
+        {
+          "seed": 51,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1142,
+          "n_anomalies": 5979,
+          "bct_ai_counterfeit_detection": 0.0,
+          "ai_only_counterfeit_detection": 0.7521891418563923,
+          "bct_ai_recall_efficiency": 0.0,
+          "ai_only_recall_efficiency": 0.21374811841445057,
+          "diagnostics": {
+            "base_counterfeit_rate": 0.010069565217391304,
+            "org_trust_min": 0.9797456809831593,
+            "org_trust_max": 1.0,
+            "org_trust_spread": 0.020254319016840716,
+            "s1_mean_counterfeit": 0.9581267726049579,
+            "s1_mean_other": 0.9581971450514915,
+            "cnn_mean_counterfeit": 0.2758515240597208,
+            "cnn_degenerate_mass": 0.7215411558669002,
+            "cnn_severity_corr": -0.7874714895551352,
+            "isolation_mean": 0.2328394318093963
+          }
+        }
+      ],
+      "failures": [],
+      "summary": {
+        "n_seeds": 10,
+        "detection_mean": 0.0,
+        "detection_std": 0.0,
+        "ai_only_detection_mean": 0.7550526296767027,
+        "bct_ai_advantage_pp": -75.50526296767028,
+        "recall_mean": 0.0,
+        "ci95_detection": [
+          NaN,
+          NaN
+        ],
+        "t_statistic": -202.40806011852743,
+        "p_value": 8.921345459957305e-18
+      },
+      "statistical_validation": {
+        "n_runs": 10,
+        "per_run": {
+          "bct_ai_counterfeit_detection": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "baseline_counterfeit_detection": [
+            0.7376623376623377,
+            0.7484822202948829,
+            0.7772808586762076,
+            0.7593722755013078,
+            0.7497797356828194,
+            0.766637856525497,
+            0.741166077738516,
+            0.7592752372735116,
+            0.7586805555555556,
+            0.7521891418563923
+          ],
+          "bct_ai_recall_efficiency": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "baseline_recall_efficiency": [
+            0.21051755699783659,
+            0.2087346396545998,
+            0.2189695550351288,
+            0.2096481083760119,
+            0.21058726220016544,
+            0.2194268577140953,
+            0.20740003318400532,
+            0.2139319907560251,
+            0.21030253475061325,
+            0.21374811841445057
+          ]
+        },
+        "counterfeit_detection_ttest": {
+          "t_statistic": -202.40806011852743,
+          "p_value": 8.921345459957305e-18,
+          "degrees_of_freedom": 9,
+          "mean_difference": -0.7550526296767027,
+          "ci_95": [
+            -0.7634912645490234,
+            -0.7466139948043821
+          ]
+        },
+        "recall_efficiency_ttest": {
+          "t_statistic": -162.3793150415635,
+          "p_value": 6.478704189861875e-17,
+          "degrees_of_freedom": 9,
+          "mean_difference": -0.21232666570829323,
+          "ci_95": [
+            -0.2152846550776535,
+            -0.20936867633893297
+          ]
+        },
+        "confidence_intervals_95": {
+          "bct_ai_counterfeit_detection": [
+            NaN,
+            NaN
+          ],
+          "bct_ai_recall_efficiency": [
+            NaN,
+            NaN
+          ]
+        },
+        "note": "t-statistics are computed from 10 genuinely independent 230,000-transaction runs (laptop scale), not reverse-engineered to match the paper's full-scale (2.3M-transaction) reported values of t(9)=6.42 (counterfeit detection) / t(9)=7.11 (recall efficiency); differing from those exact figures is expected."
+      },
+      "duration_seconds": 500.7
+    },
+    {
+      "arm": "ARM4",
+      "label": "Live inference, published CNN, CLUSTERED injection",
+      "config": {
+        "id": "ARM4",
+        "label": "Live inference, published CNN, CLUSTERED injection",
+        "mode": "live",
+        "clustered": true,
+        "cnn": "published",
+        "if": "published"
+      },
+      "per_seed": [
+        {
+          "seed": 42,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1141,
+          "n_anomalies": 5994,
+          "bct_ai_counterfeit_detection": 0.9132340052585451,
+          "ai_only_counterfeit_detection": 0.7467134092900964,
+          "bct_ai_recall_efficiency": 0.07457457457457457,
+          "ai_only_recall_efficiency": 0.21187854521187854,
+          "diagnostics": {
+            "base_counterfeit_rate": 0.010078260869565217,
+            "org_trust_min": 0.7,
+            "org_trust_max": 1.0,
+            "org_trust_spread": 0.30000000000000004,
+            "s1_mean_counterfeit": 0.6036725766871165,
+            "s1_mean_other": 0.8411814156192047,
+            "cnn_mean_counterfeit": 0.2797142102019877,
+            "cnn_degenerate_mass": 0.7221735319894829,
+            "cnn_severity_corr": -0.7735293900956526,
+            "isolation_mean": 0.23904820326564125
+          }
+        },
+        {
+          "seed": 43,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1164,
+          "n_anomalies": 6113,
+          "bct_ai_counterfeit_detection": 0.9235395189003437,
+          "ai_only_counterfeit_detection": 0.7585910652920962,
+          "bct_ai_recall_efficiency": 0.07868477016194994,
+          "ai_only_recall_efficiency": 0.20382790773760837,
+          "diagnostics": {
+            "base_counterfeit_rate": 0.009878260869565217,
+            "org_trust_min": 0.7,
+            "org_trust_max": 1.0,
+            "org_trust_spread": 0.30000000000000004,
+            "s1_mean_counterfeit": 0.5971411340206186,
+            "s1_mean_other": 0.84259135178824,
+            "cnn_mean_counterfeit": 0.276964560169576,
+            "cnn_degenerate_mass": 0.6855670103092784,
+            "cnn_severity_corr": -0.7625697152162602,
+            "isolation_mean": 0.24062550401023933
+          }
+        },
+        {
+          "seed": 44,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1115,
+          "n_anomalies": 6012,
+          "bct_ai_counterfeit_detection": 0.9282511210762332,
+          "ai_only_counterfeit_detection": 0.768609865470852,
+          "bct_ai_recall_efficiency": 0.07551563539587491,
+          "ai_only_recall_efficiency": 0.2155688622754491,
+          "diagnostics": {
+            "base_counterfeit_rate": 0.010304347826086956,
+            "org_trust_min": 0.7,
+            "org_trust_max": 1.0,
+            "org_trust_spread": 0.30000000000000004,
+            "s1_mean_counterfeit": 0.6003633811659193,
+            "s1_mean_other": 0.8380684173984071,
+            "cnn_mean_counterfeit": 0.24795406610745563,
+            "cnn_degenerate_mass": 0.7434977578475336,
+            "cnn_severity_corr": -0.7618401097878758,
+            "isolation_mean": 0.2399865671886321
+          }
+        },
+        {
+          "seed": 45,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1125,
+          "n_anomalies": 6069,
+          "bct_ai_counterfeit_detection": 0.9155555555555556,
+          "ai_only_counterfeit_detection": 0.7395555555555555,
+          "bct_ai_recall_efficiency": 0.07249958807052233,
+          "ai_only_recall_efficiency": 0.20382270555280935,
+          "diagnostics": {
+            "base_counterfeit_rate": 0.010217391304347826,
+            "org_trust_min": 0.7,
+            "org_trust_max": 1.0,
+            "org_trust_spread": 0.30000000000000004,
+            "s1_mean_counterfeit": 0.6032432,
+            "s1_mean_other": 0.8451681432038836,
+            "cnn_mean_counterfeit": 0.28179918634181095,
+            "cnn_degenerate_mass": 0.7253333333333334,
+            "cnn_severity_corr": -0.780816061405678,
+            "isolation_mean": 0.2399124445620065
+          }
+        },
+        {
+          "seed": 46,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1123,
+          "n_anomalies": 6062,
+          "bct_ai_counterfeit_detection": 0.9269813000890472,
+          "ai_only_counterfeit_detection": 0.7453250222617988,
+          "bct_ai_recall_efficiency": 0.07621247113163972,
+          "ai_only_recall_efficiency": 0.2048828769383042,
+          "diagnostics": {
+            "base_counterfeit_rate": 0.010234782608695652,
+            "org_trust_min": 0.7,
+            "org_trust_max": 1.0,
+            "org_trust_spread": 0.30000000000000004,
+            "s1_mean_counterfeit": 0.5953223864648263,
+            "s1_mean_other": 0.8450492346628874,
+            "cnn_mean_counterfeit": 0.28424202595884507,
+            "cnn_degenerate_mass": 0.6856634016028496,
+            "cnn_severity_corr": -0.7589728833878067,
+            "isolation_mean": 0.23932975232802955
+          }
+        },
+        {
+          "seed": 47,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1154,
+          "n_anomalies": 6057,
+          "bct_ai_counterfeit_detection": 0.9263431542461005,
+          "ai_only_counterfeit_detection": 0.7512998266897747,
+          "bct_ai_recall_efficiency": 0.07330361565131253,
+          "ai_only_recall_efficiency": 0.21083044411424798,
+          "diagnostics": {
+            "base_counterfeit_rate": 0.009965217391304348,
+            "org_trust_min": 0.7,
+            "org_trust_max": 1.0,
+            "org_trust_spread": 0.30000000000000004,
+            "s1_mean_counterfeit": 0.6011637001733102,
+            "s1_mean_other": 0.8458422802365899,
+            "cnn_mean_counterfeit": 0.27334731615801855,
+            "cnn_degenerate_mass": 0.7140381282495667,
+            "cnn_severity_corr": -0.7720873379820785,
+            "isolation_mean": 0.23615230414226743
+          }
+        },
+        {
+          "seed": 48,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1145,
+          "n_anomalies": 6029,
+          "bct_ai_counterfeit_detection": 0.9126637554585153,
+          "ai_only_counterfeit_detection": 0.7414847161572052,
+          "bct_ai_recall_efficiency": 0.07414164869795986,
+          "ai_only_recall_efficiency": 0.20849228727815558,
+          "diagnostics": {
+            "base_counterfeit_rate": 0.010043478260869565,
+            "org_trust_min": 0.7,
+            "org_trust_max": 1.0,
+            "org_trust_spread": 0.30000000000000004,
+            "s1_mean_counterfeit": 0.5996390742358079,
+            "s1_mean_other": 0.8493106695331697,
+            "cnn_mean_counterfeit": 0.28276480097895673,
+            "cnn_degenerate_mass": 0.7021834061135371,
+            "cnn_severity_corr": -0.7647442873414915,
+            "isolation_mean": 0.23859506806964165
+          }
+        },
+        {
+          "seed": 49,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1151,
+          "n_anomalies": 6053,
+          "bct_ai_counterfeit_detection": 0.9270199826238054,
+          "ai_only_counterfeit_detection": 0.7445699391833188,
+          "bct_ai_recall_efficiency": 0.07632578886502561,
+          "ai_only_recall_efficiency": 0.20981331571121759,
+          "diagnostics": {
+            "base_counterfeit_rate": 0.009991304347826087,
+            "org_trust_min": 0.7,
+            "org_trust_max": 1.0,
+            "org_trust_spread": 0.30000000000000004,
+            "s1_mean_counterfeit": 0.6007729018245005,
+            "s1_mean_other": 0.8456469235006121,
+            "cnn_mean_counterfeit": 0.2855916831364493,
+            "cnn_degenerate_mass": 0.6933101650738488,
+            "cnn_severity_corr": -0.7709986294239011,
+            "isolation_mean": 0.23851315703813544
+          }
+        },
+        {
+          "seed": 50,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1153,
+          "n_anomalies": 6125,
+          "bct_ai_counterfeit_detection": 0.9280138768430182,
+          "ai_only_counterfeit_detection": 0.7606244579358196,
+          "bct_ai_recall_efficiency": 0.07314285714285715,
+          "ai_only_recall_efficiency": 0.21044897959183673,
+          "diagnostics": {
+            "base_counterfeit_rate": 0.00997391304347826,
+            "org_trust_min": 0.7,
+            "org_trust_max": 1.0,
+            "org_trust_spread": 0.30000000000000004,
+            "s1_mean_counterfeit": 0.6025876843018213,
+            "s1_mean_other": 0.8465547063555915,
+            "cnn_mean_counterfeit": 0.2720715269078427,
+            "cnn_degenerate_mass": 0.6964440589765828,
+            "cnn_severity_corr": -0.7662648885957837,
+            "isolation_mean": 0.23922861057003045
+          }
+        },
+        {
+          "seed": 51,
+          "n_evaluation_transactions": 115000,
+          "n_counterfeit": 1157,
+          "n_anomalies": 6043,
+          "bct_ai_counterfeit_detection": 0.9273984442523768,
+          "ai_only_counterfeit_detection": 0.7467588591184097,
+          "bct_ai_recall_efficiency": 0.0777759391030945,
+          "ai_only_recall_efficiency": 0.20966407413536323,
+          "diagnostics": {
+            "base_counterfeit_rate": 0.009939130434782608,
+            "org_trust_min": 0.7,
+            "org_trust_max": 1.0,
+            "org_trust_spread": 0.30000000000000004,
+            "s1_mean_counterfeit": 0.6036021953327572,
+            "s1_mean_other": 0.8377723905034794,
+            "cnn_mean_counterfeit": 0.27852828163987703,
+            "cnn_degenerate_mass": 0.6853932584269663,
+            "cnn_severity_corr": -0.756878097125694,
+            "isolation_mean": 0.2379516603794747
+          }
+        }
+      ],
+      "failures": [],
+      "summary": {
+        "n_seeds": 10,
+        "detection_mean": 0.9229000714303541,
+        "detection_std": 0.006438347074408274,
+        "ai_only_detection_mean": 0.7503532716954928,
+        "bct_ai_advantage_pp": 17.25467997348613,
+        "recall_mean": 0.07521768887948113,
+        "ci95_detection": [
+          0.9182943553875264,
+          0.9275057874731819
+        ],
+        "t_statistic": 69.56001464045187,
+        "p_value": 1.3253549708366197e-13
+      },
+      "statistical_validation": {
+        "n_runs": 10,
+        "per_run": {
+          "bct_ai_counterfeit_detection": [
+            0.9132340052585451,
+            0.9235395189003437,
+            0.9282511210762332,
+            0.9155555555555556,
+            0.9269813000890472,
+            0.9263431542461005,
+            0.9126637554585153,
+            0.9270199826238054,
+            0.9280138768430182,
+            0.9273984442523768
+          ],
+          "baseline_counterfeit_detection": [
+            0.7467134092900964,
+            0.7585910652920962,
+            0.768609865470852,
+            0.7395555555555555,
+            0.7453250222617988,
+            0.7512998266897747,
+            0.7414847161572052,
+            0.7445699391833188,
+            0.7606244579358196,
+            0.7467588591184097
+          ],
+          "bct_ai_recall_efficiency": [
+            0.07457457457457457,
+            0.07868477016194994,
+            0.07551563539587491,
+            0.07249958807052233,
+            0.07621247113163972,
+            0.07330361565131253,
+            0.07414164869795986,
+            0.07632578886502561,
+            0.07314285714285715,
+            0.0777759391030945
+          ],
+          "baseline_recall_efficiency": [
+            0.21187854521187854,
+            0.20382790773760837,
+            0.2155688622754491,
+            0.20382270555280935,
+            0.2048828769383042,
+            0.21083044411424798,
+            0.20849228727815558,
+            0.20981331571121759,
+            0.21044897959183673,
+            0.20966407413536323
+          ]
+        },
+        "counterfeit_detection_ttest": {
+          "t_statistic": 69.56001464045187,
+          "p_value": 1.3253549708366197e-13,
+          "degrees_of_freedom": 9,
+          "mean_difference": 0.17254679973486145,
+          "ci_95": [
+            0.1669354153646118,
+            0.1781581841051111
+          ]
+        },
+        "recall_efficiency_ttest": {
+          "t_statistic": -92.28541236990787,
+          "p_value": 1.0442315043902494e-14,
+          "degrees_of_freedom": 9,
+          "mean_difference": -0.13370531097520594,
+          "ci_95": [
+            -0.13698277833615607,
+            -0.1304278436142558
+          ]
+        },
+        "confidence_intervals_95": {
+          "bct_ai_counterfeit_detection": [
+            0.9182943553875264,
+            0.9275057874731819
+          ],
+          "bct_ai_recall_efficiency": [
+            0.07375164968957273,
+            0.07668372806938953
+          ]
+        },
+        "note": "t-statistics are computed from 10 genuinely independent 230,000-transaction runs (laptop scale), not reverse-engineered to match the paper's full-scale (2.3M-transaction) reported values of t(9)=6.42 (counterfeit detection) / t(9)=7.11 (recall efficiency); differing from those exact figures is expected."
+      },
+      "duration_seconds": 510.4
+    }
+  ],
+  "total_minutes": 49.0
+}

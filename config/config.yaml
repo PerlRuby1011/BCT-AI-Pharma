@@ -246,7 +246,12 @@ pts:
   # w1=provenance_integrity, w2=temperature_compliance, w8=ai_confidence are
   # specified explicitly per drug class; the remaining total is split evenly
   # across the other 5 components (handling, verification, age, anomaly,
-  # regulatory).
+  # regulatory). Per class, w1 + w2 + w8 + remaining_total must equal 1.0
+  # (enforced by pts.product_trust_score.validate_drug_class_weights).
+  #
+  # A class may additionally carry `quarantine_threshold` to override the
+  # global pts.quarantine_threshold (Calibration Fix C); it must stay
+  # strictly below pts.alert_threshold.
   drug_classes:
     A:
       name: "Class A - Critical Biologics"
@@ -272,6 +277,25 @@ pts:
 
   alert_threshold: 0.75
   quarantine_threshold: 0.50
+
+  # -------------------------------------------------------------------------
+  # Calibration Fix B: severity-graded quarantine override.
+  #
+  # Motivated by the measured 17C/30h excursion on a Class A biologic, where
+  # the composite PTS settled at 0.518 and therefore never crossed the 0.50
+  # quarantine boundary despite the product being destroyed. Averaging across
+  # 8 dimensions lets healthy components mask a single fatal one. When BOTH
+  # the raw CNN authenticity score and the temperature-compliance score are
+  # severely degraded, quarantine is forced regardless of the composite.
+  #
+  # Disabled by default so the published baseline is reproducible; the
+  # calibration diagnostic (pts/calibration_diagnostic.py) toggles it.
+  # -------------------------------------------------------------------------
+  quarantine_override:
+    enabled: false
+    drug_classes: ["A"]
+    cnn_authenticity_max: 0.30
+    temperature_compliance_max: 0.20
 
   sensitivity_analysis:
     drug_class: "A"

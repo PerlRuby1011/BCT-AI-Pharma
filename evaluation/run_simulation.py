@@ -26,7 +26,13 @@ from evaluation.baseline_comparison import (
     compute_relative_improvement,
 )
 from evaluation.statistical_validation import compute_statistical_validation_from_runs
-from pts.product_trust_score import ProductState, compute_pts, compute_pts_for_drug_class
+from pts.product_trust_score import (
+    ProductState,
+    compute_pts,
+    compute_pts_for_drug_class,
+    quarantine_override_triggered,
+    quarantine_threshold_for_drug_class,
+)
 from pts.pts_sensitivity_analysis import run_sensitivity_analysis, summarize_sensitivity
 from simulation.anomaly_injector import inject_anomalies, inject_anomalies_from_config
 from simulation.data_validator import validate_transactions
@@ -132,6 +138,7 @@ def run_single_simulation_run(config: Dict[str, Any], seed: int) -> Dict[str, An
                 "ai_only_detection": float("nan"),
                 "bct_ai_recall": float("nan"),
                 "ai_only_recall": float("nan"),
+                "bct_ai_override_rate": float("nan"),
             }
 
         severity = subset["anomaly_severity"].to_numpy()
@@ -163,6 +170,10 @@ def run_single_simulation_run(config: Dict[str, Any], seed: int) -> Dict[str, An
 
         bct_ai_pts = np.empty(n)
         ai_only_pts = np.empty(n)
+        # Per-row quarantine threshold (Calibration Fix C allows a drug class
+        # to carry its own threshold) and per-row override flag (Fix B).
+        row_quarantine_threshold = np.empty(n)
+        row_override = np.zeros(n, dtype=bool)
         for i in range(n):
             state = ProductState(
                 custody_chain_trust_scores=[float(custody_trust[i])],
@@ -183,17 +194,29 @@ def run_single_simulation_run(config: Dict[str, Any], seed: int) -> Dict[str, An
                 "provenance_integrity": class_cfg["w1_provenance_integrity"],
                 "ai_confidence": class_cfg["w8_ai_confidence"],
             }
-            bct_ai_pts[i] = compute_pts(state, bct_ai_weights)["pts"]
+            bct_ai_result = compute_pts(state, bct_ai_weights)
+            bct_ai_pts[i] = bct_ai_result["pts"]
             ai_only_pts[i] = compute_pts(state, ai_only_weights)["pts"]
 
+            row_quarantine_threshold[i] = quarantine_threshold_for_drug_class(
+                drug_class, pts_cfg
+            )
+            row_override[i] = quarantine_override_triggered(
+                drug_class, state, bct_ai_result["components"], pts_cfg
+            )
+
         alert_threshold = pts_cfg["alert_threshold"]
-        quarantine_threshold = pts_cfg["quarantine_threshold"]
+        global_quarantine_threshold = pts_cfg["quarantine_threshold"]
+        bct_ai_quarantined = row_override | (bct_ai_pts < row_quarantine_threshold)
         return {
             "n": n,
             "bct_ai_detection": float(np.mean(bct_ai_pts < alert_threshold)),
             "ai_only_detection": float(np.mean(ai_only_pts < alert_threshold)),
-            "bct_ai_recall": float(np.mean(bct_ai_pts < quarantine_threshold)),
-            "ai_only_recall": float(np.mean(ai_only_pts < quarantine_threshold)),
+            "bct_ai_recall": float(np.mean(bct_ai_quarantined)),
+            # AI-Only has no drug-class-aware policy layer, so it keeps the
+            # single global quarantine threshold as its comparison baseline.
+            "ai_only_recall": float(np.mean(ai_only_pts < global_quarantine_threshold)),
+            "bct_ai_override_rate": float(np.mean(row_override)),
         }
 
     counterfeit_mask = transactions["anomaly_type"] == "counterfeit_product"

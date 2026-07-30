@@ -1,0 +1,814 @@
+PRE-REGISTRATION: PER-TRANSACTION LIVE-INFERENCE REDESIGN
+(Future Work item 1 / "Option 2")
+
+Status:   DRAFT FOR APPROVAL — NOTHING HAS BEEN RUN
+Written:  2026-07-28
+Author:   Claude (Opus 5)
+Purpose:  Fix the methodology in writing BEFORE any result is observed, so
+          that the outcome cannot be selected. Approve, amend, or reject as
+          a whole. Once approved, the protocol in sections 3-6 is frozen and
+          the experiment runs exactly once.
+
+======================================================================
+1. WHY THIS EXPERIMENT EXISTS
+======================================================================
+
+The present evaluation cannot answer RQ1 ("counterfeit detection above
+90%"), and the manuscript already says so (Section 7, RQ1 answer;
+Section 5.8). The reason is structural:
+
+  evaluation/run_simulation.py:159-162
+      cnn_authenticity = clip(1.0 - 0.30*severity_norm + N(0, 0.06))
+      isolation_score  = clip(N(0.38, 0.13))
+      custody_trust    = clip(1.0 - 0.90*severity_norm + N(0, 0.05))
+
+No trained model is invoked anywhere in run_single_simulation_run(). The
+reported detection rate is a function of the PTS aggregation applied to
+closed-form severity proxies. It therefore has ZERO functional dependence
+on CNN accuracy, Isolation Forest accuracy, or LSTM accuracy. Improving a
+model cannot change it; degrading a model cannot change it. The ablation
+table in the experiment report demonstrates this directly: Phases 3-5
+improve the individual AI modules and move the detection column by exactly
+0.00 pp.
+
+The purpose of this redesign is to make system-level detection causally
+depend on model quality. That is the entire objective. A higher number is
+NOT the objective, and section 7 below fixes the reporting obligations
+that follow from saying so.
+
+======================================================================
+2. HYPOTHESIS, AND WHAT WOULD FALSIFY IT
+======================================================================
+
+H1 (causal coupling). Under the redesign, system-level counterfeit
+    detection rate becomes sensitive to CNN classification accuracy.
+    Operationalized: deliberately degrading the CNN (by raising
+    cnn.overlap_factor from 0.10 to 0.30) produces a detection-rate change
+    of magnitude > 1.0 pp, versus the 0.00 pp the current design produces.
+    FALSIFIED IF: the degraded-CNN arm moves detection by < 1.0 pp. That
+    outcome would mean the redesign failed at its stated purpose, and it
+    must be reported as a failed redesign, not quietly discarded.
+
+H2 (no directional prediction). The redesign's effect on the absolute
+    detection rate is NOT predicted. It may land above or below 71.4%.
+    Both outcomes are scientifically informative and both will be
+    reported. See section 7.
+
+H3 (provenance carries signal only when counterfeiting is
+    source-concentrated). ADDED 2026-07-28 alongside the 3.1 amendment.
+    Under history-based reputation, blockchain provenance can only
+    discriminate if counterfeits concentrate in identifiable
+    organizations. When counterfeits are injected uniformly at random
+    across the network, no organization accumulates a disproportionate
+    prior record, every trust score converges to the same value, and S1
+    carries no label information.
+    Operationalized: the BCT-AI advantage over AI-Only is larger under
+    clustered counterfeit injection (cluster_counterfeit_by_manufacturer
+    = true) than under uniform injection, by a margin > 1.0 pp.
+    FALSIFIED IF: the advantage is equal or smaller under clustering.
+
+    This prediction is registered BEFORE the arms are run, and it is
+    consequential either way. If confirmed, it says something the
+    conference version does not: blockchain provenance contributes to
+    counterfeit detection precisely when counterfeiting is
+    source-concentrated, which is the empirically documented pattern
+    (Mackey and Nayyar attribute 67% of incidents to the wholesale
+    distributor level, cited in Section 2.1 of the manuscript). If
+    falsified, the honest conclusion is that provenance as modelled here
+    adds nothing, and the manuscript must say so.
+
+Note explicitly: H1 is the hypothesis this experiment exists to test.
+"Detection exceeds 90%" is NOT a hypothesis of this experiment, is not a
+success criterion, and does not appear in any decision rule below.
+
+======================================================================
+3. PROTOCOL — SIGNAL CONSTRUCTION
+======================================================================
+
+For every anomaly-labelled transaction (12,075 per seed: 2,300
+counterfeit-labelled plus the other four anomaly classes), three PTS
+inputs are constructed as follows. All three replace closed-form proxies
+with quantities derived from data or from a trained model.
+
+3.1 PROVENANCE S1 — derived from the actual custody chain
+    CURRENT:  clip(1.0 - 0.90*severity_norm + N(0, 0.05))
+
+    AMENDED 2026-07-28. The original wording specified organization trust
+    "assigned once per seed from its org_type, independent of any anomaly
+    label." That specification is now WITHDRAWN. Under it, S1 depends only
+    on which organizations handled a product and how many, so S1 is
+    statistically independent of counterfeit status by construction. The
+    BCT-AI condition would then combine a signal term (S8) with a term
+    carrying no label information, while AI-Only uses S8 alone. Adding a
+    label-independent term to a discriminative score dilutes it, so that
+    specification would have made BCT-AI <= AI-Only close to inevitable —
+    the mirror image of the rigging risk in section 5, biased against the
+    thesis rather than for it. Neither direction is acceptable: the
+    experiment must be capable of returning either answer.
+
+    REPLACE WITH — history-based reputation, temporally causal:
+    Group the transaction table by product_id and order by timestamp to
+    obtain the realized custody chain. Each organization's trust score is
+    derived from counterfeits attributed to that organization in PRIOR
+    periods only:
+
+      - the timeline is split at its midpoint;
+      - an organization's counterfeit rate is estimated on the first half
+        (the burn-in period) using only transactions where it appears as
+        from_org;
+      - trust = 1 - penalty * (that organization's normalized prior
+        counterfeit rate);
+      - detection metrics are computed ONLY on second-half transactions,
+        so no organization's trust is ever informed by the row being
+        scored, nor by any contemporaneous or future row.
+
+    S1 is the product of trust scores along the realized chain, exactly as
+    score_provenance_integrity() already specifies.
+
+    WHY THIS IS NOT CIRCULAR. Trust never reads the label of the row being
+    scored. It reads confirmed history, which is precisely what a
+    provenance ledger provides and what real supplier-reputation systems
+    use. The lag between an incident and its attribution is a property of
+    the real system, not an artifact introduced here. An organization with
+    a clean prior record contributes no penalty regardless of what the
+    current row turns out to be.
+
+    THE PENALTY CONSTANT is fixed before the run from the feasibility
+    spike, chosen so that mean S1 across all products stays high enough
+    that S1 alone does not push every product below the alert threshold
+    (see the degeneracy check in section 6, R8). It is not tuned against
+    any detection rate.
+
+    NORMALIZATION — fixed 2026-07-28 from spike measurement. An
+    organization is penalized only for the EXCESS of its prior counterfeit
+    rate over the network base rate:
+
+        trust = 1 - penalty * clip((org_rate - base_rate)/base_rate, 0, 3.0)
+
+    An organization no worse than baseline carries NO penalty. The spike
+    first tested normalization by the maximum observed rate
+    (rate / rate.max()); that formulation fails R8, because under uniform
+    injection every organization has a near-identical rate, the ratio is
+    ~1 for all of them, and the penalty compounds over ~12 handoffs into a
+    uniformly low S1 that pushes every product below the alert line
+    regardless of severity. Measured: mean S1 fell to 0.407 (penalty 0.15)
+    and 0.162 (penalty 0.30) under uniform injection. The excess-over-base
+    formulation holds mean S1 at 0.976 (penalty 0.10) under uniform
+    injection while preserving separation under clustering.
+
+    PENALTY CONSTANT = 0.10, FROZEN. This is the only value tested that
+    satisfies R8 under BOTH injection modes:
+        penalty 0.10  uniform  PTS(clean)=0.897  clustered PTS(clean)=0.802  PASS/PASS
+        penalty 0.20  uniform  PTS(clean)=0.881  clustered PTS(clean)=0.707  PASS/FAIL
+        penalty 0.30+ clustered PTS(clean) <= 0.627, and at 0.40+ the
+                      compromised organizations saturate the cap, driving
+                      S1(counterfeit) to 0.000
+    It was selected against the R8 degeneracy criterion alone. No
+    detection rate was computed at any penalty value.
+
+    THIS IS THE MOST IMPORTANT ITEM IN THE PROTOCOL. See section 5.
+
+3.2 CNN AUTHENTICITY — live forward pass
+    CURRENT:  clip(1.0 - 0.30*severity_norm + N(0, 0.06))
+    REPLACE WITH: generate one packaging feature tensor per transaction
+    using generate_synthetic_packaging_images()'s existing class
+    signatures, with the class assigned by anomaly_type:
+        counterfeit_product  -> drawn from the tamper classes
+                                (Hologram Mismatch / Printing Defects)
+        tampered_package     -> Seal Broken / Package Resealed
+        all other rows       -> Authentic
+    Severity modulates the blend fraction toward the authentic signature,
+    so a low-severity counterfeit is genuinely harder to classify. The
+    tensor is then scored by the TRAINED CNN, and cnn_authenticity_score
+    is taken as the model's predicted probability of the Authentic class.
+
+3.3 ISOLATION FOREST ANOMALY SCORE — live inference
+    CURRENT:  clip(N(0.38, 0.13))  [constant; not even severity-linked]
+    REPLACE WITH: generate a cold-chain reading sequence per transaction
+    via _generate_normal_readings(), apply _apply_anomaly() for rows
+    labelled temperature_excursion, and score through the TRAINED
+    Isolation Forest using normalized_anomaly_scores() with the existing
+    fixed calibration bounds from calibrate_score_normalization(). The
+    per-transaction score is the mean normalized score over the sequence.
+
+3.4 UNCHANGED — frozen for comparability
+    - Anomaly injection: untouched. Same counts, same severity
+      distribution U[0.4, 1.0], same clustering behaviour.
+    - Transaction generation: untouched.
+    - PTS weights and formula: untouched, at published baseline values.
+    - Alert threshold 0.75 and quarantine threshold 0.50: untouched.
+      NO THRESHOLD IS TO BE ADJUSTED IN THIS EXPERIMENT FOR ANY REASON.
+    - Seeds 42-51, ten of them, all reported.
+    - Model training protocol and hyperparameters: as published.
+
+======================================================================
+4. PROTOCOL — ARMS AND EXECUTION ORDER
+======================================================================
+
+Exactly four arms, run in this order, each over seeds 42-51:
+
+  ARM 0  Proxy baseline (current design)         — reproduces 71.4%,
+                                                    confirms harness parity
+  ARM 1  Live inference, published CNN
+         (cnn.overlap_factor = 0.10),
+         UNIFORM counterfeit injection           — primary result
+  ARM 2  Live inference, degraded CNN
+         (cnn.overlap_factor = 0.30)             — H1 test
+  ARM 3  Live inference, degraded Isolation
+         Forest (contamination 0.05 -> 0.20)     — H1 test, second module
+  ARM 4  Live inference, published CNN,
+         CLUSTERED counterfeit injection
+         (cluster_counterfeit_by_manufacturer
+          = true)                                — H3 test
+         ADDED 2026-07-28 with H3. Differs from ARM 1 in the injection
+         mode ONLY; identical models, weights, thresholds and seeds. H3
+         is judged on (ARM 4 BCT-AI advantage) - (ARM 1 BCT-AI advantage).
+
+Model reuse across arms, fixed now: ARMs 1, 3 and 4 share one CNN trained
+at overlap_factor 0.10; ARM 2 uses a separately trained CNN at 0.30. ARMs
+1, 2 and 4 share one Isolation Forest at contamination 0.05; ARM 3 uses a
+separately trained forest at 0.20. No model is trained more than once and
+none is reselected after any metric is seen.
+
+Models are trained ONCE per arm configuration, before any detection
+metric is computed, and are not retrained or reselected afterwards.
+
+The experiment runs ONE TIME. If a genuine implementation bug is
+discovered after results are seen, the fix and the re-run are both
+recorded in CHANGES.md with the reason, and the discarded result is
+reported alongside the corrected one rather than replaced by it.
+
+======================================================================
+5. THE CENTRAL METHODOLOGICAL RISK
+======================================================================
+
+If 3.2 and 3.3 are implemented but 3.1 is NOT — that is, if the CNN and
+Isolation Forest become live while provenance remains the severity-linked
+proxy — then the BCT-AI condition keeps a hand-tuned proxy signal with a
+0.90 severity slope while the AI-Only condition is forced onto live model
+output. The comparison would then be rigged in favour of the paper's own
+thesis, and the resulting BCT-AI advantage would be an artifact of the
+asymmetry rather than evidence of anything.
+
+This would be WORSE than the current design, which at least applies the
+same proxy treatment to both conditions and is documented as doing so.
+
+Accordingly: 3.1 IS NOT OPTIONAL. If deriving provenance from realized
+custody chains proves infeasible, the correct action is to abandon the
+redesign and leave the paper as written — NOT to ship 3.2 and 3.3 alone.
+This is the single most likely way for this experiment to produce a
+result that looks good and means nothing.
+
+A secondary asymmetry check: the AI-Only condition must consume exactly
+the same live CNN and Isolation Forest outputs as BCT-AI, differing only
+in PTS weighting (all weight on ai_confidence), as it does today.
+
+======================================================================
+6. PRE-REGISTERED DECISION RULES
+======================================================================
+
+Fixed now, before any result is seen:
+
+R1. ARM 0 must reproduce 71.4% +/- 1.4% within Monte Carlo error. If it
+    does not, the harness has drifted and NOTHING ELSE IS INTERPRETED
+    until that is explained.
+
+R2. H1 is judged solely on |ARM 1 - ARM 2| and |ARM 1 - ARM 3|, against
+    the 1.0 pp threshold set in section 2. This judgement does not
+    depend on the absolute value of ARM 1.
+
+R3. ARM 1's detection rate is reported as the new measured value
+    whatever it is. If it is below 71.4%, that is the finding and it is
+    reported as such, in the abstract if the abstract carries a detection
+    number at all.
+
+R4. If ARM 1 exceeds 90%, RQ1 may be revisited — but ONLY if R1 passed
+    and H1 was confirmed. A high number from a redesign that failed its
+    own coupling test is not evidence about RQ1 and will not be used as
+    such.
+
+R5. No parameter outside the four arms specified in section 4 is to be
+    varied. If a result is disappointing, the protocol does not permit
+    "trying something else" and reporting the better outcome. The
+    permitted response to a disappointing result is to report it.
+
+R6. Both the proxy and live-inference results remain in the manuscript.
+    The live-inference experiment is reported as a NEW experiment in its
+    own subsection, not as a revision of Table VI or of any published
+    number. The conference-version comparison stays as it is.
+
+R7. DEGENERACY GATE (added 2026-07-28). Risk R-B was previously recorded
+    only as something to "check and mention." It is now a gating rule,
+    because the failure it describes produces a HIGH detection number that
+    also PASSES H1, and would otherwise flow through R4 into a revisited
+    RQ1 claim.
+
+    The mechanism: the synthetic packaging generator yields weighted
+    F1 = 1.000 at overlap_factor 0.10 (Section 5.4 of the manuscript). A
+    classifier that is effectively perfect on its own synthetic signatures
+    returns P(Authentic) collapsed onto {0, 1}. Detection then becomes a
+    near-deterministic function of the tamper class ASSIGNED from
+    anomaly_type in 3.2 — i.e. a proxy reached by a longer route, now
+    measuring "was the tensor labelled correctly" rather than any
+    detection capability. Degrading the CNN still moves that number, so
+    H1 confirms and the failure is invisible to every other rule.
+
+    THE GATE. Before any arm's detection rate is interpreted, the
+    distribution of P(Authentic) returned on severity-blended counterfeit
+    tensors is inspected. Define degenerate mass as the fraction of
+    predictions below 0.05 or above 0.95. If degenerate mass exceeds 90%,
+    then:
+      - ARM 1's detection rate supports NO claim about RQ1 at any value,
+        including a value above 90%;
+      - the redesign is reported as having reintroduced a proxy by a
+        longer route, and said so in those words;
+      - R4 is void for this run.
+    A secondary requirement: corr(P(Authentic), severity) must be
+    materially negative. If severity does not move the classifier's
+    output, the severity-blend in 3.2 is not functioning and the same
+    consequences apply.
+
+    Both quantities are measured in the feasibility spike BEFORE the arms
+    are run, so that this gate is evaluated on a known distribution rather
+    than discovered afterwards.
+
+R8. PROVENANCE DEGENERACY GATE (added 2026-07-28). The mirror failure on
+    the S1 side: if the penalty constant or chain length drives mean S1 so
+    low that PTS falls below the alert threshold for essentially every
+    product regardless of severity, detection saturates near 100% and is
+    again meaningless. Before the arms are run, the spike reports mean S1
+    and the implied PTS at a neutral S8. The penalty constant is chosen so
+    that this does not occur. If no penalty value satisfies both R8 and a
+    non-zero H3 effect, the redesign is abandoned under section 5's
+    abort clause.
+
+======================================================================
+7. REPORTING OBLIGATIONS (all outcomes)
+======================================================================
+
+Regardless of outcome, the write-up states:
+  - all four arms' detection and recall rates, ten seeds each, no
+    exclusions;
+  - whether H1 was confirmed or falsified, stated plainly;
+  - the ARM 1 value, including if it is lower than the proxy design's
+    71.4%;
+  - that the redesign was pre-registered, with a pointer to this document
+    and its approval date;
+  - any deviation from this protocol, with its reason.
+
+If H1 is falsified, the honest conclusion is that the redesign did not
+achieve causal coupling and RQ1 remains unanswerable by this evaluation.
+That is a publishable outcome and the paper's current RQ1 answer already
+anticipates it.
+
+======================================================================
+8. EFFORT AND COMPUTE ESTIMATE
+======================================================================
+
+CORRECTION TO THE EXISTING ESTIMATE. The manuscript's Future Work item 1
+states "an estimated order-of-magnitude increase in computational
+budget", and the earlier handoff estimated "~10x current compute". Both
+appear too pessimistic. The 28-minute figure for the six-phase
+orchestrator run is dominated by MODEL TRAINING repeated six times; the
+detection metric itself is cheap — all ten seeds at full 230,000-
+transaction scale re-run in ~12 seconds.
+
+Live inference does not require retraining per seed. Per seed it requires
+inference over 12,075 anomaly-labelled rows; over ten seeds and four
+arms, roughly 483,000 CNN forward passes and the same number of Isolation
+Forest scorings.
+
+  Isolation Forest scoring:  negligible (vectorized, ~seconds total)
+  CNN forward passes:        the real cost. At 64x64 input this is
+                             minutes-to-tens-of-minutes per arm on CPU,
+                             faster on MPS. MUST BE MEASURED with a
+                             timing probe on 1,000 rows before committing
+                             — I am not willing to state a figure I have
+                             not measured.
+  Model training:            4 arms x one training pass each, comparable
+                             to a single existing phase (~4-5 min each).
+
+  TWO CONCRETE ENGINEERING CONSTRAINTS, both found by calculation:
+
+  (a) MEMORY. Holding one 64x64x3 float32 tensor per anomaly row is
+      12,075 x 49,152 bytes = 594 MB per seed, and ~5.9 GB if all ten
+      seeds are materialized at once. Generation and scoring MUST be
+      streamed in batches. Naive implementation will exhaust memory.
+  (b) DETERMINISM. Each transaction's feature tensor must be generated
+      from a seed derived deterministically from its transaction_id, so
+      that the experiment is reproducible and so that batching order
+      cannot change any result.
+
+  ESTIMATED IMPLEMENTATION EFFORT: 4-8 hours, dominated by 3.1 (custody
+  chain reconstruction) and by the streaming/determinism requirements
+  above — not by compute. Plus a timing probe before commitment.
+
+  The manuscript's Future Work text should be corrected to reflect this
+  if the redesign is NOT undertaken, since it currently overstates the
+  barrier to its own highest-priority follow-up.
+
+======================================================================
+9. RISKS
+======================================================================
+
+R-A  Asymmetric implementation (section 5). Mitigation: 3.1 is mandatory;
+     abandon rather than ship partial.
+R-B  The synthetic packaging generator is documented as degenerate
+     (weighted F1 = 1.000 at overlap_factor 0.10, Section 5.4). A CNN
+     that is nearly perfect on its own synthetic data will return
+     near-binary authenticity probabilities, which may make detection a
+     near-deterministic function of the assigned class and reintroduce a
+     proxy by a longer route. This is a genuine threat to the redesign's
+     validity and must be checked by inspecting the distribution of
+     returned probabilities BEFORE interpreting any detection rate. If
+     the probabilities are near-degenerate, say so in the write-up.
+R-C  Custody chains may be short or singleton for many product_ids at
+     230,000 transactions, weakening S1. Check the realized chain-length
+     distribution before interpreting results.
+R-D  Outcome below 71.4%. Not a risk to be mitigated — a possible
+     finding, pre-accepted under R3.
+
+======================================================================
+10a. FEASIBILITY SPIKE RESULTS — run 2026-07-28, BEFORE any arm
+======================================================================
+
+The spike is diagnostic. It computed NO detection rate for any arm. It
+measured the four quantities the gates depend on, so that R7 and R8 are
+evaluated on known distributions rather than discovered after the fact.
+Raw output: scratchpad/spike_results.json, spike_provenance.json.
+
+(b) CUSTODY CHAIN LENGTH — risk R-C CLEARED
+    19,166 products over 230,000 transactions.
+    mean 12.00, median 12.00, p5 7, p95 18, max 27.
+    Singleton chains: 0.01% of products.
+    Chains are long enough for a product-of-trust formulation to carry
+    information, and short enough not to underflow. R-C is not live.
+
+(c) PROVENANCE SIGNAL — Gap 2 CONFIRMED LIVE, then RESOLVED
+    Under the WITHDRAWN org_type specification, provenance carries no
+    label information whatsoever:
+        trust 0.999 uniform    r = -0.0002   d = +0.002
+        trust 0.995 uniform    r = -0.0004   d = +0.004
+        trust 0.980 uniform    r = -0.0005   d = +0.005
+        (clustered injection made no material difference: |r| <= 0.006)
+    This vindicates withdrawing that specification. Had the redesign been
+    built on it, BCT-AI would have combined a working signal with a pure
+    noise term and lost to AI-Only for a reason internal to the harness.
+
+    Under the ADOPTED history-based specification at penalty 0.10:
+        uniform     r = +0.0011   d = -0.011   (no signal, as H3 predicts)
+        clustered   r = -0.1220   d = +1.456   (strong separation)
+    Organization trust spread confirms the mechanism:
+        uniform     range [0.9469, 1.0000]  spread 0.053
+        clustered   range [0.1000, 1.0000]  spread 0.900
+    i.e. under uniform injection no organization is singled out; under
+    clustered injection the compromised manufacturers are identified from
+    prior-period history alone.
+
+(a) CNN PROBABILITY DISTRIBUTION — R7 GATE: **PASS**
+    1,000 severity-blended counterfeit tensors through the trained CNN
+    (overlap_factor 0.10, the published Phase 5/6 configuration):
+        mean P(Authentic) = 0.2648, std 0.3771, range [0.0000, 0.9999]
+        mass < 0.05:  58.0%
+        mass > 0.95:  11.2%
+        DEGENERATE MASS: 69.2%   (gate fails above 90%)  -> PASS
+        corr(P(Authentic), severity) = -0.7505            -> PASS
+        deciles: 0.000 0.000 0.000 0.000 0.004 0.087 0.329 0.771 0.962
+
+    HONEST QUALIFICATION, to be carried into the write-up. 69.2% passes
+    the 90% gate but is not a comfortable margin, and the distribution is
+    visibly bimodal: roughly 40% of predictions sit at or near zero. The
+    severity correlation of -0.75 and the graded 50th-90th percentile
+    range establish that the classifier responds continuously to severity
+    rather than merely reading an assigned class label, which is what R7
+    exists to check. But the redesign does NOT produce a smoothly
+    distributed authenticity score, and any detection rate it yields must
+    be reported alongside this distribution. A reader must be able to see
+    that severe counterfeits are classified with high confidence and draw
+    their own conclusion about how much of the detection rate that fact
+    carries.
+
+(d) THROUGHPUT — effort estimate CORRECTED
+    6.76 ms per row (CPU, 64x64 input, batch 64).
+        12,075 anomaly rows / seed  =  1.4 min
+        10 seeds                    = 13.6 min per arm
+        5 arms                      = 68   min inference
+        + CNN training x2 (~7 min each), IF training x2 (negligible)
+        TOTAL COMPUTE  ~= 1.5 hours
+    Both the manuscript's "order-of-magnitude increase in computational
+    budget" and the earlier "~10x" handoff estimate are wrong and should
+    be corrected. The barrier to this redesign is implementation effort
+    (streaming, determinism, custody-chain reconstruction), not compute.
+
+FROZEN CONSTANTS, fixed by this spike before any arm runs:
+    provenance penalty            = 0.10
+    provenance excess cap         = 3.0
+    reputation burn-in            = first 50% of the timeline by timestamp
+    metrics computed on           = second 50% only
+    CNN severity blend maximum    = 0.60 toward the Authentic signature
+    R7 degenerate-mass threshold  = 90%
+    R8 criterion                  = clustered PTS(clean) must stay >= 0.75
+
+======================================================================
+10. APPROVAL
+======================================================================
+
+I will not begin implementation until this document is approved, because
+approving it after seeing results would defeat its purpose.
+
+  [X] APPROVED AS WRITTEN
+  [ ] APPROVED WITH THE AMENDMENTS NOTED BELOW
+  [ ] REJECTED — paper stands as written
+
+  Approver: M. Balakrishnan       Date: 2026-07-28
+
+  FORM OF APPROVAL — recorded exactly as given, not transcribed into a
+  signature. Approval was given in conversation, verbatim: "go ahead, i
+  trust you!", in direct response to a message stating the outstanding
+  item as: "Section 10's acknowledgement — that ARM 1 gets reported as
+  measured, including below 71.4%." The protocol as frozen above
+  (sections 3-6, 10a) was the version described at that point. Anyone
+  auditing this should treat the acknowledgement below as accepted by
+  that exchange rather than as a separately initialed statement.
+
+Explicit acknowledgement required for approval:
+
+  "I accept that the resulting detection rate will be reported as
+   measured, including if it is lower than 71.4%, and that no threshold
+   or weight will be adjusted afterwards to change it."
+
+  Accepted: yes (see FORM OF APPROVAL above)   Date: 2026-07-28
+
+  PROTOCOL FROZEN 2026-07-28. Implementation begins from this point.
+  Any deviation discovered during implementation is to be recorded in
+  section 12 below with its reason, not silently applied.
+
+======================================================================
+12. DEVIATIONS FROM THE FROZEN PROTOCOL
+======================================================================
+
+D-1  Logging defect, fixed before the single run. The arm summary line
+     used `value or fallback`, which silently replaces a legitimate 0.0
+     (falsy in Python) with the fallback; it printed "advantage=+nan pp"
+     when the true advantage was exactly 0.00. Display only — no stored
+     value was affected. Replaced with explicit None checks.
+
+D-2  ARM 0b added (published proxy design restricted to the evaluation
+     half). The burn-in split means live arms see ~50% of the data, so
+     ARM 1 vs ARM 0 would confound the redesign with sample restriction.
+     ARM 0b is the matched control. This ADDS a comparison; it removes
+     nothing and changes no frozen parameter.
+
+D-3  Isolation Forest sequence length fixed at 20 readings per
+     transaction. Protocol 3.3 did not specify a length. 20 was chosen
+     for cost (the paper's standalone IF evaluation uses 60-reading
+     episodes, but that measures a different quantity — a monitoring
+     episode, not a single transaction's cold-chain context). Recorded
+     rather than left implicit. No detection rate was consulted.
+
+======================================================================
+13. PRE-RUN PREDICTION — recorded BEFORE the single execution
+======================================================================
+
+Written 2026-07-28, after the plumbing smoke test but before the
+pre-registered run. The smoke test is NOT informative about outcomes: its
+CNN reached weighted F1 = 0.109 with mean P(Authentic) = 0.2054, i.e.
+1/5 — uniform output over five classes, an untrained model. Its numbers
+are discarded. What follows is arithmetic from the FROZEN constants plus
+the spike's measured distributions, not from any smoke-test result.
+
+For Class A (w1 = 0.25, w8 = 0.10; all classes are provenance-weighted
+at least 2.5:1), BCT-AI fires when
+
+    (0.25*S1 + 0.10*S8) / 0.35 < 0.75   =>   S8 < 2.625 - 2.5*S1
+
+Under UNIFORM injection the spike measured S1 = 0.976, which requires
+S8 < 0.185. With S8 = (P_authentic + (1 - isolation))/2 and isolation
+~ 0.26, that requires P_authentic < -0.37 — unreachable. So:
+
+  PREDICTION 1. ARM 1 BCT-AI detection will be at or near ZERO. Not low:
+  structurally unable to fire. Provenance at ~0.98 pins PTS near 0.84
+  regardless of what the CNN reports.
+
+  PREDICTION 2. ARM 1 AI-Only detection will be ~80%. AI-Only fires when
+  P_authentic < ~0.76, and the spike's deciles put ~80% of counterfeits
+  below that.
+
+  PREDICTION 3. H1 WILL THEREFORE BE FALSIFIED on the BCT-AI metric.
+  [Terminology note added 2026-07-28, after the run: P3's SUBSTANCE held
+  exactly — the null came from provenance masking, not from a failure of
+  coupling, and the AI-Only diagnostic plus ARM 5 both bear that out. But
+  "falsified" was the wrong word to have used even in the prediction: the
+  comparison had zero power, so the correct term was "not testable". The
+  prediction is graded HELD on substance; the label it used is superseded
+  by the corrected verdict in section 14.]
+  ARM 1 and ARM 2 will both sit near zero, so |ARM1 - ARM2| < 1.0 pp —
+  but for a reason that is NOT "the redesign failed to couple." The CNN
+  is coupled; provenance saturation masks it. If this occurs, the write-up
+  must state that distinction explicitly and must NOT report H1's
+  falsification as evidence that live inference fails to influence
+  detection.
+
+  PREDICTION 4. ARM 4 (clustered) BCT-AI detection will be HIGH (~90%+),
+  since the spike measured S1 = 0.62 for clustered counterfeits, giving
+  PTS ~ 0.57. H3 will be confirmed with a large margin.
+
+INTERPRETATION FIXED IN ADVANCE. If predictions 1-4 hold, the finding is
+that the published PTS weights do not transfer from the proxy design to
+live inference. Those weights were set when custody_trust was itself a
+severity-linked proxy with slope 0.90 — provenance was the strongest
+available signal, so weighting it 2.5:1 was reasonable. Once provenance
+is derived from real custody history it is near-uniform under uniform
+injection, and the same weights make BCT-AI blind to a CNN that is
+working correctly.
+
+That is a genuine and reportable result about weight calibration. It is
+NOT license to retune w1/w8 and re-run: R5 forbids it, and any such
+retuning would have to be pre-registered as its own experiment with its
+own approval. The recorded outcome stands as measured.
+
+If predictions 1-4 do NOT hold, that is more informative still, and the
+divergence is to be reported explicitly against this section.
+
+======================================================================
+14. RESULTS — single execution, 2026-07-28 18:25-19:14 (49 minutes)
+======================================================================
+
+Seeds 42-51, all ten, no exclusions, no seed failures in any arm.
+230,000 transactions/seed. Raw: results/live_inference_results.json.
+
+  arm      BCT-AI detection   AI-Only   advantage    recall   n_cf
+  ---------------------------------------------------------------------
+  ARM0      71.91% +/- 1.28%   57.90%   +14.01 pp   36.73%   2,300
+  ARM0b     72.19% +/- 1.20%   57.83%   +14.36 pp   36.59%   1,145
+  ARM1       0.00% +/- 0.00%   75.09%   -75.09 pp    0.00%   1,145
+  ARM2       0.00% +/- 0.00%   72.01%   -72.01 pp    0.00%   1,145
+  ARM3       0.00% +/- 0.00%   75.51%   -75.51 pp    0.00%   1,145
+  ARM4      92.29% +/- 0.64%   75.04%   +17.25 pp    7.52%   1,142
+
+GATES
+  R1  PASS. ARM0 = 71.91%, reproducing the published 71.4% +/- 1.4%.
+      The harness has not drifted; the remaining arms are interpretable.
+  R7  PASS. Degenerate mass 71.18% (gate fails above 90%);
+      corr(P_authentic, severity) = -0.77. The classifier responds
+      continuously to severity rather than reading an assigned label.
+      The bimodality qualification in section 10a still applies and must
+      appear alongside any reported number.
+  R8  PASS. ARM1 S1 = 0.97 for both counterfeit and non-counterfeit rows
+      (no discrimination under uniform injection, as H3 predicts, and no
+      uniform-low saturation). ARM4 S1 = 0.60 counterfeit vs 0.84 other.
+
+HYPOTHESES
+  H1 as registered (R2 judges |ARM1 - ARM2| and |ARM1 - ARM3| on the
+     BCT-AI detection metric): NOT TESTABLE IN THIS ARM.
+     [CORRECTED 2026-07-28. This line read "FALSIFIED" when first written.
+     Independent review, reproduced by the author, established that the
+     comparison had ZERO POWER: holding S8 across its entire physically
+     reachable range [0.38, 0.88], BCT-AI detection under uniform
+     injection varies by 0.11 pp in total, below the 1.0 pp threshold at
+     every CNN output that can physically occur. Section 2 of this
+     protocol defines falsification of H1 as meaning "the redesign failed
+     at its stated purpose"; a zero-power test cannot support that
+     inference. The FALSIFIED verdict is withdrawn. See ARM5 for the
+     powered test on the same registered metric.]
+     Both differences are exactly 0.00 pp, because BCT-AI detection is
+     0.00% in all three uniform arms and cannot move.
+
+     *** CONTESTED BY INDEPENDENT REVIEW, 2026-07-28. DO NOT CITE THIS
+     VERDICT WITHOUT READING LIVE_INFERENCE_RESULTS_for_review.txt
+     SECTION 10.2. ***
+     A second session swept S8 across its full reachable range [0.38,
+     0.88] (S8 = (P_authentic + 1 - isolation)/2 with isolation ~0.239,
+     so 0 and 1 are unreachable) and found BCT-AI detection varies by
+     only 0.11 pp under uniform injection across every CNN output that
+     can physically occur — versus ~24 pp under clustered injection.
+     The R2 comparison was therefore pinned below its 1.0 pp threshold
+     before the models were trained. A test that cannot return a
+     positive result has not falsified anything; the supportable status
+     is NOT TESTABLE IN THIS ARM. The review proposes ARM 5 (clustered
+     + degraded CNN) to run the registered test where the metric can
+     move, with prediction P5 recorded in advance. Pending that, this
+     line should be restated rather than cited.
+  H1 diagnostic, AI-Only channel (NOT the registered test): degrading the
+     CNN moved AI-Only detection 75.09% -> 72.01%, a 3.07 pp drop in the
+     correct direction. Degrading the Isolation Forest moved it 75.09% ->
+     75.51%, 0.42 pp, no coupling.
+  H3: CONFIRMED. Advantage clustered (+17.25 pp) minus advantage uniform
+     (-75.09 pp) = +92.34 pp margin, far above the 1.0 pp threshold.
+
+PREDICTIONS (section 13) — ALL FOUR HELD
+  P1 BCT-AI at or near zero under uniform    -> exactly 0.00%. HELD.
+  P2 AI-Only ~80%                            -> 75.09%.
+     PARTIALLY HELD — 5 pp low. [Regraded 2026-07-28; first recorded as
+     "HELD (close)". A 5 pp miss is a partial miss, not a pass.]
+  P3 H1 falsified via provenance masking,
+     not via failure of coupling             -> HELD, and the AI-Only
+     diagnostic confirms the CNN is coupled while BCT-AI is masked.
+  P4 ARM4 BCT-AI high, ~90%+                 -> 92.29%. HELD.
+
+R4 IS NOT SATISFIED — RQ1 IS NOT REVISITED
+  R4 permits revisiting RQ1 only if R1 passed AND H1 was confirmed AND
+  ARM 1 exceeds 90%. R1 passed; H1 was NOT TESTABLE on the registered
+  comparison [corrected 2026-07-28; this read "was FALSIFIED"]; ARM 1 is
+  0.00%, not above 90%. Two of three conditions fail.
+  ARM 5 (section 15) later confirmed H1 in a powered condition. That does
+  NOT satisfy R4 either: R4's third condition names ARM 1, still 0.00%,
+  and ARM 5 is a degradation arm, not the primary result.
+  ARM 4's 92.29% does NOT satisfy R4. R4 names ARM 1, which protocol
+  section 4 designates the primary result. ARM 4 is a different arm under
+  a different injection condition, registered to test H3, and is not
+  comparable to the 71.4% proxy baseline. Reporting 92.29% as "RQ1
+  achieved" would be precisely the substitution this protocol exists to
+  prevent. RQ1's answer in the manuscript STANDS UNCHANGED.
+
+WHAT THE EXPERIMENT ESTABLISHED
+  1. The redesign achieved causal coupling — ON THE AI-ONLY CHANNEL in
+     this execution, and on the INTEGRATED channel once ARM 5 was run.
+     [CORRECTED 2026-07-28. This item originally read "The redesign
+     achieved causal coupling. Detection now responds to CNN quality
+     (3.07 pp) ... This was the stated objective." That overstated the
+     evidence: 3.07 pp is measured on AI-Only, which is by definition the
+     no-provenance condition, so it does not establish that the INTEGRATED
+     system responds to model quality.]
+     As executed here: degrading the CNN moved AI-Only detection by
+     3.07 pp, against exactly 0.00 pp across every phase of the proxy
+     ablation. Integrated-channel coupling was established later by ARM 5
+     (section 15): 4.76 pp, t(9)=19.7, p=1.0e-08. Cite ARM4 vs ARM5 for
+     the integrated claim, never the 3.07 pp AI-Only figure.
+  2. The published PTS weights do not transfer from the proxy design to
+     live inference. They were calibrated when custody_trust was itself a
+     severity-linked proxy (slope 0.90) and provenance was the strongest
+     signal available. Once provenance is derived from realized custody
+     history it is ~0.97 and near-uniform under uniform injection, which
+     pins PTS at ~0.84 and makes BCT-AI structurally unable to fire
+     regardless of what the CNN reports. Hence 0.00%.
+  3. Blockchain provenance contributes to counterfeit detection only when
+     counterfeiting is source-concentrated (H3, +92.34 pp margin). Under
+     uniform injection no organization accumulates a distinguishing prior
+     record and provenance is correctly uninformative.
+  4. The Isolation Forest does not contribute to counterfeit detection
+     (0.42 pp) and should not be expected to: counterfeit rows are not
+     temperature-excursion rows, so the forest scores nominal cold-chain
+     data for every counterfeit it sees. This is a domain boundary, not
+     a defect.
+
+NOT PERMITTED AS A FOLLOW-UP TO THIS RESULT
+  Retuning w1/w8 so that BCT-AI can fire under uniform injection is
+  forbidden by R5 as a response to this run. It is a legitimate FUTURE
+  experiment, but it requires its own pre-registration, its own approval,
+  and its own single execution. It may not be performed and reported as
+  though it were part of this one.
+
+======================================================================
+15. ARM 5 — POWERED H1 TEST, added after independent review
+======================================================================
+
+Run 2026-07-28 19:52-21:12. Prediction P5 recorded before execution in
+LIVE_INFERENCE_RESULTS_for_review.txt section 10.4.
+
+WHY IT WAS ADDED. Independent review, reproduced by the author, showed
+the registered H1 comparison (ARM1 vs ARM2) had ZERO POWER: holding S8
+across its full physically reachable range [0.38, 0.88], BCT-AI detection
+under uniform injection varies by 0.11 pp in total, below the 1.0 pp
+threshold at every CNN output that can occur. ARM 5 is ARM 4's data
+condition with ARM 2's manipulation — the 2x2 cell not previously run —
+and tests the SAME registered metric in the one condition where it can
+move (23.84 pp reachable range).
+
+WHY THIS IS NOT AN R5 VIOLATION. R5 forbids varying parameters in search
+of a better number after a disappointing result. ARM 5 holds every frozen
+constant, reuses both existing model configurations without retraining
+changes, and its recorded prediction (P5) was that detection would GO
+DOWN. It completes a test that the protocol specified and that was
+executed in a condition unable to answer it. The alternative — leaving a
+zero-power null recorded as "FALSIFIED" — would have been the less honest
+option.
+
+RESULT (seeds 42-51, all ten, no exclusions)
+  ARM4  clustered, published CNN   92.29% +/- 0.64%   (reproduced exactly)
+  ARM5  clustered, DEGRADED CNN    87.53% +/- 0.74%
+  |ARM4 - ARM5| = 4.76 pp on the registered BCT-AI detection metric.
+  Paired over shared seeds: same sign on all 10, t(9) = 19.74,
+  p = 1.02e-08, Cohen's d = 6.24.
+
+  H1: CONFIRMED in a powered condition.
+  P5: CONFIRMED (predicted >1.0 pp decrease; measured 4.76 pp).
+
+STATUS OF H1 OVERALL, STATED PRECISELY
+  - As registered (ARM1 vs ARM2, uniform injection): NOT TESTABLE.
+  - In the powered condition (ARM4 vs ARM5, clustered injection):
+    CONFIRMED.
+  ARM 5 does not retroactively become the registered test. It is a
+  post-hoc-motivated, pre-predicted test of the same hypothesis, and the
+  manuscript must describe it that way.
+
+RQ1 IS STILL NOT REVISITED. ARM 5 is a degradation arm; R4's conditions
+concern ARM 1, which remains 0.00%. Nothing here changes RQ1.
+
+NO FURTHER ARMS ARE AUTHORIZED by this result, per section 10.4 of the
+review document, which pre-committed that neither outcome would license
+additional runs.
+
+======================================================================
+END
+======================================================================

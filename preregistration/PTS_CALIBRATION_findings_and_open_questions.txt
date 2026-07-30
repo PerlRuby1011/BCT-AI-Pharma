@@ -1,0 +1,295 @@
+PTS CALIBRATION TO EXCEED 78.2% — FINDINGS AND OPEN QUESTIONS
+Written: 2026-07-28
+Author: Claude (Opus 5) session working on BCT-AI-Pharma journal extension
+Purpose: handoff document. Another agent or reviewer can read this and
+         respond in-line (see "OPEN QUESTIONS" at the bottom).
+
+======================================================================
+0. ONE-PARAGRAPH SUMMARY
+======================================================================
+
+I was asked to raise measured counterfeit detection rate from 71.4% to
+above 78.2% via PTS recalibration (five proposed fixes, A-E), and to
+keep trying fixes until the threshold was crossed, then update the
+paper and flip the RQ1 answer from "No" to "Yes". I ran the requested
+diagnostic (Step 1-3) in full. Every proposed fix moves detection DOWN
+or does nothing; combined they make it 7 points WORSE (71.91% ->
+64.83%). The only parameter that reaches >78.2% is raising the alert
+threshold (0.75 -> 0.85 gives 86.00%), which does not detect a single
+additional counterfeit — it relabels the same transactions. I stopped
+there rather than continuing to search, and made no changes to config,
+CHANGES.md, or the manuscript. Details, evidence, and the decisions I
+need from a human are below.
+
+======================================================================
+1. WHAT WAS ASKED
+======================================================================
+
+Goal as stated: "Legitimately improve counterfeit detection rate above
+78.2% (the AI-only baseline) through proper PTS calibration."
+
+Stopping rule as stated: "Only stop when the full orchestrator re-run is
+complete and new results exceed 78.2% detection. If a fix doesn't work,
+diagnose and try the next one."
+
+Proposed fixes:
+  A. pts.drug_classes.A.w8_ai_confidence: 0.10 -> 0.20
+  B. severity-graded quarantine override: if S8 < 0.30 AND S2 < 0.20,
+     force PTS to min(PTS, 0.45)
+  C. pts quarantine threshold for Class A: 0.50 -> 0.45
+  D. Class A w1: 0.25 -> 0.30 together with w8: 0.10 -> 0.20
+  E. alert threshold: 0.75 -> 0.70
+
+Then: update Sections 6/7/9 and change the RQ1 answer to "Yes, after
+PTS calibration."
+
+======================================================================
+2. WHAT I ACTUALLY RAN (evidence, not argument)
+======================================================================
+
+Diagnostic: 10 seeds x 230,000 transactions per configuration, using
+the real run_single_simulation_run() code path. Config overrides were
+applied IN MEMORY only; config/config.yaml on disk was never modified.
+
+Script (scratch, not committed):
+  scratchpad/calib_diagnostic.py
+
+RESULTS
+-------
+  config                              detection    vs base    recall
+  ----------------------------------------------------------------------
+  baseline (current)                    71.91%      +0.00pp    36.73%
+  Fix A   w8 0.10->0.20 (Class A)       71.86%      -0.06pp    35.52%
+  Fix B   severity override             never fires  0.00pp    --
+  Fix C   quarantine 0.50->0.45         71.91%      +0.00pp    29.61%
+  Fix D   w1 0.30 + w8 0.20 (Class A)   71.88%      -0.03pp    35.90%
+  Fix E   alert 0.75->0.70              64.97%      -6.94pp    36.73%
+  A+C+D+E combined                      64.83%      -7.08pp    28.60%
+  [contrast] alert 0.75->0.85           86.00%     +14.09pp    36.73%
+
+Fix B override condition instrumentation:
+  S2 (temperature compliance) = 1.000 in the detection path
+      -> "S2 < 0.20" is never true
+  S8 (AI confidence) over 2,300 counterfeit rows = [0.461, 0.992]
+      -> "S8 < 0.30" fires 0 times
+  => override fires on 0 of 2300 counterfeit rows
+
+======================================================================
+3. WHY EACH FIX CANNOT WORK (code-level, checkable)
+======================================================================
+
+All references are to the repo at
+  /Users/mm/Articles Manusript/CODE/BCT-AI-Pharma
+
+FACT 1 — Detection is thresholded on ALERT, not quarantine.
+  evaluation/run_simulation.py:193
+      "bct_ai_detection": float(np.mean(bct_ai_pts < alert_threshold))
+  evaluation/run_simulation.py:195
+      "bct_ai_recall":    float(np.mean(bct_ai_pts < quarantine_threshold))
+
+  Fix C changes quarantine_threshold, which appears ONLY in the recall
+  line. It is structurally incapable of moving detection. The measured
+  0.00pp confirms this. It does, however, cut recall efficiency from
+  36.73% to 29.61%, which would contradict the confidence interval
+  [36.4%, 36.8%] already reported in the manuscript (Section 5.8).
+
+FACT 2 — Fix B's override condition is unreachable.
+  evaluation/run_simulation.py:169 passes temperature_readings_c=[]
+  pts/product_trust_score.py:102-103 returns 1.0 when there are no
+  readings.
+  Therefore S2 == 1.0 always in the detection path, and "S2 < 0.20"
+  can never be satisfied. Independently, S8 never drops below 0.461.
+  The override is dead code in this path.
+
+FACT 3 — Fixes A and D push detection the WRONG WAY by construction.
+  evaluation/run_simulation.py:182-186 builds the detection PTS from
+  exactly two components, normalized by their weight sum:
+
+      pts = (w1*S1 + w8*S8) / (w1 + w8)
+
+  For a counterfeit row with normalized severity s:
+      S1 (provenance)     ~ 1.00 - 0.90*s        (LOW when severe)
+      S8 (ai confidence)  ~ 0.81 - 0.15*s        (HIGH, always >= 0.66)
+        [S8 = (cnn_authenticity + (1 - isolation_score))/2,
+         pts/product_trust_score.py:194-204]
+
+  S8 is the HIGHER of the two terms for counterfeits. Increasing w8
+  therefore pulls the composite UP, away from the 0.75 detection
+  threshold. Solving for the detection boundary:
+      current (w1=0.25, w8=0.10): detected when s > 0.284
+      Fix A   (w1=0.25, w8=0.20): detected when s > 0.292
+      Fix D   (w1=0.30, w8=0.20): detected when s > 0.290
+  i.e. each requires MORE severity to trigger, so fewer counterfeits
+  are detected. Weighting the CNN term more heavily makes counterfeits
+  look more trustworthy, not less.
+
+FACT 4 — Fix E lowers the bar in the wrong direction.
+  Detection = P(pts < alert_threshold). Lowering the threshold from
+  0.75 to 0.70 shrinks the detection region. Measured: -6.94pp.
+
+FACT 5 — The only lever that reaches the target is metric inflation.
+  Raising alert 0.75 -> 0.85 yields 86.00%. This flags more of the SAME
+  transactions as "detected" without any change in system capability,
+  and would invalidate every t-statistic, confidence interval, and
+  ablation delta currently in the manuscript.
+
+======================================================================
+4. A PROBLEM WITH THE TARGET ITSELF
+======================================================================
+
+78.2% is not a baseline in this experiment.
+
+  - The MEASURED AI-only baseline in this simulation is 57.6%
+    (results/phase6_final.json, statistical_validation.per_run.
+     baseline_counterfeit_detection, mean over 10 seeds).
+  - BCT-AI at 71.4% already exceeds it by 13.8 percentage points.
+  - 78.2% is the CONFERENCE PAPER's design-target figure for the
+    AI-only row, produced under a full-scale methodology that this
+    journal version explicitly does not reproduce.
+
+So "exceed the AI-only baseline" is ALREADY SATISFIED against the
+baseline actually measured here. Tuning a measured number until it
+passes an unreproduced projection compares two different quantities.
+
+======================================================================
+5. THE DEEPER ISSUE (previously diagnosed, still unresolved)
+======================================================================
+
+Detection rate in this pipeline is computed from PTS threshold
+crossings over severity-linked SYNTHETIC PROXIES. It has zero
+functional dependence on any trained model:
+
+  evaluation/run_simulation.py:159-162
+      cnn_authenticity = clip(1.0 - 0.30*severity_norm + N(0, 0.06))
+      isolation_score  = clip(N(0.38, 0.13))
+
+No CNN forward pass and no Isolation Forest inference occurs anywhere
+in run_single_simulation_run(). This is a deliberate, documented design
+choice in the original codebase (retraining three models per seed is
+intractable), not something introduced by the orchestrator.
+
+Consequence: no PTS reweighting can convert this number into a measure
+of detection CAPABILITY. Recalibrating weights tunes the scorer, not
+the detector.
+
+======================================================================
+6. CURRENT STATE OF EVERYTHING
+======================================================================
+
+UNCHANGED / NOT DONE (deliberately):
+  - config/config.yaml            — no calibration changes applied
+  - pts/product_trust_score.py    — no override function added
+  - CHANGES.md                    — no calibration entries
+  - BCT_AI_Pharma_CompInd.tex     — Sections 6/7/9 NOT rewritten;
+                                    RQ1 still answered "For counterfeit
+                                    detection, no."
+  - results/phase*.json           — the 6-phase run is intact and is
+                                    still the run the manuscript cites
+
+DONE EARLIER AND STILL VALID:
+  - CODE repo commit fabf487 "Add experiment orchestrator and record
+    full ablation run results" (LOCAL ONLY, not pushed to
+    github.com/PerlRuby1011/BCT-AI-Pharma)
+  - Manuscript compiles clean: pdflatex x3, exit 0, 0 undefined
+    refs/citations, 81 pages, 10 tables, 8 figures, 49 bibitems
+  - TeX Live installed user-locally at ~/texlive/2026 (no sudo).
+    Use: export PATH=/Users/mm/texlive/2026/bin/universal-darwin:$PATH
+  - The manuscript directory is NOT a git repository. I did not run
+    git init because /Users/mm/Articles Manusript/ contains
+    EB1A_NIW_Evidenc/ (personal immigration documents) which
+    "git add -A" would stage.
+
+======================================================================
+7. TWO PATHS I CAN TAKE THAT ARE DEFENSIBLE
+======================================================================
+
+OPTION 1 — Publish the threshold sensitivity as a finding.
+  I already have the curve: detection at alert thresholds
+  0.70 / 0.75 / 0.85 = 64.97% / 71.91% / 86.00%.
+  Adding this as a figure/table makes the threshold dependence explicit
+  rather than hidden behind a single chosen operating point. It is
+  honest, it is a genuine contribution (most papers report one
+  threshold and never show the sensitivity), and it costs nothing —
+  the data exists. It does NOT produce a number above 78.2%.
+  Effort: ~1 hour.
+
+OPTION 2 — Per-transaction live inference redesign.
+  Already written into the manuscript as Future Work item 1. Generate a
+  packaging feature vector per counterfeit-labelled transaction and
+  score it through the actual trained CNN; likewise cold-chain reading
+  sequences through the actual Isolation Forest. This makes detection
+  causally depend on model quality, so improving a model can
+  legitimately improve detection.
+  CRITICAL: the methodology must be fixed BEFORE seeing results, and
+  the output reported as a NEW experiment, not as a revision of the
+  current numbers.
+  Effort: substantial. Rough estimate ~10x current compute budget;
+  needs design agreement first. Outcome genuinely unknown — it might
+  land below 71%, and that has to be acceptable in advance.
+
+======================================================================
+8. OPEN QUESTIONS — PLEASE ANSWER INLINE
+======================================================================
+
+Q1. Do you accept that Fixes A-E cannot achieve the stated goal?
+    The evidence is in section 2 (measured) and section 3 (mechanism).
+    If you disagree, please point at which specific fact (1-5) is
+    wrong, so I can re-test that claim rather than re-run everything.
+    ANSWER:
+
+Q2. The 78.2% target is the conference DESIGN TARGET for AI-only, not
+    a measured baseline; the measured AI-only baseline here is 57.6%,
+    which 71.4% already beats. Is the real goal
+      (a) beat the measured AI-only baseline  -> already done, or
+      (b) match the conference paper's headline numbers -> this cannot
+          be done honestly without reproducing the full-scale
+          methodology, or
+      (c) something else?
+    ANSWER:
+
+Q3. Proceed with OPTION 1 (threshold sensitivity figure)? y/n
+    ANSWER:
+
+Q4. Proceed with OPTION 2 (per-transaction inference redesign)?
+    If yes, I need explicit acknowledgement that the resulting number
+    is accepted in advance whatever it turns out to be, including if it
+    is LOWER than 71.4%. y/n + acknowledgement
+    ANSWER:
+
+Q5. Is there external pressure driving the 78.2% target — a reviewer
+    comment, a rebuttal deadline, a consistency requirement with the
+    accepted conference paper? If so, say what it is. There may be a
+    legitimate way to address the underlying reviewer concern that
+    does not require moving this number at all (e.g. explaining the
+    proxy design in the response letter).
+    ANSWER:
+
+Q6. Should the local commit fabf487 be pushed to GitHub? It is
+    currently local-only. The repo is public
+    (github.com/PerlRuby1011/BCT-AI-Pharma) and the paper cites it as
+    the reference implementation. y/n
+    ANSWER:
+
+======================================================================
+9. WHAT I WILL NOT DO WITHOUT AN EXPLICIT, INFORMED GO-AHEAD
+======================================================================
+
+  - Raise the alert threshold (or any evaluation threshold) in order to
+    reach a predetermined detection number. This is the only change
+    that would work, and it is measurement manipulation regardless of
+    the rationale attached to it.
+  - Search across calibration settings with "exceeds 78.2%" as the
+    stopping criterion. Selecting parameters by whether they beat a
+    target is the same operation as selecting seeds by their results;
+    the manuscript's own "Constraints Verified" section asserts neither
+    was done.
+  - Rewrite Sections 6/7/9 or flip the RQ1 answer to "Yes" on the basis
+    of any of the above.
+
+I am not refusing the goal. I am refusing one route to it. If the aim
+is a higher, defensible detection number, OPTION 2 is the honest route
+and I will start on it as soon as Q4 is answered.
+
+======================================================================
+END
+======================================================================

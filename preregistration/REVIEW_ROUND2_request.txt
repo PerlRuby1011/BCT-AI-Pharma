@@ -1,0 +1,750 @@
+REVIEW REQUEST — ROUND 2
+Written:  2026-07-28
+Author:   Claude (Opus 5), original implementing session
+For:      An independent reviewer (agent or human) who has NOT seen this work
+Status:   Round-1 review findings all actioned. New artifacts need review.
+
+======================================================================
+0. WHAT TO REVIEW, IN PRIORITY ORDER
+======================================================================
+
+Two artifacts are NEW since round 1 and have had no independent scrutiny.
+They are the reason for this request. Everything else is context.
+
+  PRIORITY 1  The new manuscript subsection.
+              BCT_AI_Pharma_CompInd.tex, \subsection{Live-inference
+              evaluation...}, label sec:liveinference (~line 2227,
+              between the threshold-sweep subsubsection and \section{Discussion}).
+              This is the text that would actually go to the journal. It is
+              the highest-stakes artifact in the package and the only one a
+              reviewer of the paper will ever see.
+
+  PRIORITY 2  The weight-sweep pre-registration.
+              OPTION3_weight_sweep_PREREGISTRATION.txt — not yet approved,
+              nothing run. Its guards (R-C, R-E) are the entire point; if
+              they are insufficient, say so BEFORE it is approved.
+
+  PRIORITY 3  Verify the round-1 corrections were complete and honest.
+              See section 3 below for exactly what was changed and where.
+              I found three missed spots myself during a self-check (also
+              listed in section 3); assume I missed others.
+
+======================================================================
+1. WHERE THINGS STAND
+======================================================================
+
+Three experiments have been run, in this order:
+
+  1. PROXY ABLATION (the paper's primary reported experiment)
+     6 phases, 10 seeds, 230k tx/seed. Detection 71.4% +/- 1.4%.
+     Established that detection does NOT respond to AI-module quality:
+     improving each module moves the detection column by exactly 0.00 pp.
+     Results: results/EXPERIMENT_REPORT.md, results/phase*.json
+
+  2. LIVE-INFERENCE REDESIGN (pre-registered, 6 arms + 1 added later)
+     Replaced the three PTS proxy inputs with real model inference and
+     history-derived provenance. Key numbers:
+       ARM0  proxy, full data        71.91%   (harness parity check, PASS)
+       ARM1  live, uniform            0.00%   PRIMARY RESULT
+       ARM4  live, clustered         92.29%
+       ARM5  live, clustered, degraded CNN  87.53%
+     Protocol + results: OPTION2_live_inference_PREREGISTRATION.txt
+     Analysis + round-1 review: LIVE_INFERENCE_RESULTS_for_review.txt
+     Raw: results/live_inference_results.json, results/arm5_h1_powered.json
+
+  3. WEIGHT SWEEP — pre-registered only, NOT RUN.
+     OPTION3_weight_sweep_PREREGISTRATION.txt
+
+Three substantive findings, in the order they matter:
+
+  A. The published PTS weights do not transfer from the proxy design to
+     live inference. Under uniform injection, provenance derived from real
+     custody history is ~0.974 and near-uniform, which pins the composite
+     score above the alert threshold: integrated detection is 0.00%, and
+     holding S8 across its entire physically reachable range [0.38, 0.88]
+     moves it by 0.11 pp total. The zero is structural AT THE ADOPTED
+     PROVENANCE PENALTY OF 0.10 (see L-5), not a matter of degree.
+     This is the principal finding.
+
+  B. Causal coupling was achieved. Degrading the CNN reduces integrated
+     detection 92.29% -> 87.53% under clustered injection (4.76 pp, same
+     sign on all 10 seeds, t(9)=19.74, p=1.0e-08). The proxy design moved
+     0.00 pp under every ablation phase. This was the redesign's objective.
+
+  C. Blockchain provenance contributes only when counterfeiting is
+     source-concentrated. Organization trust spread is 0.016 under uniform
+     injection versus 0.300 under clustered. Consistent with the 67%-at-
+     wholesale-distributor figure already cited in the manuscript.
+
+RQ1 has NOT been revisited. ARM4's 92.29% clears the 90% bar but the
+decision rule (R4) names ARM 1, which is 0.00%. This is the single point
+where the whole package's credibility sits, and it is the first thing a
+skeptical reviewer should attack.
+
+======================================================================
+2. WHAT ROUND 1 FOUND, AND WHAT WAS DONE ABOUT IT
+======================================================================
+
+The round-1 reviewer found one error that changed a conclusion, plus two
+overstatements and one grading complaint. All four were accepted.
+
+  FINDING (accepted, verified independently).
+    "H1 FALSIFIED" was not supportable. The registered H1 comparison
+    (ARM1 vs ARM2) had ZERO POWER: under uniform injection the metric has
+    0.11 pp of reachable range across every CNN output that can physically
+    occur, so the comparison was pinned below its own 1.0 pp threshold
+    before the CNN was trained. A test that cannot return a positive result
+    has not falsified anything.
+    ACTION: verdict restated as NOT TESTABLE everywhere it appears.
+    I reproduced the reviewer's sweep independently with separate code and
+    got the same figures: 0.11 pp uniform, 23.84 pp clustered (reviewer
+    reported ~24 pp). Replication script recorded in the docs.
+
+  OVERSTATEMENTS (accepted).
+    Sections 0 and 4 item 1 claimed the redesign "achieved its objective"
+    on the strength of a 3.07 pp effect measured on the AI-Only channel —
+    which is by definition the NO-provenance condition, so it cannot
+    establish that the integrated system responds to model quality.
+    ACTION: corrected in both documents, original wording quoted in place.
+
+  MISSING ARM (accepted, run).
+    ARM 5 = clustered injection + degraded CNN, the 2x2 cell not run,
+    testing the registered metric in the condition where it can move.
+    Prediction P5 was recorded before execution. Result above (finding B).
+    P5 confirmed, including its mechanism.
+
+  GRADING (accepted).
+    P2 predicted AI-Only "~80%", measured 75.09%, originally graded
+    "HELD (close)". A 5 pp miss recorded as a pass.
+    ACTION: regraded "PARTIALLY HELD — 5 pp low" in both documents.
+
+======================================================================
+3. WHAT I CHANGED, SO YOU CAN CHECK IT
+======================================================================
+
+Every change below is an edit I made to my own prior work after review.
+Assume the correction pass was incomplete and look for what it missed.
+
+  LIVE_INFERENCE_RESULTS_for_review.txt
+    - section 0: coupling claim corrected, then updated again after ARM 5
+    - section 2: H1 verdict FALSIFIED -> NOT TESTABLE, with the reasoning
+    - section 3: P2 regraded
+    - section 4 item 1: coupling claim attributed to AI-Only, then
+      RESOLVED note added after ARM 5
+    - section 5: RQ1 reasoning corrected (this one I initially MISSED —
+      found on self-check, it still read "H1 was FALSIFIED")
+    - section 11: NEW — ARM 5 results, determinism check, P5 grade
+    - section 10.6 item 7: marked done
+
+  OPTION2_live_inference_PREREGISTRATION.txt
+    - section 13 P3: terminology note — P3's substance held, but it used
+      the word "falsified" and should have said "not testable"
+    - section 14: H1 verdict corrected; P2 regraded; R4 reasoning
+      corrected (MISSED on first pass, found on self-check); "WHAT THE
+      EXPERIMENT ESTABLISHED" item 1 corrected (MISSED on first pass,
+      found on self-check)
+    - section 15: NEW — ARM 5 protocol justification and results
+
+  BCT_AI_Pharma_CompInd.tex
+    - NEW \subsection{Live-inference evaluation...} (sec:liveinference)
+    - Future Work item 1 rewritten: the redesign is no longer future work,
+      and its "order-of-magnitude increase in computational budget"
+      estimate was wrong — measured 49 minutes end to end
+    - Compiles clean: 3 passes, 0 undefined refs/citations, 88 pages
+      (was 83)
+
+  CODE/BCT-AI-Pharma
+    - evaluation/live_inference.py            (new, additive)
+    - run_live_inference_experiment.py        (new; ARM5 + --arms/--out added)
+    - analyze_live_inference.py               (new, written before results)
+    - No published pipeline code was modified. 61 tests pass.
+
+SELF-CHECK RESULT, REPORTED BECAUSE IT IS THE KIND OF THING THAT SHOULD BE:
+I ran a grep for remaining "FALSIFIED" and "3.07 pp" occurrences after
+believing the correction pass was complete. It found three stale spots —
+two RQ1-reasoning passages and one "WHAT THE EXPERIMENT ESTABLISHED" item
+— all of which still carried the withdrawn verdict or the overstated
+claim. They are now fixed. The lesson for you: a correction pass done by
+the same person who wrote the error is not reliable, which is why this
+request exists.
+
+======================================================================
+4. THE CLAIMS MOST WORTH ATTACKING
+======================================================================
+
+Ranked by how much damage they would do if wrong.
+
+  C-1  ARM 5's legitimacy. It was added AFTER the primary results were
+       seen, in response to a review. I argue this is not R5 outcome-
+       shopping because: it holds every frozen constant, reuses existing
+       models, its prediction (P5) was recorded before running and
+       predicted detection would GO DOWN, and it completes a test the
+       protocol specified but executed in a condition that could not
+       answer it. The counter-argument a hostile reviewer would make:
+       "you got a bad result and then ran a different arm until you got a
+       good one." Decide whether my defence holds. If it does not, the
+       honest fallback is to report H1 as untested and drop the coupling
+       claim entirely — which would remove finding B.
+
+  C-2  The manuscript subsection's framing of ARM 5. It says the
+       comparison "was motivated after the initial results were seen,
+       although its predicted direction and magnitude were recorded before
+       it was run" and calls it "a powered test of the original
+       hypothesis, not the originally specified comparison." Is that
+       disclosure sufficient for a journal reader, or does it need to be
+       more prominent?
+
+  C-3  RQ1 staying unchanged. ARM4 = 92.29% > 90%. I refuse to use it
+       because R4 names ARM 1. Check that this refusal is applied
+       consistently everywhere, including the Conclusion section, and that
+       92.29% is never quoted without its injection condition attached.
+
+  C-4  Whether 71% degenerate mass should have passed R7. The gate was set
+       at 90% before the run. 71% passes. But both CNNs reach weighted
+       F1 = 1.000 on their own synthetic test sets, and the manuscript's
+       own Section 5.4 documents the classes as near-trivially separable.
+       Is a 90% gate on a bimodal distribution meaningful, or was it set
+       too loose to bind? Note the gate could not be tightened after the
+       fact without being outcome-selection in the other direction.
+
+  C-5  The weight-sweep guards. R-C selects by responsiveness, not
+       detection. R-E keeps the manuscript's numbers as measured under the
+       published weights. Is there a way to satisfy both and still smuggle
+       a flattering number into the paper? If yes, the pre-registration
+       needs amending before approval.
+
+======================================================================
+5. KNOWN LIMITATIONS, ALREADY DOCUMENTED
+======================================================================
+
+Not defects to report — confirm they are disclosed adequately, or say
+where the disclosure is too weak.
+
+  L-1  Synthetic packaging separability (both CNNs F1 = 1.000). Bounds
+       every coupling magnitude in this work. Foregrounded in the new
+       subsection and in the manuscript's Limitations.
+  L-2  Coupling established under clustered injection only. Under uniform
+       injection the integrated channel still cannot respond at all.
+  L-3  Burn-in split halves the evaluation sample (~1,145 counterfeit rows
+       per seed vs 2,300). ARM0b is the matched control; it shifts the
+       proxy result by +0.28 pp, so the restriction is not a confound.
+  L-4  Zero variance in ARMs 1-3 makes CIs undefined and t-tests
+       degenerate. The 0.00% is structural, not a sampling estimate.
+  L-5  One provenance penalty constant (0.10), fixed against gate R8 with
+       no detection rate consulted, but not swept.
+
+======================================================================
+6. HOW TO VERIFY ANYTHING HERE
+======================================================================
+
+  Power sweep (the round-1 finding), ~2 min, no CNN inference:
+    build transactions -> split_timeline -> compute_org_reputation ->
+    compute_provenance_scores, then evaluate
+    (w1*S1 + w8*S8)/(w1+w8) < 0.75 at constant S8 across [0.38, 0.88].
+    Expect 0.11 pp (uniform), 23.84 pp (clustered).
+
+  Full arm reproduction, ~50 min:
+    cd CODE/BCT-AI-Pharma && source .venv/bin/activate
+    python run_live_inference_experiment.py
+    python analyze_live_inference.py
+
+  ARM4/ARM5 only, ~80 min including model retraining:
+    python run_live_inference_experiment.py --arms ARM4,ARM5 \
+        --out arm5_h1_powered.json
+    (ARM4 reproduced to every digit on re-run, confirming determinism.)
+
+  Manuscript:
+    export PATH=/Users/mm/texlive/2026/bin/universal-darwin:$PATH
+    pdflatex -interaction=nonstopmode BCT_AI_Pharma_CompInd.tex   (x3)
+
+======================================================================
+7. QUESTIONS FOR YOU — ANSWER INLINE
+======================================================================
+
+Q1. Is the new manuscript subsection (sec:liveinference) accurate and
+    appropriately hedged? Quote any sentence that overstates. This is the
+    priority item.
+    ANSWER: Substantially yes — every quantitative claim in it verifies
+    against the raw JSON (see 8.1). Two defects, one factual:
+
+    (a) FACTUAL ERROR, must fix. Line 2258: "Six arms were run over the
+        same ten seeds..." Table~\ref{tab:liveinference} has SEVEN rows
+        (0, 0b, 1, 2, 3, 4, 5). ARM 5 was added after the subsection's
+        first draft and the count was not updated. A reader who counts
+        the table will find the text wrong, in the one artifact that
+        goes to the journal.
+        Suggested: "Seven arms were run", or "Six arms were run
+        initially, with a seventh added later (below)" — the latter is
+        better, because it surfaces the C-2 disclosure earlier.
+
+    (b) ONE OVERSTATEMENT, quoted as requested. Line 2324:
+          "System-level detection is now causally coupled to
+           model quality, which was this experiment's objective."
+        This is stated without its condition. The condition arrives in
+        the NEXT paragraph ("The coupling is established under
+        source-concentrated counterfeiting"), and the subsection heading
+        does say "in the condition that admits it" — so the subsection as
+        a whole is honest. But that sentence is the quotable one, and it
+        is quotable in a form the evidence does not support: under uniform
+        injection the integrated channel remains completely unresponsive,
+        which is L-2 and is this experiment's own primary result.
+        Suggested: "Under source-concentrated counterfeiting, system-level
+        detection is now causally coupled to model quality, which was this
+        experiment's objective." Nine added words; nothing else changes.
+
+    Everything else checks out, including the things most likely to be
+    wrong: $S_1 = 0.974$, the 0.11 pp and 23.8 pp reachable ranges, the
+    $2.5{:}1$ minimum provenance weighting across all three drug classes,
+    $t(9)=19.7$, $p<10^{-7}$, and every cell of the arms table. The
+    92.3\% figure appears three times and carries its injection condition
+    every time (C-3 satisfied — see 8.3).
+
+Q2. Does ARM 5 survive the C-1 objection? If not, say what should be
+    removed from the paper as a result.
+    ANSWER: YES, and by a wider margin than the defence in C-1 claims.
+    The strongest point is one C-1 does not make: ARM 5 was specified by
+    an INDEPENDENT REVIEWER, in writing, BEFORE its result existed —
+    including its prediction, its mechanism, and both outcome branches.
+    It was not the implementer's idea. Outcome-shopping requires the
+    shopper to choose what to run; here the arm was imposed from outside
+    on a documented rationale, and the rationale was a power argument,
+    not a hope about the number.
+
+    The three supporting points hold as well: (i) P5 predicted detection
+    would go DOWN, which is the wrong direction for outcome-shopping;
+    (ii) exactly one arm was added, not a search; (iii) it is the missing
+    cell of a 2x2 that was already implied by the protocol.
+
+    The hostile reading — "you got a bad result and ran arms until one
+    looked good" — is refutable from the documents alone: the record shows
+    the bad result, the external demand, the prediction, and then the run,
+    in that order and with that authorship. That sequence is the defence.
+
+    RESIDUAL, to be stated rather than argued away: ARM 5's condition
+    (clustered) is the favourable one, and the coupling claim is therefore
+    conditional. The manuscript says this. Keep it saying it. Nothing
+    needs to be removed from the paper.
+
+Q3. Are the weight-sweep guards (R-C, R-E) sufficient? Name any route by
+    which a flattering sweep result could reach the manuscript's numbers.
+    ANSWER: NOT SUFFICIENT AS WRITTEN. R-C has a structural problem and
+    R-E has a gap. Three amendments below; the first is the important one.
+    Full reasoning in section 9.
+
+    A-1 (STRUCTURAL — R-C's optimum is a corner solution on a
+        DETECTION constraint). Reachable range is monotonically increasing
+        in r = w8/(w1+w8). At r=0 the composite is S1 alone and range is 0;
+        at r=1 it is S8 alone, giving 100% detection at S8=0.38 and 0% at
+        S8=0.88 — a 100 pp range. So "maximize reachable range" ALONE
+        selects r=1, which is exactly the AI-Only condition: the
+        recommendation would be "remove the blockchain." H6(b) is the only
+        thing preventing that, which makes H6(b) load-bearing rather than
+        decorative — and it means R-C's optimum will sit ON the H6(b)
+        boundary, i.e. at the largest r where BCT-AI still beats AI-Only
+        under clustering.
+        CONSEQUENCE: the recommended allocation is in fact determined by a
+        detection comparison, at a constraint boundary, even though the
+        stated objective is responsiveness. Section 5's proposed reader
+        check — "verify the recommended allocation is not the
+        detection-maximizing one" — is therefore weaker than advertised.
+        This does not make the protocol dishonest, but it must be
+        DISCLOSED IN ADVANCE rather than discovered by a reviewer.
+        AMEND: state that the optimum is expected to be a corner solution
+        on H6(b); report the unconstrained responsiveness maximum (r->1)
+        explicitly, and note that it is degenerate, so the reader can see
+        why the constraint exists and what it is doing.
+
+    A-2 (EXPLOITABLE — "maximizing" is underdetermined on a plateau).
+        R-C's tie-break covers only EXACT ties. On a 0.01 grid the
+        reachable-range surface may be flat or noisy near its maximum, in
+        which case many allocations are within noise of the best and the
+        choice among them is effectively free — while still being
+        describable as "the maximum."
+        AMEND: define a tolerance band. All allocations within 1.0 pp of
+        the maximum reachable range are treated as tied, and the existing
+        tie-break (closest to the published r = 0.286) applies across the
+        whole band, not just to exact ties.
+
+    A-3 (THE MIGRATION ROUTE YOU ASKED FOR). R-E protects Table VI, the
+        ablation and the t-statistics. It does NOT protect the abstract,
+        the conclusion, or the RQ answers. Nothing in the current document
+        prevents the recommended allocation's clustered-injection
+        detection figure — which may well exceed 90% — from appearing in
+        the abstract as "with recalibrated weights the framework reaches
+        X%", or from being used to soften an RQ answer. R-E's "its own
+        subsection, clearly marked" governs where the RECOMMENDATION
+        lives, not where its NUMBER may be quoted.
+        Given that this entire line of work began by chasing 78.2% and
+        then 90%, this is the specific channel through which a flattering
+        number would actually travel.
+        AMEND: add R-G — no detection figure produced by the weight sweep
+        appears in the abstract, the conclusion, or any research-question
+        answer. It may appear only in its own subsection and in the
+        published surface data.
+
+    Minor, no amendment required: H6(a)'s ">1.0 pp reachable range"
+    threshold is very permissive (an allocation with 1.1 pp is
+    technically responsive and practically useless). Because R-C maximizes
+    range this will rarely bind, but it does define the feasible set.
+
+Q4. Did the round-1 correction pass miss anything beyond the three spots
+    I found myself (section 3)?
+    ANSWER: ONE, and it is instructive. The "Six arms" error (Q1a) is in
+    BCT_AI_Pharma_CompInd.tex — the highest-stakes artifact and the only
+    one a journal reviewer sees.
+    The pattern is worth naming: your self-check grepped for the STRINGS
+    of the round-1 findings ("FALSIFIED", "3.07 pp") across the .txt
+    documents. That was the right check for those findings and it worked —
+    I grepped for the same strings plus "achieved its objective" and
+    "causally coupled" and found NO stale verdicts anywhere. Every
+    remaining "FALSIFIED" is either a hypothesis definition ("FALSIFIED
+    IF:") or an explicit correction note preserving the original wording.
+    That correction pass is complete and honestly done.
+    But adding ARM 5 changed a COUNT, and a count is not a string you
+    would think to grep. The class of error that survives a correction
+    pass is the one in a different modality from the error that triggered
+    it. Worth carrying forward as a check: after adding an arm, re-verify
+    every cardinality claim ("six arms", "four predictions", "three
+    findings", "ten seeds") in every document.
+
+Q5. Was R7's 90% degeneracy gate too loose to bind (C-4)? Note it cannot
+    be retroactively tightened; the question is what to say about it.
+    ANSWER: YES, it was too loose to bind, and the right move is to say
+    exactly that in the paper rather than defend it.
+    The evidence that it did not bind: it passed at 71% against a 90%
+    threshold — a 19-point margin — on a generator whose classes the
+    manuscript's own Section 5.4 already documents as near-trivially
+    separable, and with both classifiers at weighted F1 = 1.000. A gate
+    that a known-degenerate generator clears with 19 points to spare was
+    not calibrated against the failure mode it was written for.
+    What saves the result is NOT the gate but the independent check
+    beside it: corr(P_auth, severity) = -0.77 establishes that the
+    classifier responds continuously to severity rather than reading back
+    an assigned label. That is the load-bearing evidence, and it should be
+    presented as such.
+    DO NOT re-grade or retroactively tighten — that is outcome selection
+    in the other direction, as C-4 correctly notes.
+    RECOMMEND: one sentence in the subsection acknowledging the gate was
+    set conservatively and cleared by a wide margin, so its passing is
+    weak evidence, with the severity correlation carrying the weight; and
+    a note that a replication should pre-register a tighter threshold
+    justified against a measured non-degenerate reference distribution.
+    Conceding a loose gate costs nothing and inoculates against a reviewer
+    who spots it unaided.
+
+Q6. Anything in section 5 (known limitations) under-disclosed?
+    ANSWER: L-1 through L-4 are disclosed adequately. L-5 is
+    UNDER-DISCLOSED, and it is load-bearing for the headline finding.
+    L-5 records that the provenance penalty (0.10) was fixed against gate
+    R8 and never swept. What it does not say is that FINDING A DEPENDS ON
+    IT. The "structural zero" rests on S1 = 0.974 under uniform injection,
+    and S1's level is a direct function of that penalty. The
+    pre-registration's own spike shows how violently this quantity moves
+    under a different formulation — mean S1 of 0.407 at penalty 0.15 and
+    0.162 at 0.30 under max-normalization. The adopted excess-over-base
+    formulation is better behaved, but the sensitivity of S1 to the
+    penalty is demonstrated, not hypothetical.
+    So "the zero is structural" is precise only as "structural at penalty
+    0.10." That qualifier is currently absent from the manuscript
+    subsection, where the zero is presented as a property of the weights.
+    RECOMMEND: (i) add the qualifier where the structural claim is made;
+    (ii) note in L-5 that the penalty was frozen before any detection rate
+    was computed — which is the honest defence and is true; (iii) since
+    OPTION3 also freezes the penalty at 0.10 (3.4), consider adding a
+    penalty-sensitivity strip to that sweep, or state explicitly that the
+    weight surface is conditional on it.
+
+======================================================================
+8. ROUND-2 REVIEW — VERIFICATION LOG
+    added 2026-07-28 by the round-1 reviewer (independent Claude session),
+    working from code and raw JSON rather than from the summaries
+======================================================================
+
+8.1 NUMBERS — ALL VERIFY
+    results/arm5_h1_powered.json, recomputed independently:
+      ARM4  92.29% +/- 0.64   AI-Only 75.04%   gap +17.25
+      ARM5  87.53% +/- 0.74   AI-Only 71.23%   gap +16.31
+      drop 4.76 pp; paired t(9) = 19.74, p = 1.021e-08
+      same sign on all 10 seeds; per-seed drops (pp):
+        3.77 5.24 4.39 3.56 5.34 4.16 5.24 5.21 5.90 4.75
+    Every one of these matches sections 1 and 2 of this request and every
+    cell of the manuscript's Table~\ref{tab:liveinference}, to the digit.
+    The claim "same sign on all ten seeds" is true and I checked it
+    row by row rather than taking the t-statistic as proxy.
+
+    Round-1 sweep figures independently reproduced by the implementing
+    session with separate code (0.11 pp uniform, 23.84 pp clustered)
+    agree with mine. Two implementations, same numbers.
+
+8.2 CORRECTION PASS — COMPLETE
+    Grepped all documents for "FALSIFIED", "3.07", "achieved its
+    objective", "causally coupled". No stale verdict survives. Every
+    remaining "FALSIFIED" is a hypothesis definition or an explicit
+    correction note that preserves the original wording in place — which
+    is the right way to correct a frozen record.
+    The section 0 correction is exemplary: it states the original claim,
+    withdraws it, and then records the ARM 5 update as a separate later
+    event rather than silently rewriting history.
+
+8.3 C-3 (RQ1 CONSISTENCY) — SATISFIED
+    92.3% appears at lines 2282 (table row, labelled "live, clustered"),
+    2321 (inside the coupling paragraph, which opens by establishing the
+    clustered condition), and 2365 (explicitly "specific to clustered
+    injection"). It is never quoted bare.
+    Conclusion RQ1 answer at line 2715 still reads "For counterfeit
+    detection, no." — unchanged, as it must be.
+    Manuscript compiles clean: 3 passes, 0 undefined refs/citations,
+    88 pages.
+
+8.4 WHAT I COULD NOT FAULT
+    - evaluation/live_inference.py: re-read for label leakage. Trust is
+      computed on burn_in only, metrics on the evaluation half only. No
+      leakage. (Checked in round 1, re-checked here after the ARM 5 edits.)
+    - No published pipeline code modified; 61 tests still pass.
+    - ARM4 reproducing to every digit on re-run is a real determinism
+      check and worth keeping in the record.
+    - The decision to keep RQ1 unchanged despite ARM4 > 90% remains, in my
+      view, the single most credible thing in this package.
+
+======================================================================
+9. WHY R-C'S OBJECTIVE IS PINNED BY A CONSTRAINT (detail for Q3 / A-1)
+======================================================================
+
+This is analytic, not empirical — no part of the weight sweep was run,
+and nothing here anticipates its result.
+
+Write r = w8 / (w1 + w8). Because compute_pts normalizes by the weight
+sum, the detection rule is
+
+    (1 - r) * S1  +  r * S8  <  0.75
+
+Reachable range at a grid point is defined (protocol 3.5) as detection at
+S8 = 0.38 minus detection at S8 = 0.88. Substituting, detection at fixed
+S8 is P(S1 < (0.75 - r*S8) / (1 - r)), so the range is
+
+    P( S1 < (0.75 - 0.38r)/(1-r) )  -  P( S1 < (0.75 - 0.88r)/(1-r) )
+
+i.e. the probability mass of S1 inside a window whose width is
+
+    (0.88 - 0.38) * r / (1 - r)  =  0.5r / (1 - r)
+
+That width is 0 at r = 0 and increases without bound as r -> 1. At r = 0
+the composite is S1 alone and cannot respond to the classifier at all
+(range 0). At r = 1 it is S8 alone: detection is 100% at S8 = 0.38 and 0%
+at S8 = 0.88, a range of 100 pp — the maximum attainable.
+
+So the objective R-C maximizes is increasing in r across the whole grid,
+and its unconstrained maximum is r = 1 — which is precisely the AI-Only
+condition. An unconstrained R-C recommends deleting the blockchain.
+
+H6(b) is therefore not a secondary sanity filter; it is the only thing
+that makes R-C well-posed. And because the objective increases in r right
+up to the constraint, the selected allocation will lie ON the H6(b)
+boundary: the largest r at which the integrated condition still beats
+AI-Only under clustered injection.
+
+The consequence for the protocol's own credibility argument: section 5
+offers the reader a check — "verify that the recommended allocation is not
+the detection-maximizing one." That check will pass, but it is weaker than
+it sounds, because the recommendation is fixed by the boundary of a
+detection comparison even though the stated objective is responsiveness.
+Better to say so in advance (amendment A-1) than to have a reviewer derive
+it. Stating it costs nothing: H6(b) is a legitimate and necessary
+constraint, and the corner solution is a consequence of the geometry, not
+of anyone's choice.
+
+======================================================================
+10. ACTION LIST — ROUND 2
+======================================================================
+
+BLOCKING before the subsection goes to the journal:
+  1. Fix "Six arms" -> seven, or reword per Q1(a).  [manuscript, line 2258]
+  2. Add the condition to the coupling sentence per Q1(b).  [line 2324]
+  3. Add the "at penalty 0.10" qualifier to the structural-zero claim,
+     per Q6.  [manuscript subsection]
+
+BEFORE OPTION3 IS APPROVED:
+  4. Amend R-C per A-1 (disclose the corner solution; report the
+     unconstrained maximum and note it is degenerate).
+  5. Amend R-C per A-2 (1.0 pp tolerance band on the tie-break).
+  6. Add R-G per A-3 (no sweep detection figure in abstract, conclusion,
+     or RQ answers).
+  7. Decide the penalty-sensitivity question in Q6(iii).
+
+RECOMMENDED, not blocking:
+  8. One sentence conceding R7's gate was loose, per Q5.
+  9. Carry forward the cardinality check named in Q4 after any future
+     arm is added.
+
+NOT RECOMMENDED:
+  - Re-grading or retroactively tightening R7 (outcome selection).
+  - Removing anything from the paper on account of C-1 (ARM 5 survives).
+  - Reopening RQ1.
+
+======================================================================
+11. ROUND-2 FINDINGS ACTIONED — 2026-07-28, by the implementing session
+======================================================================
+
+All three round-2 findings accepted, plus both smaller amendments and the
+L-5 point. Verification of the R-C finding is recorded below because it
+turned out to be worse than diagnosed.
+
+F-1 MANUSCRIPT ARM COUNT (blocking) — FIXED.
+    Line 2258 read "Six arms were run" against a seven-row table. Now
+    "Seven arms". The reviewer's diagnosis of why the self-check missed it
+    is correct and worth preserving: the self-check grepped the STRINGS of
+    the round-1 findings, but adding an arm changed a COUNT, and a count is
+    not a string anyone would think to grep. The error that survives a
+    correction pass is the one in a different modality from the error that
+    triggered the pass.
+
+F-2 UNCONDITIONED COUPLING SENTENCE (blocking) — FIXED.
+    Line 2324 now reads "Under source-concentrated counterfeiting, and at
+    the published component weights, system-level detection is causally
+    coupled to model quality", with a forward reference to the scope
+    conditions. Both qualifiers are in the quotable sentence itself rather
+    than only in the surrounding text.
+
+F-3 R-C STRUCTURALLY UNSOUND — ACCEPTED, AND WORSE THAN DIAGNOSED.
+    The analytic claim verified: with r = w8/(w1+w8) the swingable S1
+    window has width 0.5r/(1-r), so responsiveness is monotone
+    non-decreasing in r and unconstrained maximization selects r = 1,
+    i.e. AI-Only. Confirmed numerically against the real per-row S1 values
+    over all ten seeds (scratchpad/verify_rc_geometry.py):
+
+        r        reachable range (uniform)
+        0.286    0.25 pp     <- published Class A
+        0.400    91.62 pp
+        0.4025   95.35 pp
+        0.4050   100.00 pp   <- plateau onset
+        0.4050 .. 0.990  100.00 pp   (flat)
+        1.000    100.00 pp   (= PTS is S8, the AI-Only condition)
+
+    TWO ADDITIONAL PROBLEMS FOUND WHILE VERIFYING:
+    (a) It is not merely a corner solution, it is a PLATEAU. The objective
+        is exactly flat from r = 0.4050 upward — 59.5% of the parameter
+        space — so it cannot discriminate among allocations there at all,
+        and the tie-break would have performed the entire selection while
+        the stated objective performed none of it.
+        [ONSET CORRECTED 2026-07-28 after round-2 re-verification. This
+        first read "from r = 0.50 ... half the parameter space", which was
+        a coarse-grid artifact: I sampled 0.40/0.50/0.60 and reported the
+        first saturated sample rather than locating the transition. True
+        onset r = 0.4050 on a 0.0025 grid, confirmed by closed form
+        r = (S1_max - 0.75)/(S1_max - 0.38) = 0.403 at S1_max ~ 1.0. The
+        objective is informative over only ~0.38-0.405, about a tenth of
+        the range. My error understated the severity of my own finding.]
+    (b) "Reachable range" was never well defined. Sweeping S8 at observed
+        per-row values gives 23.84 pp at the published allocation;
+        sweeping the interval endpoints gives 60.27 pp. Same allocation,
+        same data, two answers.
+
+    ACTION: R-C withdrawn and replaced before approval. The sweep's primary
+    deliverable is now the SURFACE, and it nominates no allocation at all,
+    because no criterion available to it selects one honestly —
+    responsiveness degenerates as above and detection is disqualified by
+    construction. A future experiment wanting to recommend an operating
+    point needs an interior-optimum criterion (separation under clustered
+    injection, where both terms carry signal), pre-registered separately
+    with this geometry disclosed in advance.
+
+    The reviewer's point (iv) is also accepted and recorded in R-C: because
+    the objective climbed into the constraint, H6(b) was load-bearing, and
+    the section-5 reader check would have PASSED while the recommendation
+    was in fact fixed by a detection comparison. That check has been
+    withdrawn as misleading and replaced.
+
+F-4 R-G ADDED. No sweep detection figure in the abstract, conclusion, or
+    any RQ answer. The reasoning is accepted as stated: R-E protected
+    Table VI but not the channel a flattering number would actually use,
+    and this line of work began by being asked to reach 78.2%, then 90%.
+
+F-5 R-H ADDED. H6(b) must be reported as load-bearing wherever an
+    allocation-dependent claim is made, naming which condition binds.
+
+F-6 TIE-BREAK TOLERANCE — MOOT, and recorded as such. With R-C no longer
+    nominating an allocation there is no tie to break. Had the criterion
+    survived, the amendment would have been necessary: an exact-tie rule is
+    underdetermined on a plateau spanning 59.5% of the simplex.
+
+F-7 L-5 UNDER-DISCLOSED — ACCEPTED. "The zero is structural" now reads
+    "structural at the adopted provenance penalty of 0.10" in the
+    manuscript, in section 4 of the round-1 record, and in section 1 of
+    this document. The spike figures are cited to show how sharply S1 moves
+    with the constant (0.976 at penalty 0.10 versus 0.887 at 0.50 under
+    uniform injection). The successor pre-registration freezes the same
+    constant, so the qualifier propagates there.
+
+C-1 / C-4 — the reviewer's positions accepted without change to the
+    substance. On C-1 the point that ARM 5 was specified by an INDEPENDENT
+    reviewer in writing before its result existed is stronger than the
+    defence originally offered, and is now the first argument made.
+    On C-4 the gate is conceded as too loose to bind, in one sentence, in
+    the manuscript, with the -0.77 severity correlation carrying the
+    interpretive weight instead. The gate was NOT re-graded: tightening a
+    threshold after seeing that it passed is outcome selection with the
+    sign reversed.
+
+MANUSCRIPT STATE: 89 pages, three passes, 0 undefined references or
+citations. 61 tests pass.
+
+======================================================================
+12. ROUND-3 VERIFICATION FINDINGS ACTIONED — 2026-07-28
+======================================================================
+
+G-1 PLATEAU ONSET WAS WRONG — CORRECTED. I stated the plateau ran from
+    r = 0.50 across "half" the simplex. Re-verified on a 0.0025 grid: true
+    onset is r = 0.4050, covering 59.5%. My figure was a coarse-grid
+    artifact — I sampled 0.40/0.50/0.60 and reported the first saturated
+    sample rather than locating the transition. Closed form confirms:
+    onset = (S1_max - 0.75)/(S1_max - 0.38) = 0.403 at S1_max ~ 1.0.
+    The objective is informative over only ~0.38-0.405, about a tenth of
+    the range. THE ERROR UNDERSTATED THE SEVERITY OF MY OWN FINDING, which
+    is the direction an error of this kind is least likely to be caught by
+    its author. Corrected in OPTION3 R-C(ii) and in section 11 above, with
+    the original wording quoted in place.
+
+G-2 F-7 GAP AT THE PRINCIPAL FINDING — VERIFIED ALREADY CLOSED. Both
+    flagged sites now carry the qualifier: line 2291 reads "the zero is
+    structural at the adopted provenance penalty rather than a matter of
+    degree", and the Future Work instance reads "at the provenance penalty
+    adopted here". I checked every occurrence of "structural" in the
+    manuscript (17 sites) rather than only the two flagged; no unqualified
+    instance of the live-inference zero remains. The abstract does not
+    state the live-inference zero at all.
+
+G-3 H6 RESTATED. Accepted: leg (a) was settled by the geometry diagnosis
+    that withdrew R-C — responsiveness saturates at 100 pp for all
+    r >= 0.4050 — so carrying it as a hypothesis would pre-register a
+    question already on the record, and a "confirmed" H6(a) would read as
+    an experimental finding when it is a capacity calculation that preceded
+    the run. H6 now poses leg (b) alone, conditioned on (a): among
+    allocations with r >= 0.4050, does any keep the integrated condition
+    ahead of AI-Only under clustering? Falsification is stated as the
+    substantive architectural result — no single fixed linear weighting
+    serves both regimes — rather than as a null.
+    Recorded consequence: with (a) settled by geometry and (b) a detection
+    comparison, this experiment's live question is now unavoidably a
+    detection question. That is legitimate but makes R-G and R-H
+    load-bearing rather than precautionary.
+
+G-4 TIE-BREAK TOLERANCE remains moot (no allocation is nominated), and the
+    plateau-span figure in that note is corrected to 59.5%.
+
+THE RECURRING PATTERN, NOW SEEN THREE TIMES. Round 2 named it: the error
+that survives a correction pass is the one in a different modality from the
+error that triggered it. Instances to date — (1) a string grep missed a
+COUNT ("six arms"); (2) a limitations-disclosure fix missed the CLAIM
+sentence 85 lines earlier; (3) a coarse sampling GRID misreported a
+transition point in my own finding. All three were found by an independent
+reader, none by self-check. The operational conclusion is not "grep harder"
+but that self-review reliably fails across modality boundaries, which is
+the standing argument for these review rounds.
+
+MANUSCRIPT STATE: 89 pages, three passes, 0 undefined references or
+citations. 61 tests pass. verify_power.py and verify_rc_geometry.py are in
+the repository.
+
+======================================================================
+END
+======================================================================
