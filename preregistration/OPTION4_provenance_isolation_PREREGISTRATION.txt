@@ -1,0 +1,206 @@
+PRE-REGISTRATION: ISOLATING THE PROVENANCE CHANNEL IN THE REDESIGN
+(Supplementary ablation, responding to the confounded-redesign threat)
+
+Status:   APPROVED 2026-08-23 — FROZEN, EXECUTED ONCE
+Written:  2026-08-23
+Author:   Claude (Opus 5), for M. Balakrishnan
+Purpose:  Fix the methodology in writing BEFORE any result is observed, so
+          that the outcome cannot be selected. Approve, amend, or reject as
+          a whole. Once approved, the protocol in sections 3-6 is frozen and
+          the experiment runs exactly once.
+
+IMPORTANT — STATUS RELATIVE TO THE ORIGINAL PROTOCOL:
+          This is NOT part of OPTION2 (approved 2026-07-28). It was
+          conceived on 2026-08-23, after the OPTION2 results were known,
+          in response to a reviewer observation. It is therefore POST-HOC
+          with respect to the registered experiment and must be reported
+          as such in the manuscript regardless of what it finds. It is
+          pre-registered only in the weaker, still-meaningful sense that
+          its predictions and decision rules are fixed before execution.
+
+======================================================================
+1. WHY THIS EXPERIMENT EXISTS
+======================================================================
+
+Section 9.2 of the methods manuscript (internal validity) concedes a real
+confound: the live-inference redesign changed three things at once
+relative to the proxy design.
+
+  Proxy design (evaluation/run_simulation.py:159-162):
+      custody_trust    = clip(1.0 - 0.90*severity_norm + N(0, 0.05))
+      cnn_authenticity = clip(1.0 - 0.30*severity_norm + N(0, 0.06))
+      isolation_score  = clip(N(0.38, 0.13))
+
+  Live design (evaluation/live_inference.py):
+      S1 = product of realized custody-chain organization trust scores
+      S8 = (live CNN authenticity + (1 - live Isolation Forest score)) / 2
+
+Both S1 (provenance) and S8 (AI confidence) changed source simultaneously.
+The manuscript attributes the restored causal coupling to the redesign as
+a whole and does not decompose it. A reader cannot currently tell whether
+the coupling is carried by the provenance swap, by the classifier swap, or
+by both.
+
+This experiment decomposes it.
+
+Note on scope: in the two-component evaluation used throughout, PTS
+reduces to
+
+      PTS = (w1*S1 + w8*S8) / (w1 + w8)
+
+so isolating S1 while holding S8 at its proxy definition is a clean
+single-channel manipulation, not an approximation.
+
+======================================================================
+2. HYPOTHESES, AND WHAT WOULD FALSIFY THEM
+======================================================================
+
+H6.1 (primary — provenance dominance).
+    The provenance swap alone accounts for the majority of the redesign's
+    total effect on counterfeit detection.
+
+    Operationalized:
+        d_prov  = ARM6b - ARM6a      (isolated provenance effect)
+        d_total = ARM4  - ARM6a      (full redesign, matched data condition)
+        share   = d_prov / d_total
+
+    PREDICTION: share > 0.50.
+
+    Basis for the prediction (stated now, so it cannot be constructed
+    afterwards): ARM1 (live, uniform injection) returned 0.00% detection
+    while ARM4 (live, clustered injection) returned 92.29%. The CNN and
+    Isolation Forest were IDENTICAL across those two arms. The only thing
+    clustering changes is whether organization-level counterfeit history is
+    informative — i.e. it acts through the provenance channel specifically.
+    That is direct existing evidence that provenance carries most of the
+    signal, and it is why share > 0.50 is the honest prediction rather
+    than a coin flip.
+
+    FALSIFIED IF: share <= 0.50. That would mean the classifier swap, not
+    the provenance swap, carries the restored coupling — which would
+    require rewriting the causal account in Sections 6 and 8, not merely
+    adding a supplementary table.
+
+H6.2 (secondary — positive control on the proxy design).
+    Proxy-design detection is insensitive to the clustering condition,
+    because proxy scores are functions of anomaly severity only and never
+    read organization identity.
+
+    Operationalized: |ARM6a - ARM0b| < 2.0 pp.
+
+    PREDICTION: holds. ARM0b measured 72.19% +/- 1.20; ARM6a is predicted
+    to fall within [70.2, 74.2].
+
+    FALSIFIED IF: the gap is >= 2.0 pp. That would indicate the clustering
+    manipulation perturbs the severity distribution itself, which would
+    confound the ARM6a/ARM6b contrast and invalidate this experiment. In
+    that case H6.1 is NOT interpretable and must not be reported as if it
+    were. Report the failure instead.
+
+======================================================================
+3. DESIGN — FROZEN ON APPROVAL
+======================================================================
+
+Two new arms. Both use the SAME ten seeds as the registered experiment
+(42-51) and the SAME 230,000 transactions per run, so all comparisons are
+paired.
+
+  ARM6a — CONTROL. Proxy design, CLUSTERED injection, evaluation half only.
+      mode = proxy, clustered = True, half = True
+      All three signals from the proxy formulas.
+      Exists because no current arm holds the proxy design at the clustered
+      data condition. ARM0b is proxy but UNIFORM, so using it directly as
+      the control would reintroduce a data-condition confound - the exact
+      error this experiment exists to remove.
+
+  ARM6b — TREATMENT. Provenance swapped to live, everything else proxy.
+      CLUSTERED injection, evaluation half only.
+      S1: computed by compute_provenance_scores() from realized custody
+          chains, using compute_org_reputation() fitted on the burn-in
+          half — identical to the live arms.
+      S8: computed from the PROXY cnn and iso formulas, unchanged.
+      No trained model is invoked. Provenance is the only channel altered.
+
+Reference points already measured, not re-run:
+      ARM0b = 72.19% +/- 1.20   (proxy, uniform, evaluation half)
+      ARM4  = 92.29% +/- 0.64   (live, clustered, published CNN)
+      ARM1  =  0.00% +/- 0.00   (live, uniform)
+
+======================================================================
+4. THE POWER TRAP — EXPLICIT GUARD
+======================================================================
+
+The registered H1 comparison in OPTION2 had ZERO statistical power and the
+conclusion drawn from it was withdrawn after independent review. That
+failure is documented in the manuscript and is the reason this section
+exists.
+
+GUARD: if |d_total| < 2.0 pp, the ratio `share` has an unstable
+denominator and is NOT interpretable. In that case:
+      - do NOT report `share`
+      - report the raw paired differences and their confidence intervals
+      - state plainly that the decomposition was inconclusive
+
+This rule is fixed now, before d_total is known.
+
+Second guard: arms with exactly zero between-seed variance produce
+undefined confidence intervals and inflated effect sizes. If either new
+arm returns zero variance, report the zeros as structural, not as
+sampling estimates — consistent with how ARM1's zeros are already handled.
+
+======================================================================
+5. ANALYSIS PLAN — FIXED
+======================================================================
+
+Primary:  paired t-test on per-seed counterfeit detection, ARM6b vs ARM6a
+          (same seeds, so paired). Report t, df, p, and the 95% CI of the
+          mean paired difference.
+Effect:   report the raw percentage-point difference as the headline.
+          Cohen's d MAY be reported but MUST carry the same inflation
+          caveat already applied elsewhere in the manuscript when
+          between-seed variance is near zero.
+Ratio:    share = d_prov / d_total, subject to the section 4 guard.
+Alpha:    0.05, two-sided. One primary test. No multiplicity correction
+          needed; no additional tests will be added after seeing results.
+
+======================================================================
+6. REPORTING OBLIGATIONS — BINDING REGARDLESS OF OUTCOME
+======================================================================
+
+1. The result is reported whether it confirms H6.1 or not. A result that
+   contradicts the manuscript's current causal account is reported in the
+   manuscript, not omitted.
+2. The post-hoc status (see header) is stated explicitly wherever the
+   result appears. It is never presented as part of the registered
+   OPTION2 protocol.
+3. This protocol file is committed to the repository BEFORE execution and
+   is not edited afterwards. Any amendment requires a new dated file.
+4. Raw per-seed outputs are written to results/ and committed unedited,
+   including failures.
+5. If the experiment is abandoned after execution for any reason, the fact
+   that it was run and abandoned is recorded — consistent with the
+   withdrawn-verdict precedent already in this repository.
+
+======================================================================
+7. WHAT THIS EXPERIMENT CANNOT SETTLE
+======================================================================
+
+It isolates provenance against the proxy baseline. It does NOT isolate the
+CNN from the Isolation Forest — S8 combines both, and separating them
+would require a third and fourth arm. If H6.1 holds, the residual
+(1 - share) is attributable to S8 jointly, and the manuscript must say
+"the classifier and anomaly-detection channels jointly" rather than
+naming either one.
+
+It also does not revisit external validity. Everything here remains
+simulation-internal.
+
+======================================================================
+8. APPROVAL
+======================================================================
+
+Approved by: M. Balakrishnan            Date: 2026-08-23
+
+Approval recorded in session before execution. This file was committed to
+the repository in its approved form BEFORE the experiment was run, and has
+not been edited since apart from this approval block and the status line.
