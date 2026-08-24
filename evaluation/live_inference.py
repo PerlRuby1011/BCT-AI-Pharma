@@ -98,6 +98,7 @@ def compute_org_reputation(
     burn_in: pd.DataFrame,
     penalty: float = PROVENANCE_PENALTY,
     cap: float = PROVENANCE_EXCESS_CAP,
+    shrinkage: bool = False,
 ) -> Tuple[Dict[str, float], float]:
     """Derive per-organization trust from prior-period counterfeit history.
 
@@ -118,10 +119,31 @@ def compute_org_reputation(
     only ``burn_in`` transactions contribute, and metrics are computed
     exclusively on the evaluation half.
 
+    ``shrinkage`` (OPTION5 pre-registration, approved 2026-08-24, default
+    OFF): when enabled, ``org_rate`` is empirical-Bayes shrunk toward
+    ``base_rate`` before the excess/trust calculation, weighted by how much
+    burn-in evidence exists for that organization::
+
+        k           = median(n_org)            # across orgs in this burn-in
+        shrunk_rate = (n_org * org_rate + k * base_rate) / (n_org + k)
+
+    ``k`` is derived automatically from this call's own burn-in data (never
+    tuned against evaluation-half outcomes), so this stays leak-free even
+    when reused on already-registered seeds. Responds to the finding that
+    the published live-inference arms' false-positive rate is
+    provenance-driven, not classifier-driven (``run_fpr_diagnostic.py``,
+    2026-08-24: ARM4 92.29% TPR / 12.34% FPR; ARM5 87.53% TPR / 12.33% FPR,
+    FPR unmoved by CNN degradation). Default is ``False`` so every existing
+    caller, and every previously reported result, is reproduced exactly
+    unless a caller opts in.
+
     Args:
         burn_in: The chronologically earlier half of the transaction table.
         penalty: Maximum trust reduction applied at or above ``cap`` excess.
         cap: Upper bound on normalized excess counterfeit rate.
+        shrinkage: If True, apply the OPTION5 empirical-Bayes correction
+            described above before computing trust. Default False preserves
+            the exact registered/published behaviour.
 
     Returns:
         Tuple of ``(trust_by_org, base_rate)``.
@@ -132,6 +154,11 @@ def compute_org_reputation(
         return {org: 1.0 for org in burn_in["from_org"].unique()}, 0.0
 
     org_rate = is_counterfeit.groupby(burn_in["from_org"]).mean()
+    if shrinkage:
+        n_org = burn_in.groupby("from_org").size()
+        n_org, org_rate = n_org.align(org_rate, join="right")
+        k = float(n_org.median())
+        org_rate = (n_org * org_rate + k * base_rate) / (n_org + k)
     excess = ((org_rate - base_rate) / base_rate).clip(lower=0.0, upper=cap)
     trust = (1.0 - penalty * excess).to_dict()
     return trust, base_rate
