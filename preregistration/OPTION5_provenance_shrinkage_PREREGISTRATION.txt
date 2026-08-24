@@ -1,0 +1,236 @@
+PRE-REGISTRATION: SHRINKAGE-CORRECTED PROVENANCE TRUST
+(Supplementary fix, responding to the ARM4/ARM5 false-positive finding)
+
+Status:   APPROVED 2026-08-24 — FROZEN, EXECUTED ONCE
+Written:  2026-08-24
+Author:   M. Balakrishnan. Drafted with AI assistance.
+Purpose:  Fix the methodology in writing BEFORE any result is observed, so
+          that the outcome cannot be selected. Approve, amend, or reject as
+          a whole. Once approved, the protocol in sections 3-6 is frozen and
+          the experiment runs exactly once.
+
+IMPORTANT — STATUS RELATIVE TO THE ORIGINAL PROTOCOL:
+          This is NOT part of OPTION2 (approved 2026-07-28) or OPTION4
+          (approved 2026-08-23). It was conceived on 2026-08-24, after the
+          `run_fpr_diagnostic.py` results were known (ARM4: 92.29% TPR /
+          12.34% FPR; ARM5: 87.53% TPR / 12.33% FPR), in direct response to
+          that finding. It is therefore POST-HOC with respect to both
+          earlier protocols and must be reported as such in the manuscripts
+          regardless of what it finds. It is pre-registered only in the
+          weaker, still-meaningful sense that its predictions and decision
+          rules are fixed before execution.
+
+======================================================================
+1. WHY THIS EXPERIMENT EXISTS
+======================================================================
+
+`run_fpr_diagnostic.py` (full 10-seed run, 2026-08-24) established that the
+published ARM4 configuration's 92.29% counterfeit-detection figure carries a
+stable 12.34% false-positive rate, and that this FPR is unmoved by CNN
+quality (ARM5: FPR 12.33% despite TPR dropping to 87.53% when the CNN is
+degraded). Because degrading the classifier changes TPR but not FPR, the
+false positives are not classifier-driven. By elimination they are
+provenance-driven: `compute_org_reputation()` (live_inference.py:97) derives
+an organization's trust purely from its burn-in-half counterfeit rate, with
+no correction for how many burn-in transactions that estimate is based on.
+Under clustered/source-concentrated injection, a small number of
+organizations carry genuinely and/or noisily elevated observed rates, and
+every product that passed through such an organization is penalized via the
+chain-product S1 score in `compute_provenance_scores()` (line 140) —
+regardless of whether that specific product is itself counterfeit. This is
+"guilt by association" at the organization level, and it is the leading
+candidate explanation for the FPR.
+
+This experiment tests one concrete, statistically principled fix:
+empirical-Bayes shrinkage of the per-organization counterfeit-rate estimate
+toward the network base rate, weighted by how much burn-in evidence exists
+for that organization.
+
+Note on what this experiment can and cannot show. Shrinkage only helps to
+the extent the elevated org rates reflect small-sample noise rather than a
+genuinely, durably elevated rate (which clustered injection deliberately
+creates for some organizations by design). If the true rate is genuinely
+elevated for a cluster of organizations, shrinkage will reduce but not
+eliminate the FPR, and a null or partial result here is informative, not a
+failure of the experiment — see Section 6.
+
+======================================================================
+2. HYPOTHESES, AND WHAT WOULD FALSIFY THEM
+======================================================================
+
+H7.1 (primary — shrinkage materially reduces the false-positive rate).
+    Applying empirical-Bayes shrinkage to per-organization counterfeit-rate
+    estimates, then feeding the shrunk rate into the existing trust formula
+    unchanged, reduces ARM4's FPR versus the unregularized baseline while
+    preserving most of its TPR.
+
+    Operationalized:
+        d_FPR = FPR(ARM4) - FPR(ARM4-shrunk)     [reduction, pp]
+        d_TPR = TPR(ARM4) - TPR(ARM4-shrunk)     [cost, pp]
+
+    PREDICTION: d_FPR corresponds to at least a 25% relative reduction in
+    FPR (new FPR <= 9.26%, versus the registered 12.34%), AND d_TPR <= 5.0
+    percentage points (new TPR >= 87.29%).
+
+    Basis for the prediction: this is a genuinely uncertain first attempt,
+    stated honestly. Some organizations' elevated burn-in rates are almost
+    certainly small-sample noise (low-volume organizations with a handful
+    of unlucky counterfeit draws), which shrinkage directly corrects. Some
+    are almost certainly the deliberately-elevated rates that clustered
+    injection creates by design, which shrinkage cannot fully correct
+    without discarding the org-history signal entirely. The 25%/5pp
+    thresholds are a deliberately modest bar reflecting that uncertainty,
+    not a confident forecast.
+
+    FALSIFIED IF: FPR reduction is under 25% relative, OR TPR drops by more
+    than 5.0 pp. See Section 6 for what a falsified result means for the
+    manuscripts and next steps.
+
+H7.2 (secondary — positive control, shrinkage must not disturb the
+    already-correct uniform-injection case).
+    ARM1 (uniform injection) already measures 0.00% TPR / 0.00% FPR under
+    the unregularized baseline — there is no false-positive problem to fix
+    there. Applying the same shrinkage should leave ARM1's metrics
+    unchanged, since a well-behaved regularizer should not alter behavior
+    in a regime it wasn't designed to correct.
+
+    Operationalized: |FPR(ARM1) - FPR(ARM1-shrunk)| and
+    |TPR(ARM1) - TPR(ARM1-shrunk)|.
+
+    PREDICTION: both differences <= 1.0 percentage point.
+
+    FALSIFIED IF: either difference exceeds 1.0 pp. That would indicate the
+    shrinkage correction has unintended side effects outside its target
+    regime, and the fix needs reworking before it can be trusted anywhere.
+
+======================================================================
+3. DESIGN — FROZEN ON APPROVAL
+======================================================================
+
+Single code change, isolated to `compute_org_reputation()`. Everything else
+in the pipeline (CNN, Isolation Forest, chain-product S1 aggregation,
+quarantine threshold, seeds, transaction generation) is untouched.
+
+  Shrinkage formula (empirical-Bayes, James-Stein-style):
+      k             = median number of burn-in transactions per
+                       organization, computed automatically from that run's
+                       own burn-in data
+      n_org         = burn-in transaction count for a given organization
+      org_rate      = that organization's raw observed counterfeit rate
+                       (unchanged from current code)
+      shrunk_rate   = (n_org * org_rate + k * base_rate) / (n_org + k)
+      trust         = 1 - penalty * clip((shrunk_rate - base_rate) /
+                       base_rate, 0, cap)      [unchanged formula, new input]
+
+  Critical no-leakage rule: k is derived automatically from each seed's own
+  burn-in data (median per-org transaction count) — it is NOT manually
+  tuned by observing evaluation-half FPR at any point, for any seed, before
+  or during this experiment. This is what keeps the fix leak-free even
+  though the same 10 registered seeds (42-51) are reused: the shrinkage
+  strength is fixed by a statistical rule applied to burn-in data alone,
+  never by scanning the eval-half outcome and picking what works.
+
+  New conditions, same seeds (42-51), same trained CNN/Isolation Forest
+  models (protocol section-4 reuse rule, unchanged):
+      ARM4-shrunk — published CNN, clustered injection, shrinkage-corrected
+                    trust. Directly comparable to registered ARM4.
+      ARM1-shrunk — published CNN, uniform injection, shrinkage-corrected
+                    trust. Positive control, directly comparable to
+                    registered ARM1.
+
+  Reference points already measured, not re-run:
+      ARM1 = 0.00% TPR / 0.00% FPR   (registered, `fpr_diagnostic.json`)
+      ARM4 = 92.29% TPR / 12.34% FPR (registered, `fpr_diagnostic.json`)
+      ARM5 = 87.53% TPR / 12.33% FPR (registered, `fpr_diagnostic.json`)
+
+======================================================================
+4. THE POWER TRAP — EXPLICIT GUARD
+======================================================================
+
+Carried forward from OPTION2 and OPTION4: the registered H1 comparison in
+OPTION2 had zero statistical power and its conclusion was withdrawn. Same
+discipline applies here.
+
+GUARD: if the between-seed standard deviation of d_FPR or d_TPR is large
+enough that the 95% CI of the paired difference includes zero, the
+corresponding hypothesis is NOT confirmed regardless of the point estimate,
+and must be reported as inconclusive rather than as a pass.
+
+Second guard: given the tight, low-variance pattern seen in ARM1/ARM4/ARM5
+(11.9%-12.6% FPR spread across all 10 seeds in the diagnostic), near-zero
+variance is plausible here too. If either shrunk arm returns near-zero
+between-seed variance, report it as structural, consistent with how ARM1's
+zeros are already handled, and do not compute an inflated effect size from
+it.
+
+======================================================================
+5. ANALYSIS PLAN — FIXED
+======================================================================
+
+Primary:  paired t-test on per-seed FPR, ARM4 vs ARM4-shrunk (same 10
+          seeds, paired). Report t, df, p, and the 95% CI of the mean
+          paired difference. Repeat for TPR.
+Effect:   report the raw percentage-point differences (d_FPR, d_TPR) as the
+          headline numbers, per Section 2. Cohen's d MAY be reported but
+          must carry the same inflation caveat already used elsewhere in
+          this project when between-seed variance is near zero.
+Control:  paired t-test on ARM1 vs ARM1-shrunk (H7.2), same procedure.
+Alpha:    0.05, two-sided. Two pre-specified tests (H7.1, H7.2). No
+          multiplicity correction needed; no additional tests will be added
+          after seeing results.
+
+======================================================================
+6. REPORTING OBLIGATIONS — BINDING REGARDLESS OF OUTCOME
+======================================================================
+
+1. The result is reported whether H7.1 is confirmed, partially confirmed,
+   or falsified. A partial or null result is scientifically informative
+   here, not a failure to hide: it would mean the FPR is substantially
+   driven by genuinely elevated (not noisy) organization-level rates under
+   clustered injection, which is itself worth stating plainly in the
+   manuscripts' limitations, and would motivate a different class of fix
+   (e.g., product-level features beyond aggregate org history) as future
+   work rather than a closed problem.
+2. The post-hoc status (see header) is stated explicitly wherever the
+   result appears, and its relationship to OPTION4 and the FPR diagnostic
+   is stated too. It is never presented as part of the original registered
+   experiment.
+3. This protocol file is committed to the repository BEFORE execution and
+   is not edited afterward. Any amendment requires a new dated file.
+4. Raw per-seed outputs are written to results/ and committed unedited,
+   including a falsified or inconclusive outcome.
+5. The existing published 92.29%/12.34% ARM4 figures are not retroactively
+   altered anywhere they already appear (the accepted BCCA2026 paper in
+   particular). Any manuscript reporting this fix reports the original
+   figures honestly first, then presents the shrinkage result as a
+   separate, clearly labeled additional contribution.
+6. If the experiment is abandoned after execution for any reason, that fact
+   is recorded — consistent with the withdrawn-verdict precedent already in
+   this repository.
+
+======================================================================
+7. WHAT THIS EXPERIMENT CANNOT SETTLE
+======================================================================
+
+It tests one specific, statistically principled correction to one specific
+component (org-level rate estimation). It does not test alternative
+architectures for provenance scoring (e.g., product-level anomaly features,
+non-multiplicative chain aggregation, per-organization confidence
+intervals surfaced to the quarantine decision instead of a point estimate).
+If H7.1 is falsified or only partially confirmed, those remain open
+directions, not eliminated ones — this experiment narrows the explanation,
+it does not exhaust the solution space.
+
+It also does not revisit external validity. Everything here remains
+simulation-internal, on the same synthetic transaction generator already
+disclosed as non-real throughout this project's manuscripts.
+
+======================================================================
+8. APPROVAL
+======================================================================
+
+Approved by: M. Balakrishnan                  Date: 2026-08-24
+
+Approval must be recorded before execution. This file must be committed to
+the repository in its approved form BEFORE the experiment is run, and must
+not be edited afterward apart from this approval block and the status line.

@@ -3,7 +3,7 @@ PRE-REGISTRATION: ISOLATING THE PROVENANCE CHANNEL IN THE REDESIGN
 
 Status:   APPROVED 2026-08-23 — FROZEN, EXECUTED ONCE
 Written:  2026-08-23
-Author:   Claude (Opus 5), for M. Balakrishnan
+Author:   M. Balakrishnan. Drafted with AI assistance.
 Purpose:  Fix the methodology in writing BEFORE any result is observed, so
           that the outcome cannot be selected. Approve, amend, or reject as
           a whole. Once approved, the protocol in sections 3-6 is frozen and
