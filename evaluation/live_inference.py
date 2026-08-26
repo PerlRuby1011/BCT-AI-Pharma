@@ -165,27 +165,64 @@ def compute_org_reputation(
 
 
 def compute_provenance_scores(
-    evaluation: pd.DataFrame, trust: Dict[str, float]
+    evaluation: pd.DataFrame, trust: Dict[str, float],
+    aggregation: str = "product",
 ) -> np.ndarray:
-    """Compute S1 as the product of custody-chain trust scores per product.
+    """Compute S1 by aggregating custody-chain trust scores per product.
 
     The realized custody chain for a product is the ordered sequence of
-    organizations that handled it. S1 multiplies their trust scores, as
-    :func:`pts.product_trust_score.score_provenance_integrity` specifies.
-    Computed in log space to avoid underflow on long chains.
+    organizations that handled it. Computed in log space to avoid underflow
+    on long chains.
+
+    Two aggregations are available:
+
+    ``"product"`` (default, the registered and published behaviour)
+        S1 is the raw product of chain trust scores, as
+        :func:`pts.product_trust_score.score_provenance_integrity` specifies.
+
+    ``"geometric_mean"`` (OPTION7)
+        S1 is the *chain-length-normalized* product,
+        ``(prod_i t_i) ** (1 / n_hops)``. This corrects a directional error
+        in the raw product: every additional hop multiplies the score down
+        again, so the raw product penalizes long chains, but longer chains
+        are empirically *less* likely to be counterfeit in this generator
+        (measured on seeds 42-44 under clustered injection: mean chain
+        length 6.93 for counterfeit rows against 7.67 for clean, giving an
+        AUC of 0.42 for chain length as a counterfeit score, i.e. inverted).
+        Normalizing removes chain length from the score, leaving it a
+        monotone function of the *fraction* of hops that are low-trust
+        rather than their count.
+
+    Because trust here is near-binary in practice --- one low-trust
+    organization under clustered injection, the rest at 1.0 --- the two
+    aggregations reduce to ranking by low-trust hop *count* and low-trust
+    hop *fraction* respectively.
 
     Args:
         evaluation: The chronologically later half of the transaction table.
         trust: Mapping of organization id to trust score.
+        aggregation: ``"product"`` (default) or ``"geometric_mean"``.
 
     Returns:
         Array aligned to ``evaluation`` rows giving each row's product-level S1.
+
+    Raises:
+        ValueError: If ``aggregation`` is not a recognized value.
     """
+    if aggregation not in ("product", "geometric_mean"):
+        raise ValueError(f"Unknown aggregation: {aggregation!r}")
+
     default = float(np.mean(list(trust.values()))) if trust else 1.0
     log_trust = evaluation["from_org"].map(
         lambda org: np.log(max(trust.get(org, default), 1e-9))
     )
-    chain_log_sum = log_trust.groupby(evaluation["product_id"]).transform("sum")
+    grouped = log_trust.groupby(evaluation["product_id"])
+    chain_log_sum = grouped.transform("sum")
+
+    if aggregation == "geometric_mean":
+        n_hops = grouped.transform("size")
+        chain_log_sum = chain_log_sum / n_hops.clip(lower=1)
+
     return np.clip(np.exp(chain_log_sum.to_numpy()), 0.0, 1.0)
 
 

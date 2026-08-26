@@ -1,0 +1,49 @@
+{
+  "generated_at": "2026-08-25T13:32:52",
+  "protocol": "OPTION7 chain-length-normalized aggregation",
+  "arm": "ARM4 (clustered injection), published CNN + IF",
+  "alert_threshold": 0.75,
+  "seeds": [
+    42
+  ],
+  "per_seed": [
+    {
+      "seed": 42,
+      "n_counterfeit": 1141,
+      "n_clean": 109006,
+      "product": {
+        "tpr": 0.9132340052585451,
+        "fpr": 0.12488303396143331,
+        "tpr_minus_fpr": 0.7883509712971118,
+        "auc_pts": 0.9100890537862151,
+        "s1_mean_counterfeit": 0.6036725766871165,
+        "s1_mean_clean": 0.8425856664770743
+      },
+      "geometric_mean": {
+        "tpr": 0.05346187554776512,
+        "fpr": 1.834761389281324e-05,
+        "tpr_minus_fpr": 0.053443527933872303,
+        "auc_pts": 0.9700651523608531,
+        "s1_mean_counterfeit": 0.9200770525711857,
+        "s1_mean_clean": 0.9723258600357751
+      }
+    }
+  ],
+  "summary": {
+    "product": {
+      "tpr": 0.9132340052585451,
+      "fpr": 0.12488303396143331,
+      "auc": 0.9100890537862151,
+      "tpr_std": NaN,
+      "fpr_std": NaN
+    },
+    "geometric_mean": {
+      "tpr": 0.05346187554776512,
+      "fpr": 1.834761389281324e-05,
+      "auc": 0.9700651523608531,
+      "tpr_std": NaN,
+      "fpr_std": NaN
+    }
+  },
+  "minutes": 28.120528650283813
+}

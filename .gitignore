@@ -18,3 +18,4 @@ env/
 # baseline copies but ignore fresh local re-runs' large scratch artifacts.
 results/*.tmp
 .claude/settings.local.json
+results/signal_cache/
