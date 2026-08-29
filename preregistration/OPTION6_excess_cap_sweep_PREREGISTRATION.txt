@@ -1,0 +1,227 @@
+PRE-REGISTRATION: EXCESS-CAP SWEEP FOR PROVENANCE TRUST
+(Supplementary fix, responding to the OPTION5 null result)
+
+Status:   RETIRED WITHOUT EXECUTION 2026-08-25 — superseded by direct
+          structural reasoning (a Claude Code debug session showed S1's
+          multiplicative chain aggregation means a clean and a counterfeit
+          product sharing one hot-org hop get the same penalty regardless
+          of cap value, making the sweep's outcome derivable rather than
+          worth spending 12 more seeds confirming). See OPTION7
+          (chain-length-normalized aggregation) for the fix attempt that
+          replaced this one.
+Written:  2026-08-25
+Author:   M. Balakrishnan. Drafted with AI assistance.
+Purpose:  Fix the methodology in writing BEFORE any result is observed, so
+          that the outcome cannot be selected. Approve, amend, or reject as
+          a whole. Once approved, the protocol in sections 3-6 is frozen and
+          the experiment runs exactly once.
+
+IMPORTANT — STATUS RELATIVE TO EARLIER PROTOCOLS:
+          This is NOT part of OPTION2, OPTION4, or OPTION5. It was
+          conceived on 2026-08-25, immediately after OPTION5's full 10-seed
+          result showed baseline and shrinkage-corrected trust producing
+          BYTE-IDENTICAL TPR/FPR on every seed of both ARM1 and ARM4 — a
+          complete null, not a partial one. It is therefore POST-HOC with
+          respect to OPTION2, OPTION4, and OPTION5, and must be reported as
+          such regardless of outcome. Pre-registered only in the weaker,
+          still-meaningful sense that its predictions and decision rules are
+          fixed before execution.
+
+======================================================================
+1. WHY THIS EXPERIMENT EXISTS
+======================================================================
+
+OPTION5 (executed 2026-08-24/25) tested empirical-Bayes shrinkage of
+per-organization counterfeit-rate estimates. Result: zero effect, exactly,
+on every one of 10 seeds for ARM4 (92.29%/12.34% TPR/FPR, identical to 4
+decimal places before and after shrinkage) and every one of 10 seeds for
+ARM1 (0.00%/0.00%, also identical).
+
+The leading explanation: `compute_org_reputation()` clips the
+excess-over-base-rate term to `PROVENANCE_EXCESS_CAP = 3.0` BEFORE the
+penalty is applied (live_inference.py:108,135). Under clustered/
+source-concentrated injection, the "hot" organizations' burn-in counterfeit
+rates are far enough above the network base rate that both the raw
+estimate and the shrunk estimate exceed this cap — so the clipped value,
+and everything downstream of it, comes out identical either way. Shrinkage
+was aimed at a stage of the pipeline (the rate estimate) that a later stage
+(the cap) already overrides for the organizations that matter most.
+
+This experiment tests that explanation directly by varying the cap itself,
+instead of the estimate feeding it.
+
+A genuine, stated-in-advance risk this experiment must respect: S1 is
+computed as a PRODUCT of per-organization trust scores along a product's
+custody chain (`compute_provenance_scores`, ~12 hops per chain). Loosening
+or removing the cap allows any single low-trust hop to pull an entire
+chain's S1 toward zero, REGARDLESS of how trustworthy the other ~11
+organizations in that chain are. Under clustered injection, a meaningful
+share of otherwise-clean products may pass through a "hot" organization at
+some point in their chain. It is therefore NOT obvious that loosening the
+cap reduces FPR — the multiplicative structure means it could just as
+plausibly make more clean products collapse to a low S1, increasing FPR.
+Both directions are stated as live possibilities below, not just the
+favorable one.
+
+======================================================================
+2. HYPOTHESES, AND WHAT WOULD FALSIFY THEM
+======================================================================
+
+H8.1 (primary — cap sweep, directional but explicitly uncertain).
+    As `PROVENANCE_EXCESS_CAP` increases from 3.0 (current) through 6.0,
+    10.0, to uncapped (no clipping), ARM4's FPR and TPR will both move
+    monotonically in ONE direction — but which direction is not confidently
+    predictable in advance, for the reason stated in Section 1 (the
+    multiplicative chain-collapse risk cuts against the naive "looser cap
+    always means more discrimination" intuition).
+
+    PREDICTION (stated with the uncertainty made explicit, not hedged after
+    the fact): FPR decreases as the cap loosens. This is the "naive"
+    direction — a fuller penalty on genuinely bad organizations should, on
+    its face, sharpen the distinction between hot and cold organizations.
+    We flag before running anything that the chain-multiplicative structure
+    could reverse this, and if it does, THAT is the primary finding, not a
+    failure of the experiment.
+
+    FALSIFIED / REVERSED IF: FPR increases (rather than decreases) as the
+    cap loosens. This would directly confirm the multiplicative-collapse
+    mechanism as dominant, and would mean the excess cap is not merely
+    insufficient but load-bearing — removing it makes specificity worse,
+    and any future fix needs to address the multiplicative aggregation
+    itself (e.g. a bounded/averaged combination instead of a raw product),
+    not the per-organization scoring rule. This is written here, before the
+    result is known, precisely so that a reversal cannot later be waved
+    away as unexpected.
+
+H8.2 (secondary — combining the loosened cap with OPTION5's shrinkage).
+    At each loosened cap value, shrinkage (as defined in OPTION5) is
+    applied on top. Because OPTION5 showed shrinkage is a no-op exactly
+    when the cap dominates, shrinkage should start to matter once the cap
+    stops saturating — i.e., the shrunk and unshrunk curves should diverge
+    as the cap loosens, even though they were identical at cap=3.0.
+
+    PREDICTION: at cap=10.0 and uncapped, shrunk FPR is lower than unshrunk
+    FPR by a non-negligible margin (>=1.0 pp), unlike the exact-zero gap
+    seen throughout OPTION5.
+
+    FALSIFIED IF: shrunk and unshrunk remain identical (or nearly so) even
+    at the loosest cap setting. That would mean the cap was never the sole
+    explanation for OPTION5's null, and something else in the pipeline is
+    also absorbing the correction — motivating a closer look at
+    `compute_provenance_scores`'s log-sum aggregation itself, not just the
+    two components tested so far.
+
+H8.3 (positive control — ARM1 stays near-unchanged across the sweep).
+    ARM1 (uniform injection) already measures 0.00%/0.00% at cap=3.0
+    because no organization's excess is large to begin with under uniform
+    injection. Loosening the cap should not manufacture a false-positive
+    problem where OPTION5 already showed none exists.
+
+    PREDICTION: ARM1's FPR and TPR stay within 1.0 pp of 0.00% at every
+    cap value tested, shrunk or unshrunk.
+
+    FALSIFIED IF: ARM1's FPR moves by more than 1.0 pp at any cap setting.
+    That would indicate the cap parameter has unexpected effects even in
+    the regime it was never meant to touch, and any cap change needs
+    reworking before being trusted anywhere.
+
+======================================================================
+3. DESIGN — FROZEN ON APPROVAL
+======================================================================
+
+Single parameter swept, `PROVENANCE_EXCESS_CAP`, via the existing `cap`
+argument to `compute_org_reputation()` (no new code path — the parameter
+already exists and is already tested by OPTION2/OPTION4/OPTION5's default
+of 3.0). Combined factorially with the existing `shrinkage` flag from
+OPTION5. Everything else (CNN, Isolation Forest, transaction generation,
+quarantine threshold, seeds) untouched.
+
+  Cap values tested, chosen a priori (not tuned against any FPR outcome):
+      3.0   — current/registered value, reference point, not re-run
+              (already have ARM1/ARM4 baseline and shrunk from OPTION5)
+      6.0   — 2x current
+      10.0  — >3x current
+      None  — uncapped (no clipping applied to excess at all)
+
+  Shrinkage: OFF and ON at each of the three NEW cap values (6.0, 10.0,
+  None) — 3 caps x 2 shrinkage settings x 2 conditions (ARM1, ARM4) = 12
+  new arm/seed-set combinations, each run across the same 10 registered
+  seeds (42-51) with the same trained CNN/Isolation Forest models (protocol
+  section-4 reuse rule, unchanged).
+
+  No-leakage rule, unchanged from OPTION5: shrinkage's internal parameter k
+  is still derived automatically from each seed's own burn-in data. The cap
+  values themselves are fixed by this document before any result is seen,
+  not selected by scanning outcomes.
+
+======================================================================
+4. THE POWER TRAP — EXPLICIT GUARD
+======================================================================
+
+Same discipline as OPTION2/OPTION4/OPTION5. If the between-seed standard
+deviation of a reported difference is large enough that its 95% CI includes
+zero, that comparison is reported as inconclusive, not as a pass, regardless
+of the point estimate. Given OPTION5's near-zero variance pattern held
+throughout, near-zero variance here too should be reported as structural,
+not as an inflated effect size.
+
+======================================================================
+5. ANALYSIS PLAN — FIXED
+======================================================================
+
+Primary:  for ARM4, plot/tabulate mean FPR and mean TPR (10-seed average)
+          at each of the four cap values (3.0 reference + 6.0, 10.0, None),
+          separately for shrinkage OFF and ON. Report the direction of
+          change (H8.1) and, if present, the shrinkage-cap interaction
+          (H8.2) as raw percentage-point differences, headline number.
+Control:  same tabulation for ARM1 (H8.3).
+Alpha:    0.05, two-sided, paired t-test per adjacent cap-value comparison
+          where a directional claim is made. No multiplicity correction;
+          no additional tests added after seeing results.
+
+======================================================================
+6. REPORTING OBLIGATIONS — BINDING REGARDLESS OF OUTCOME
+======================================================================
+
+1. Reported whether FPR decreases, increases, or does not move
+   meaningfully across the sweep. A reversal (H8.1 falsified) is reported
+   as prominently as a confirmation would have been — it is arguably the
+   more publication-relevant finding, since it identifies the
+   multiplicative chain-aggregation as the real constraint.
+2. Post-hoc status relative to OPTION2/4/5 stated explicitly wherever this
+   result appears.
+3. This protocol file is committed to the repository BEFORE execution and
+   not edited afterward. Any amendment requires a new dated file.
+4. Raw per-seed, per-cap, per-shrinkage outputs are written to results/ and
+   committed unedited, including a reversed or null outcome.
+5. The existing published/registered figures (92.29%/12.34% at cap=3.0,
+   and OPTION5's null shrinkage result) are not retroactively altered
+   anywhere they already appear. This experiment's findings are reported
+   as an additional, clearly-labeled contribution layered on top of that
+   honest record, not a replacement for it.
+6. If abandoned after execution for any reason, that fact is recorded,
+   consistent with the withdrawn-verdict precedent already in this
+   repository.
+
+======================================================================
+7. WHAT THIS EXPERIMENT CANNOT SETTLE
+======================================================================
+
+It sweeps one scalar parameter (the cap) and re-tests one already-built
+correction (shrinkage) against it. It does not test alternative chain
+AGGREGATION rules (e.g., a bounded average instead of a product, or
+per-hop confidence propagation) — if H8.1 reverses or H8.2 falsifies, that
+is exactly the signal that aggregation-level redesign is the next
+question, not something this experiment itself can answer. It also does
+not revisit external validity; everything remains simulation-internal on
+the same disclosed-synthetic transaction generator.
+
+======================================================================
+8. APPROVAL
+======================================================================
+
+Approved by: ____________________            Date: ____________
+
+Approval must be recorded before execution. This file must be committed to
+the repository in its approved form BEFORE the experiment is run, and must
+not be edited afterward apart from this approval block and the status line.

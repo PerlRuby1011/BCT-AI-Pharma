@@ -40,6 +40,7 @@ def inject_anomalies(
     seed: int = 42,
     cluster_counterfeit_by_manufacturer: bool = False,
     counterfeit_cluster_fraction: float = 0.3,
+    shortcut_routing: bool = False,
 ) -> pd.DataFrame:
     """Inject labeled anomalies into a transaction DataFrame, in-place-safe.
 
@@ -129,7 +130,58 @@ def inject_anomalies(
                 df.loc[df.index[idx], "temperature_c"].to_numpy() + excursion
             )
 
+    if shortcut_routing:
+        df = _apply_shortcut_routing(df, rng)
+
     return df
+
+
+def _apply_shortcut_routing(df: pd.DataFrame, rng: np.random.Generator) -> pd.DataFrame:
+    """OPTION8: shorten the custody chain of counterfeit-carrying products.
+
+    DATA-GENERATION CHANGE. Counterfeit pharmaceuticals predominantly enter
+    the legitimate supply chain at the wholesale distribution tier rather
+    than at manufacture -- Mackey and Nayyar (2017) attribute 67% of
+    incidents to the wholesale level against 11% to manufacturing. A product
+    entering at that tier has not traversed the manufacturer -> distributor
+    leg a legitimate product traverses, so its observable custody chain is
+    shorter by approximately one upstream handoff.
+
+    This removes exactly ONE upstream custody row (a manufacturer- or
+    distributor-originated hop, never the counterfeit-labelled row itself)
+    from each product carrying a counterfeit transaction. The magnitude of
+    one handoff is fixed by the cited entry-tier mechanism and is NOT a
+    tunable parameter; see
+    preregistration/OPTION8_product_level_signal_PRECOMMITMENT.txt.
+
+    Args:
+        df: Transaction table with anomalies already injected.
+        rng: NumPy random generator (which upstream hop is dropped is random).
+
+    Returns:
+        A new DataFrame with the selected rows removed.
+    """
+    cf_products = df.loc[df["anomaly_type"] == "counterfeit_product", "product_id"].unique()
+    if len(cf_products) == 0:
+        return df
+
+    upstream = df["from_org_type"].isin(["manufacturers", "distributors"])
+    droppable = (
+        df["product_id"].isin(cf_products)
+        & upstream
+        & (df["anomaly_type"] != "counterfeit_product")
+    )
+    candidates = df.loc[droppable]
+    if candidates.empty:
+        return df
+
+    # exactly one dropped hop per affected product
+    drop_idx = (
+        candidates.groupby("product_id", sort=False)
+        .apply(lambda g: g.index[rng.integers(len(g))])
+        .to_numpy()
+    )
+    return df.drop(index=drop_idx).reset_index(drop=True)
 
 
 def _select_clustered_counterfeit_indices(

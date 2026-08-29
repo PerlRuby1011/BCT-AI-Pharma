@@ -226,6 +226,54 @@ def compute_provenance_scores(
     return np.clip(np.exp(chain_log_sum.to_numpy()), 0.0, 1.0)
 
 
+def compute_hop_deficit_factor(
+    burn_in: pd.DataFrame, evaluation: pd.DataFrame, beta: float = 0.30,
+) -> np.ndarray:
+    """OPTION8: per-product custody-chain shortfall, as a bounded S1 multiplier.
+
+    Counterfeit product entering at the wholesale tier traverses fewer
+    upstream handoffs than a legitimate product of the same class, so an
+    unusually short custody chain is an observable red flag. This computes,
+    per product::
+
+        deficit(p) = median_chain_length(class(p)) - chain_length(p)
+        factor(p)  = 1 - beta * clip(deficit / median_chain_length, 0, 1)
+
+    and returns ``factor`` aligned to ``evaluation`` rows, for use as a
+    multiplier on S1.
+
+    The class median is estimated on the BURN-IN half only, so no
+    evaluation-half data informs the reference. The feature reads
+    ``product_id``, ``drug_class`` and custody-row counts --- never
+    ``is_anomaly`` or ``anomaly_type``.
+
+    ``beta`` is fixed at 0.30 by pre-commitment (the largest value leaving a
+    maximally-shortcut product with a non-zero provenance score), not
+    selected against any detection outcome. See
+    ``preregistration/OPTION8_product_level_signal_PRECOMMITMENT.txt``.
+
+    Args:
+        burn_in: Chronologically earlier half, supplying the class reference.
+        evaluation: Chronologically later half, scored.
+        beta: Maximum proportional trust reduction at full deficit.
+
+    Returns:
+        Array aligned to ``evaluation`` rows, each in ``[1 - beta, 1]``.
+    """
+    bi_len = burn_in.groupby(["product_id"]).size()
+    bi_class = burn_in.groupby("product_id")["drug_class"].first()
+    ref = pd.DataFrame({"n": bi_len, "drug_class": bi_class})
+    class_median = ref.groupby("drug_class")["n"].median()
+    overall_median = float(ref["n"].median()) if len(ref) else 1.0
+
+    chain_len = evaluation.groupby("product_id")["from_org"].transform("size").to_numpy()
+    med = evaluation["drug_class"].map(class_median).fillna(overall_median).to_numpy()
+    med = np.where(med <= 0, overall_median if overall_median > 0 else 1.0, med)
+
+    deficit = np.clip((med - chain_len) / med, 0.0, 1.0)
+    return 1.0 - beta * deficit
+
+
 # ---------------------------------------------------------------------------
 # Protocol 3.2 — live CNN inference on severity-blended tensors
 # ---------------------------------------------------------------------------

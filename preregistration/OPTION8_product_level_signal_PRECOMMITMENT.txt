@@ -1,0 +1,179 @@
+OPTION8 — PER-PRODUCT ROUTING SIGNAL: DESIGN PRE-COMMITMENT
+Written: 2026-08-25, BEFORE any code was written or any number observed.
+Status: DESIGN FROZEN AT SECTION 3 BEFORE FIRST EXECUTION.
+
+This document exists to satisfy the Section 4 constraint of
+FIX_PROMPT_product_level_signal.md: the signal's existence and magnitude
+are chosen for real-world plausibility and written down BEFORE any
+false-positive rate is observed. If the magnitude is later changed, that
+change and its reason must be appended here, and the original result
+reported alongside.
+
+======================================================================
+1. WHY A DATA-GENERATION CHANGE IS NEEDED
+======================================================================
+
+Two prior fixes failed for the same structural reason:
+
+  OPTION5 (empirical-Bayes shrinkage)  — clean null; all 12 organizations
+      sit at a clip boundary, so shrinking a clipped value changes nothing.
+  OPTION7 (chain-length-normalized aggregation) — improves ranking
+      substantially (AUC 0.915 -> 0.971 design seeds, 0.913 -> 0.970
+      held-out) but does NOT improve FPR at the registered operating point
+      (worse by 1.53 pp design / 1.97 pp held-out, 5/5 held-out seeds).
+
+Root cause: trust is a property of an ORGANIZATION; the label is a
+property of a PRODUCT. The hot organization's burn-in counterfeit rate is
+~12%, so 88% of its traffic is legitimate and inherits an identical
+penalty. Measured directly: mean S1 is 0.6384 for clean products that
+touch the hot org against 0.6037 for counterfeits — nearly
+indistinguishable. Restricted to that ambiguous population, the best
+available provenance feature has AUC 0.64.
+
+No rescaling or reaggregation of per-organization trust can separate two
+products that shared a custody hop, because the current generator gives
+counterfeit rows no per-product observable at all beyond
+``anomaly_severity`` (which feeds only the CNN's synthetic image).
+
+======================================================================
+2. THE SIGNAL, AND WHY THIS ONE
+======================================================================
+
+CHOSEN: shortcut routing — counterfeit products traverse FEWER
+intermediate custody handoffs than legitimate products.
+
+Real-world justification, fixed in advance:
+
+Counterfeit pharmaceuticals predominantly enter the legitimate supply
+chain at the wholesale distribution tier rather than at manufacture.
+Mackey and Nayyar (2017), already cited in the manuscript, attribute 67%
+of incidents to the wholesale distributor level, against 22% to
+international transit and 11% to manufacturing. A product injected at the
+wholesale tier has, by construction, not traversed the manufacturer ->
+distributor leg that a legitimate product of the same type traverses. The
+observable consequence is a custody chain that is shorter by approximately
+one upstream handoff.
+
+This is the mechanism the manuscript already invokes to explain why
+provenance matters at all, so using it here introduces no new assumption
+about counterfeit behaviour that the paper does not already assert.
+
+MAGNITUDE, FIXED NOW: exactly ONE skipped handoff per counterfeit product,
+applied by removing one upstream (manufacturer- or distributor-origin)
+custody row for products carrying a counterfeit-labelled transaction.
+
+Why one and not two, or a distribution: the 67%-at-wholesale figure
+identifies a single tier of entry, which corresponds to a single skipped
+upstream leg. Two would assert entry below the distributor tier, which the
+same source puts at a much smaller share. A fitted distribution would have
+free parameters, and free parameters are exactly what must not be tuned
+here. One handoff is the value the cited mechanism implies, and it is not
+adjustable without changing the justification.
+
+PRE-COMMITMENT: this magnitude will NOT be changed in response to any
+observed TPR, FPR, or AUC. If the result is a null, the null is reported.
+
+======================================================================
+3. DETECTOR FEATURE (frozen with the perturbation)
+======================================================================
+
+New per-product observable, read from the transaction table only:
+
+    hop_deficit(p) = median_chain_length(drug_class(p)) - chain_length(p)
+
+computed on the BURN-IN half for the class median, applied to the
+evaluation half, so no evaluation-half label or outcome informs it. The
+feature reads ``product_id``, ``drug_class`` and custody-row counts. It
+never reads ``is_anomaly`` or ``anomaly_type``.
+
+It enters the score as a bounded per-product multiplier on S1:
+
+    S1' = S1 * (1 - beta * clip(hop_deficit / median_chain_length, 0, 1))
+
+with beta = 0.30, fixed now. Rationale for beta: it is the largest value
+that leaves a maximally-shortcut product (hop_deficit == median) with a
+non-zero provenance score, preserving the property that provenance
+degrades a score rather than zeroing it — the same design property the
+existing penalty (0.10, capped at 3.0 excess -> trust floor 0.70)
+already has. It is not selected against any detection outcome.
+
+======================================================================
+4. SEEDS
+======================================================================
+
+Design/debug: 42-51 (already used by every prior experiment).
+Held-out confirmation: 57-61.
+
+NOTE: 52-56 were consumed as the held-out block for OPTION7 and are no
+longer clean for this experiment. 57-61 have never been run.
+
+======================================================================
+5. WHAT THIS EXPERIMENT CAN AND CANNOT ESTABLISH
+======================================================================
+
+CAN establish: whether the PTS architecture is able to exploit a
+per-product routing observable, once one exists, to separate clean from
+counterfeit products that share a custody hop.
+
+CANNOT establish: that real counterfeit products exhibit this signature,
+or the magnitude at which they exhibit it. The detection rate this
+produces is conditional on an injected effect size chosen by the authors.
+It is evidence about the scoring architecture's capacity, NOT a
+measurement of real-world detection performance, and must never be
+reported as the latter.
+
+MANDATORY DISCLOSURE, to travel with any number this produces:
+"Counterfeit-labelled products were additionally given a shortened custody
+chain (one skipped upstream handoff) in the data generator, motivated by
+the documented concentration of counterfeit entry at the wholesale
+distribution tier; the resulting detection rates are therefore conditional
+on an injected routing signature and are not independent evidence that the
+architecture would detect real counterfeits at this rate."
+
+======================================================================
+6. AMENDMENTS AFTER FIRST EXECUTION
+======================================================================
+
+NO AMENDMENTS. The perturbation (one skipped upstream handoff) and the
+detector feature (beta = 0.30) were executed exactly as frozen in
+sections 2-3. Neither was adjusted after any number was observed.
+
+======================================================================
+7. RESULT — executed once, 2026-08-25
+======================================================================
+
+Design seeds 42-51 (129 min), held-out seeds 57-61 (66 min).
+Held-out block is 57-61 because 52-56 were consumed by OPTION7.
+
+                seeds   n  variant        TPR@0.75  FPR@0.75     AUC  FPR@matched
+  design        42-51  10  s1_only          91.68%    11.85%  0.9132     11.72%
+  design        42-51  10  s1_x_deficit     95.36%    18.97%  0.9234     16.35%
+  held-out      57-61   5  s1_only          91.57%    12.19%  0.9104     12.03%
+  held-out      57-61   5  s1_x_deficit     95.23%    19.40%  0.9219     15.56%
+
+  matched-TPR FPR delta: design  +4.63 pp (std 0.30), worse on 10/10 seeds
+                         held-out +3.52 pp (std 0.91), worse on  5/5 seeds
+
+VERDICT: NULL — and worse than null. The hop-deficit feature raises AUC
+(+0.010 design, +0.012 held-out) while making false-positive rate at the
+registered operating point substantially WORSE, unanimously across all
+15 seeds. This is the third consecutive fix to improve a threshold-free
+ranking statistic while degrading or failing to improve the operating
+point, after OPTION5 (clean null) and OPTION7 (AUC +0.057, matched FPR
++1.53/+1.97 pp).
+
+MECHANISM: the hop-deficit multiplier penalizes every short custody
+chain. Clean products have short chains too -- chain length varies widely
+for legitimate products (median 7, p95 10) -- so the feature suppresses
+S1 for a large population of legitimate items alongside the counterfeits
+it targets. It sharpens the global ranking while adding noise precisely
+in the high-sensitivity region where the system is specified to operate.
+
+WHAT THIS ESTABLISHES: the limitation is NOT that the simulation lacks a
+per-product signal. One was injected, at a magnitude fixed in advance
+from a documented real-world mechanism, and the scoring layer still could
+not convert it into operating-point specificity. The constraint therefore
+sits in the multiplicative, organization-level PTS aggregation rather
+than in the data.
+
+The mandatory disclosure in section 5 applies to every number above.
