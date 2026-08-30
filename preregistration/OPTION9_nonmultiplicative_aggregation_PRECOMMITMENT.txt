@@ -1,0 +1,176 @@
+OPTION9 — NON-MULTIPLICATIVE PTS AGGREGATION: DESIGN PRE-COMMITMENT
+Written: 2026-08-26, BEFORE implementation and BEFORE any TPR/FPR observed.
+Status: DESIGN FROZEN. Prediction recorded in section 3 in advance.
+
+======================================================================
+1. FROZEN FORMULA
+======================================================================
+
+composition = "mean": S1 = unweighted arithmetic mean of the per-hop trust
+scores along a product's realized custody chain,
+
+    S1 = (1/n) * sum_i trust_i
+
+Plain arithmetic mean, computed directly (not in log space), unweighted.
+
+NO HOP WEIGHTING. No recency weighting, no organization-type weighting.
+Adding a weighting scheme after seeing whether the unweighted version
+helps is exactly the move this discipline forbids, so none is specified
+and none may be added within this experiment.
+
+Justification, independent of any FPR outcome: a product is AND-composition
+-- the chain scores only as well as its worst hop, and each additional hop
+compounds. Trust-propagation systems (EigenTrust-style eigenvector
+aggregation, Dempster-Shafer evidence combination) generally use weighted
+or evidence-combining composition rather than strict multiplicative AND,
+precisely so a single poor component cannot overwhelm otherwise-strong
+evidence. Substituting a mean is therefore a different security semantics,
+not a reparametrization of the same one.
+
+======================================================================
+2. FROZEN CONDITIONS (both fixed before either is run)
+======================================================================
+
+C1 "aggregation_only"       composition="mean", baseline generator
+                            (shortcut_routing=False). Does changing
+                            composition alone help, using only information
+                            already available today?
+
+C2 "aggregation_plus_signal" composition="mean", OPTION8 generator
+                            (shortcut_routing=True) AND the hop-deficit
+                            multiplier. Does non-multiplicative composition
+                            let OPTION8's genuine per-product signal show
+                            through where the product drowned it?
+
+Control in both: composition="product", the registered/published behaviour.
+
+======================================================================
+3. PREDICTION RECORDED IN ADVANCE — THIS ONE IS LIKELY A NULL, AND WHY
+======================================================================
+
+Stated before running, because a pre-registration that omits an expected
+outcome is not doing its job.
+
+Organization trust in this system is effectively BINARY. Under clustered
+injection exactly one organization is ever penalized (measured: 1 of 12);
+the other eleven have a burn-in counterfeit rate of exactly 0.000000, so
+their excess is negative and the lower clip at 0.0 pins them at trust
+exactly 1.0. Let h = count of low-trust hops, n = chain length. Then:
+
+    product          = 0.7^h            -> monotone in h
+    geometric mean   = 0.7^(h/n)        -> monotone in h/n
+    ARITHMETIC MEAN  = 1 - 0.3*(h/n)    -> ALSO monotone in h/n
+
+The arithmetic mean therefore ranks by the SAME statistic the geometric
+mean ranks by. Measured directly before freezing this document, seeds
+42 and 43:
+
+    spearman(arithmetic, geometric) = 0.999993
+    spearman(arithmetic, -h/n)      = 0.999993
+    spearman(geometric,  -h/n)      = 1.000000
+    distinct values: product 6, geometric 41, arithmetic 41
+    range: arithmetic [0.700, 1.000], geometric [0.700, 1.000]
+
+PREDICTION: C1 will closely reproduce OPTION7's geometric-mean result --
+AUC above the product control, matched-TPR FPR at or slightly worse than
+the product control. It will NOT fix the operating-point FPR.
+
+The two scores are not perfectly identical in the composite, because
+0.7^u and 1-0.3u differ in curvature and the composite mixes S1 with S8
+non-monotonically. That residual is the only room for C1 to differ, and it
+is small. The experiment is run anyway: three prior predictions in this
+line of work were partly wrong, and a measured null is worth more than an
+analytical one.
+
+CONSEQUENCE IF THE PREDICTION HOLDS: the blocker is not the choice of
+aggregation function. It is that the TRUST FUNCTION IS BINARY, which
+collapses every per-hop aggregation into a function of h and n alone.
+That binariness is produced by the lower clip (clip(..., lower=0.0)) which
+pins 11 of 12 organizations at exactly 1.0 -- the same clip identified in
+the OPTION5 diagnosis. Aggregation cannot recover information the trust
+function never encoded.
+
+======================================================================
+4. COMPARISON METRIC — FIXED NOW
+======================================================================
+
+PRIMARY: false-positive rate at MATCHED TPR, with the threshold derived
+from the product control's own TPR at the frozen 0.75 alert threshold
+(~92%). This is the number reported first and the number the verdict rests
+on.
+
+SECONDARY, context only: ROC AUC. Three consecutive attempts have now
+improved AUC while degrading matched-TPR FPR, so AUC MUST NOT lead the
+report and must never be presented as the result.
+
+Frozen alert threshold 0.75. No threshold is re-derived to flatter any
+condition.
+
+======================================================================
+5. SEEDS
+======================================================================
+
+Iteration/design: 42-51 (consumed by all prior experiments).
+Held-out confirmation: 62-66, never run in this line of work.
+42-61 are all consumed (OPTION7 used 52-56, OPTION8 used 57-61).
+
+======================================================================
+6. AMENDMENTS AFTER FIRST EXECUTION
+======================================================================
+
+NO AMENDMENTS. Both conditions ran exactly as frozen in sections 1-2.
+The arithmetic mean was unweighted as specified; no weighting scheme was
+added; the alert threshold was not re-derived.
+
+======================================================================
+7. RESULT — executed once, 2026-08-26
+======================================================================
+
+Design seeds 42-51 (from verified-aligned cached model signals);
+held-out seeds 62-66 (fresh inference, both generators).
+
+C1  aggregation_only (baseline generator)
+    arm                TPR@0.75  FPR@0.75     AUC   FPR@matchedTPR
+    design  control      92.29%    12.34%  0.9152      12.21%
+    design  mean          2.88%     0.00%  0.9721      13.20%
+    heldout control      92.26%    12.70%  0.9127      12.57%
+    heldout mean          2.73%     0.00%  0.9710      14.20%
+    matched-FPR delta: design +0.99 pp (8/10 worse), held-out +1.64 pp (5/5 worse)
+
+C2  aggregation_plus_signal (shortcut generator + hop-deficit)
+    design  control      95.36%    18.97%  0.9234      18.74%
+    design  mean         17.78%     0.23%  0.9368      32.97%
+    heldout control      95.31%    19.37%  0.9216      19.27%
+    heldout mean         17.35%     0.24%  0.9348      33.26%
+    matched-FPR delta: design +14.22 pp (10/10 worse), held-out +13.99 pp (5/5 worse)
+
+VERDICT: FOURTH NULL, and the section-3 prediction was CORRECT.
+
+C1 reproduced OPTION7's geometric mean almost exactly, as predicted from
+the rank-equivalence measured before freezing (Spearman 0.999993):
+
+                        AUC      matched-FPR delta   worse on
+    OPTION7 geometric  0.9712       +1.53 pp          8/10 design, 5/5 held-out
+    OPTION9 arithmetic 0.9721       +0.99 pp          8/10 design, 5/5 held-out
+
+C2 was the worst result of any attempt in this line of work.
+
+WHY: organization trust in this system is BINARY. One of twelve
+organizations is penalized; the lower clip pins the other eleven at
+exactly 1.0. With two trust values, every per-hop aggregation is a
+function of (h, n) alone -- product ranks by h, geometric and arithmetic
+mean both rank by h/n. Only TWO rankings are obtainable from per-hop
+trust, and OPTION7 already measured both. Composition cannot recover
+information the trust function never encoded.
+
+FOUR MECHANISMS HAVE NOW FAILED AT THE OPERATING POINT:
+    OPTION5  estimation      (shrinkage)              clean null
+    OPTION7  aggregation     (chain-length norm)      +1.53 / +1.97 pp
+    OPTION8  injected signal (shortcut routing)       +4.63 / +3.52 pp
+    OPTION9  composition     (arithmetic mean)        +0.99 / +1.64 pp
+                             (+ combined with OPTION8) +14.22 / +13.99 pp
+
+All four improved AUC while failing or degrading matched-TPR FPR. The
+common cause is upstream of all of them: a trust function with two
+reachable values, produced by the lower clip at 0.0, cannot support any
+aggregation that separates two products sharing a custody hop.

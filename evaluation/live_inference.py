@@ -209,10 +209,20 @@ def compute_provenance_scores(
     Raises:
         ValueError: If ``aggregation`` is not a recognized value.
     """
-    if aggregation not in ("product", "geometric_mean"):
+    if aggregation not in ("product", "geometric_mean", "mean"):
         raise ValueError(f"Unknown aggregation: {aggregation!r}")
 
     default = float(np.mean(list(trust.values()))) if trust else 1.0
+
+    if aggregation == "mean":
+        # OPTION9: arithmetic mean -- evidence-combining rather than
+        # AND-composition, so one poor hop cannot dominate an otherwise
+        # strong chain. Computed directly, not in log space, because the
+        # composition is no longer multiplicative.
+        per_hop = evaluation["from_org"].map(lambda org: trust.get(org, default))
+        chain_mean = per_hop.groupby(evaluation["product_id"]).transform("mean")
+        return np.clip(chain_mean.to_numpy(), 0.0, 1.0)
+
     log_trust = evaluation["from_org"].map(
         lambda org: np.log(max(trust.get(org, default), 1e-9))
     )

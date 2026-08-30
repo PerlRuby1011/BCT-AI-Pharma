@@ -19,3 +19,5 @@ env/
 results/*.tmp
 .claude/settings.local.json
 results/signal_cache/
+results/o9_c1_cachegen.json
+results/o9_c2_cachegen.json
