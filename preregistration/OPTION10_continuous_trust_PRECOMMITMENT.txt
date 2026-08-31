@@ -1,0 +1,189 @@
+OPTION10 — CONTINUOUS ORGANIZATION TRUST: DESIGN PRE-COMMITMENT
+Written: 2026-08-27, BEFORE implementation and BEFORE any TPR/FPR observed.
+Status: DESIGN FROZEN. Predictions in section 4 recorded in advance.
+
+======================================================================
+1. FROZEN FORMULA
+======================================================================
+
+    shrunk_rate = (n_org * org_rate + k * base_rate) / (n_org + k),  k = median(n_org)
+    excess      = clip((shrunk_rate - base_rate) / base_rate, -cap, +cap),  cap = 3.0
+    trust       = 1 - penalty * excess,  penalty = 0.10   ->  trust in [0.70, 1.30]
+
+Differences from the registered behaviour, both required:
+  (a) shrinkage is ON (not optional). Un-clipping RAW rates alone would be a
+      foregone null: all eleven non-hot organizations have a burn-in
+      counterfeit rate of exactly 0.000000, so (0 - base)/base is the SAME
+      negative number for all eleven -- un-clipping would move them together
+      to an identical negative value and differentiate nothing. Shrinkage is
+      what makes them differ, because it weights by n_org. This reasoning is
+      recorded here INSTEAD of spending held-out seed budget confirming it.
+  (b) the lower clip at 0.0 is replaced by a SYMMETRIC bound at -cap, chosen
+      for boundedness and interpretability: trust stays in a closed interval
+      symmetric about 1.0, so an organization far below base rate earns a
+      bounded bonus rather than an unbounded one.
+
+S1 AGGREGATION: unchanged -- raw product of per-hop trust, clipped to [0,1]
+ONLY AFTER aggregation, so per-hop grading is not destroyed before it can
+accumulate.
+
+======================================================================
+2. FROZEN CONDITIONS
+======================================================================
+
+C1 "continuous_only"        continuous trust, baseline generator.
+C2 "continuous_plus_signal" continuous trust + OPTION8 shortcut-routing
+                            generator + hop-deficit multiplier.
+Control in both: the registered compute_org_reputation (shrinkage off,
+lower clip at 0.0) with the raw-product aggregation.
+
+======================================================================
+3. MEASURED BEFORE FREEZING — WHAT CONTINUITY ACTUALLY BUYS
+======================================================================
+
+Measured on seeds 42-43 before this document was frozen:
+
+  the eleven zero-rate organizations, under shrinkage + un-clipping:
+      trust range  [1.049592, 1.050387]   SPREAD = 0.000795  (seed 42)
+      trust range  [1.049163, 1.050339]   SPREAD = 0.001176  (seed 43)
+      hot organization trust = 0.7000; gap to the clean cluster = 0.3500
+      -> grading among the eleven is 0.23%-0.34% OF THAT GAP
+
+So the "continuous grading among organizations" this option is named for is
+numerically negligible. n_org spread is only 3-5% because the generator
+distributes transactions near-uniformly across the twelve organizations,
+and shrinkage can differentiate only to the extent volumes differ.
+
+HOWEVER -- and this was not anticipated by the prompt -- un-clipping has a
+SECOND, larger effect. Trust for non-hot organizations becomes 1.05, not
+1.0, so it compounds multiplicatively along the chain:
+
+      S1 = 0.7^h * 1.05^(n-h)  =>  log S1 = n*log(1.05) + h*log(0.667)
+
+Chain length n now enters the score with a POSITIVE coefficient. Measured
+on seed 42 under the frozen formula:
+
+      distinct S1 values = 3,778   (product: 6, geometric/arithmetic mean: 41)
+      spearman(S1, -h)   = 0.8590   (was 1.0000 for the raw product)
+      spearman(S1, -h/n) = 0.9316   (was 1.0000 for both means)
+      S1 mean: counterfeit 0.7861, clean 0.9369
+      saturated at 1.0: 12.1% of counterfeit rows, 65.9% of clean rows
+
+This is therefore the FIRST variant tested in this line of work whose
+ranking is not a monotone function of h or h/n. OPTION9 failed partly
+because the arithmetic mean was rank-equivalent to OPTION7's geometric mean
+(Spearman 0.999993). That objection does not apply here.
+
+======================================================================
+4. PREDICTIONS, RECORDED IN ADVANCE
+======================================================================
+
+P1. TPR at the frozen 0.75 alert threshold will FALL substantially, because
+    S1 is inflated across the board (counterfeit mean 0.604 -> 0.786). This
+    is a scale shift, not a capability change, and is the same artefact seen
+    in OPTION7 and OPTION9. It says nothing on its own.
+
+P2. Matched-TPR FPR is GENUINELY UNCERTAIN, and this is stated as a real
+    uncertainty rather than a hedge. Two mechanisms pull opposite ways:
+      - FOR improvement: chain length now enters with a positive
+        coefficient, and counterfeits have SHORTER chains (measured 6.93
+        against 7.67 hops among hot-touching products, chain-length
+        AUC 0.42). Every prior variant either ignored chain length or
+        encoded it backwards. This is the first time it enters correctly.
+      - AGAINST improvement: trust remains ORGANIZATION-level. The hot
+        organization's 88% legitimate traffic still shares a hop with its
+        12% counterfeit traffic, and no grading among the other eleven
+        changes that. The AUC 0.64 ceiling already established for the
+        ambiguous (touches-hot-org) population still applies.
+
+P3. If matched-TPR FPR improves by more than ~2 pp on the design seeds,
+    that EXCEEDS the stated expectation and must be treated as suspicious
+    until the held-out block confirms it. Do not report such a number
+    before 67-71 lands.
+
+======================================================================
+5. METRIC — FIXED NOW
+======================================================================
+
+PRIMARY: false-positive rate at MATCHED TPR, threshold derived from the
+control's own TPR at the frozen 0.75 alert threshold (~92%).
+SECONDARY, context only: ROC AUC. Four prior attempts improved AUC while
+failing at the operating point; AUC must not lead the report.
+The alert threshold is NOT re-derived for any condition.
+
+======================================================================
+6. SEEDS
+======================================================================
+
+Design: 42-51 (consumed by all prior work; model signals already cached and
+alignment-verified, so these cost no new inference).
+Held-out: 67-71, never run. 42-66 are all consumed.
+
+======================================================================
+7. AMENDMENTS AFTER FIRST EXECUTION
+======================================================================
+
+NO AMENDMENTS. Both conditions ran exactly as frozen in sections 1-2. The
+symmetric bound, penalty, cap, aggregation and alert threshold were all as
+specified; nothing was adjusted after any number was observed.
+
+======================================================================
+8. RESULT — executed once, 2026-08-27
+======================================================================
+
+Design 42-51 (cached signals, alignment verified); held-out 67-71 (fresh).
+
+C1 continuous_only (baseline generator)
+    arm                    TPR@0.75  FPR@0.75     AUC   FPR@matchedTPR
+    design  control          92.29%    12.34%  0.9152      12.21%
+    design  continuous       48.16%     7.97%  0.9080      22.15%
+    heldout control          92.06%    12.52%  0.9127      12.44%
+    heldout continuous       47.88%     8.09%  0.9077      22.21%
+    matched-FPR delta: design +9.94 pp (10/10 worse), held-out +9.76 pp (5/5 worse)
+
+C2 continuous_plus_signal (shortcut generator + hop-deficit)
+    design  control          95.36%    18.97%  0.9234      18.74%
+    design  continuous       55.55%     8.89%  0.8941      37.39%
+    heldout control          95.29%    19.23%  0.9218      19.07%
+    heldout continuous       55.33%     8.99%  0.8946      35.97%
+    matched-FPR delta: design +18.65 pp (10/10 worse), held-out +16.89 pp (5/5 worse)
+
+PREDICTION GRADING (section 4, recorded before execution):
+  P1 TPR falls at the frozen threshold        HELD (92.29% -> 48.16%)
+  P2 matched-TPR FPR genuinely uncertain      RESOLVED AGAINST the
+     optimistic branch: clearly and unanimously worse, 15/15 seeds.
+  P3 treat >2 pp improvement as suspicious    NOT TRIGGERED (it worsened)
+
+VERDICT: FIFTH NULL, and the worst of the five. Also the FIRST attempt in
+which AUC itself degraded (0.9152 -> 0.9080 design, 0.9127 -> 0.9077
+held-out; C2 0.9234 -> 0.8941). Every prior mechanism at least improved
+the ranking statistic while failing at the operating point. Continuous
+trust is not a better ranker that the threshold cannot exploit -- it is a
+worse ranker.
+
+WHY, and this sharpens the common cause rather than adding a new one:
+un-clipping gives non-hot organizations trust 1.05 rather than 1.0, which
+compounds along the chain:
+
+    log S1 = n*log(1.05) + h*log(0.667)
+
+so chain length n enters with a POSITIVE coefficient for the first time.
+That direction is correct -- counterfeits do have shorter chains (6.93
+against 7.67 hops among hot-touching products). But chain length is a much
+WEAKER signal (AUC 0.42, i.e. 0.58 in the useful direction) than hot-hop
+count, and multiplying the two together lets the weak, noisy term dilute
+the strong one. Measured before the run: spearman(S1, -h) fell from 1.0000
+to 0.8590.
+
+Adding correct information made performance worse, because a multiplicative
+composite cannot weight its inputs by evidential strength. That is the
+same limit the other four attempts hit, stated more precisely.
+
+FIVE MECHANISMS, ALL NULL AT THE OPERATING POINT:
+    OPTION5   estimation        shrinkage                 clean null
+    OPTION7   aggregation       chain-length norm         +1.53 / +1.97 pp
+    OPTION8   injected signal   shortcut routing          +4.63 / +3.52 pp
+    OPTION9   composition       arithmetic mean           +0.99 / +1.64 pp
+    OPTION10  trust continuity  shrinkage + un-clipping   +9.94 / +9.76 pp
+
+Seeds 42-71 are now consumed. A sixth attempt requires 72+.

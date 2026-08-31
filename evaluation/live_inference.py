@@ -99,6 +99,7 @@ def compute_org_reputation(
     penalty: float = PROVENANCE_PENALTY,
     cap: float = PROVENANCE_EXCESS_CAP,
     shrinkage: bool = False,
+    continuous: bool = False,
 ) -> Tuple[Dict[str, float], float]:
     """Derive per-organization trust from prior-period counterfeit history.
 
@@ -154,12 +155,23 @@ def compute_org_reputation(
         return {org: 1.0 for org in burn_in["from_org"].unique()}, 0.0
 
     org_rate = is_counterfeit.groupby(burn_in["from_org"]).mean()
-    if shrinkage:
+    if shrinkage or continuous:
         n_org = burn_in.groupby("from_org").size()
         n_org, org_rate = n_org.align(org_rate, join="right")
         k = float(n_org.median())
         org_rate = (n_org * org_rate + k * base_rate) / (n_org + k)
-    excess = ((org_rate - base_rate) / base_rate).clip(lower=0.0, upper=cap)
+
+    if continuous:
+        # OPTION10: symmetric bound instead of a lower clip at 0.0, so an
+        # organization below the base rate earns a bounded trust bonus
+        # (trust > 1) rather than being pinned at 1.0 alongside every other
+        # below-base organization. Shrinkage is forced on: without it the
+        # eleven zero-rate organizations share an identical raw rate and
+        # un-clipping would move them together, differentiating nothing.
+        excess = ((org_rate - base_rate) / base_rate).clip(lower=-cap, upper=cap)
+    else:
+        excess = ((org_rate - base_rate) / base_rate).clip(lower=0.0, upper=cap)
+
     trust = (1.0 - penalty * excess).to_dict()
     return trust, base_rate
 
