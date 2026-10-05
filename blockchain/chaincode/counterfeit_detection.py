@@ -10,6 +10,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Any, Dict, Set
 
+from blockchain.chaincode.product_state_machine import ProductStateMachine
 from blockchain.chaincode.smart_contract_base import SmartContractBase
 from utils import get_logger
 
@@ -17,6 +18,8 @@ logger = get_logger(__name__)
 
 QUARANTINE_THRESHOLD = 0.50
 ALERT_THRESHOLD = 0.75
+_STATUS_LABEL = {"ACTIVE": "OK", "ALERT": "ALERT", "QUARANTINE": "QUARANTINE",
+                 "DISPOSED": "DISPOSED"}
 
 
 class CounterfeitDetectionContract(SmartContractBase):
@@ -37,6 +40,7 @@ class CounterfeitDetectionContract(SmartContractBase):
         super().__init__(contract_name="CounterfeitDetectionContract")
         self.quarantine_threshold = quarantine_threshold
         self.alert_threshold = alert_threshold
+        self._machines: Dict[str, ProductStateMachine] = {}
 
     def invoke(self, function: str, args: Dict[str, Any]) -> Any:
         """Dispatch to the named contract function.
@@ -57,6 +61,7 @@ class CounterfeitDetectionContract(SmartContractBase):
             "record_verification": self.record_verification,
             "update_trust_score": self.update_trust_score,
             "get_product_status": self.get_product_status,
+            "release_quarantine": self.release_quarantine,
         }
         if function not in dispatch:
             raise ValueError(f"Unknown chaincode function: {function}")
@@ -139,26 +144,42 @@ class CounterfeitDetectionContract(SmartContractBase):
         if record is None:
             raise KeyError(f"Product {product_id} is not registered")
 
+        # 2026-10: status now comes from the unified state machine, so an
+        # open quarantine is NOT cleared by a later, higher PTS (it needs an
+        # authorised release). For a product's first update the outcome is
+        # identical to the original three-way threshold rule.
+        machine = self._machine(product_id)
+        machine.pts_update(len(machine.history), trust_score)
         record["trust_score"] = trust_score
-        if trust_score < self.quarantine_threshold:
-            record["status"] = "QUARANTINE"
-            logger.warning(
-                "Product %s QUARANTINED: PTS=%.4f < threshold %.2f",
-                product_id,
-                trust_score,
-                self.quarantine_threshold,
-            )
-        elif trust_score < self.alert_threshold:
-            record["status"] = "ALERT"
-            logger.info(
-                "Product %s flagged ALERT: PTS=%.4f < threshold %.2f",
-                product_id,
-                trust_score,
-                self.alert_threshold,
-            )
-        else:
-            record["status"] = "OK"
+        record["status"] = _STATUS_LABEL[machine.state]
+        record["quarantine_reasons"] = sorted(machine.quarantine_reasons)
+        if record["status"] == "QUARANTINE":
+            logger.warning("Product %s QUARANTINE (reasons %s), PTS=%.4f",
+                           product_id, record["quarantine_reasons"], trust_score)
+        elif record["status"] == "ALERT":
+            logger.info("Product %s flagged ALERT: PTS=%.4f", product_id, trust_score)
 
+        record["status_updated_at"] = datetime.now(timezone.utc).isoformat()
+        self.put_state(key, record)
+        return record
+
+    def _machine(self, product_id: str) -> ProductStateMachine:
+        """Per-product enforcement state machine (kept alongside world state)."""
+        if product_id not in self._machines:
+            self._machines[product_id] = ProductStateMachine(
+                product_id, tau_q=self.quarantine_threshold, tau_a=self.alert_threshold)
+        return self._machines[product_id]
+
+    def release_quarantine(self, product_id: str, role: str, reason_code: str) -> Dict[str, Any]:
+        """Authorised release of an open quarantine (QA / regulator only)."""
+        key = f"product_{product_id}"
+        record = self.get_state(key)
+        if record is None:
+            raise KeyError(f"Product {product_id} is not registered")
+        machine = self._machine(product_id)
+        machine.release(len(machine.history), role, reason_code)
+        record["status"] = _STATUS_LABEL[machine.state]
+        record["quarantine_reasons"] = []
         record["status_updated_at"] = datetime.now(timezone.utc).isoformat()
         self.put_state(key, record)
         return record
