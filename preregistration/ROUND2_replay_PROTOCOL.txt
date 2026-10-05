@@ -1,0 +1,38 @@
+ROUND-2 CORRECTION RUN -- decision-time features + chronological replay
+Written 2026-10-05, before the run. Not a confirmatory test.
+
+WHY
+A second review found that the item-1 and OPTION11 runs (results/full_pts_live_results.json,
+results/unified_enforcement_live_results.json) (a) gave each row the provenance and
+regulatory status of its product's COMPLETE evaluation-period chain (future information),
+(b) treated unscored rows as unflagged in S6, and (c) evaluated enforcement as a
+per-transaction Boolean union rather than through the state machine.
+
+STATUS
+This is a correction of the analysis on the SAME generator, seeds, models and thresholds
+whose results the authors have already seen. It is not independent confirmation. No
+thresholds, weights, models or seeds are changed. The protocol is fixed before the run
+so that its choices are not tuned to its outcome.
+
+FIXED CHOICES (code: run_chronological_replay.py, evaluation/causal_features.py)
+- Features of each event use only that product's events with (timestamp, tx id) <= its own,
+  including burn-in custody rows; organisation trust from burn-in labels only.
+- Product-level sampling: every product with an anomaly in the evaluation half + 1,500
+  clean products (no anomaly anywhere) per seed; ALL their evaluation-period events scored.
+- Monitoring (and S6 flag history) starts at the evaluation-period start.
+- "Age" = days since the product's first observed custody event (true age not simulated).
+- Per event, in time order: SC-4 (CNN P(authentic): <0.50 Q, <0.75 A), SC-5 (max per-reading
+  IF score: >0.90 Q, >0.70 A), SC-7 (full PTS: <0.50 Q, <0.75 A), into ProductStateMachine.
+- Release policy: at an event arriving >= 72 h after quarantine began, QA attempts release iff
+  no anomaly-labelled event of the product has occurred so far; the machine may refuse.
+- Telemetry gaps are NOT evaluated (the generator emits one reading sequence per custody event).
+
+REPORTED (per arm, 10 seeds)
+Transaction level, by row type (counterfeit, other anomaly types, rows of clean products,
+normal rows of anomalous products): alert-or-worse and quarantine for full PTS, S8 (AI
+confidence = mean of CNN and inverted IF), SC-4 alone, SC-5 alone, combined.
+Product level (replay): clean products ever quarantined; quarantine entries; releases,
+refused releases, hold duration; counterfeit events quarantined after processing and
+already held on arrival; events processed while a quarantine is active.
+Also: the difference between these and the earlier (non-causal) item-1/OPTION11 numbers,
+whatever its direction.

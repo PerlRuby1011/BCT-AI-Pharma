@@ -1,0 +1,4245 @@
+{
+ "generated_at": "2026-10-05 12:58:22",
+ "smoke_test": false,
+ "seeds": [
+  42,
+  43,
+  44,
+  45,
+  46,
+  47,
+  48,
+  49,
+  50,
+  51
+ ],
+ "n_normal_products": 1500,
+ "release_delay_h": 72.0,
+ "arms": {
+  "uniform": [
+   {
+    "seed": 42,
+    "n_scored_events": 43269,
+    "n_products": 6598,
+    "transaction_level": {
+     "counterfeit_product": {
+      "n": 1155,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.7350649350649351,
+       "quarantine": 0.6164502164502165
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.7740259740259741,
+       "quarantine": 0.70995670995671
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.7740259740259741,
+       "quarantine": 0.70995670995671
+      }
+     },
+     "custody_break": {
+      "n": 1732,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      }
+     },
+     "normal_product": {
+      "n": 8408,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      }
+     },
+     "normal_row_of_anomalous_product": {
+      "n": 28852,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      }
+     },
+     "tampered_package": {
+      "n": 568,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.9964788732394366,
+       "quarantine": 0.9665492957746479
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.9964788732394366,
+       "quarantine": 0.9964788732394366
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.9964788732394366,
+       "quarantine": 0.9964788732394366
+      }
+     },
+     "temperature_excursion": {
+      "n": 2247,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.014686248331108143,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.792167334223409,
+       "quarantine": 0.020471740097908322
+      },
+      "combined": {
+       "alert_or_worse": 0.792167334223409,
+       "quarantine": 0.020471740097908322
+      }
+     },
+     "unauthorized_transfer": {
+      "n": 307,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      }
+     }
+    },
+    "replay": {
+     "normal_products": {
+      "n_products": 1500,
+      "ever_quarantined": 0.0,
+      "quarantined_at_end": 0.0,
+      "quarantine_entries_per_product": 0.0,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null
+     },
+     "counterfeit_products": {
+      "n_products": 1115,
+      "ever_quarantined": 0.7309417040358744,
+      "quarantined_at_end": 0.7309417040358744,
+      "quarantine_entries_per_product": 0.7309417040358744,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null,
+      "counterfeit_events": 1155,
+      "counterfeit_event_quarantined_after_processing": 0.7238095238095238,
+      "counterfeit_event_already_held_on_arrival": 0.04069264069264069
+     },
+     "other_anomalous_products": {
+      "n_products": 3983,
+      "ever_quarantined": 0.1418528747175496,
+      "quarantined_at_end": 0.1418528747175496,
+      "quarantine_entries_per_product": 0.1418528747175496,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null
+     },
+     "events_processed_while_held": {
+      "normal_product": 0,
+      "anomalous_product": 4119
+     },
+     "events_processed": {
+      "normal_product": 8408,
+      "anomalous_product": 34861
+     }
+    }
+   },
+   {
+    "seed": 43,
+    "n_scored_events": 44143,
+    "n_products": 6670,
+    "transaction_level": {
+     "counterfeit_product": {
+      "n": 1153,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.7450130095403296,
+       "quarantine": 0.6053772766695577
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.7814397224631396,
+       "quarantine": 0.7172593235039029
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.7814397224631396,
+       "quarantine": 0.7172593235039029
+      }
+     },
+     "custody_break": {
+      "n": 1711,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      }
+     },
+     "normal_product": {
+      "n": 8627,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      }
+     },
+     "normal_row_of_anomalous_product": {
+      "n": 29494,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      }
+     },
+     "tampered_package": {
+      "n": 573,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.9930191972076788,
+       "quarantine": 0.9616055846422339
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.9965095986038395,
+       "quarantine": 0.987783595113438
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.9965095986038395,
+       "quarantine": 0.987783595113438
+      }
+     },
+     "temperature_excursion": {
+      "n": 2301,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.019991308126901346,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.803129074315515,
+       "quarantine": 0.018687527162103434
+      },
+      "combined": {
+       "alert_or_worse": 0.803129074315515,
+       "quarantine": 0.018687527162103434
+      }
+     },
+     "unauthorized_transfer": {
+      "n": 284,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      }
+     }
+    },
+    "replay": {
+     "normal_products": {
+      "n_products": 1500,
+      "ever_quarantined": 0.0,
+      "quarantined_at_end": 0.0,
+      "quarantine_entries_per_product": 0.0,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null
+     },
+     "counterfeit_products": {
+      "n_products": 1110,
+      "ever_quarantined": 0.7288288288288288,
+      "quarantined_at_end": 0.7288288288288288,
+      "quarantine_entries_per_product": 0.7288288288288288,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null,
+      "counterfeit_events": 1153,
+      "counterfeit_event_quarantined_after_processing": 0.7259323503902863,
+      "counterfeit_event_already_held_on_arrival": 0.04336513443191674
+     },
+     "other_anomalous_products": {
+      "n_products": 4060,
+      "ever_quarantined": 0.13645320197044336,
+      "quarantined_at_end": 0.13645320197044336,
+      "quarantine_entries_per_product": 0.13645320197044336,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null
+     },
+     "events_processed_while_held": {
+      "normal_product": 0,
+      "anomalous_product": 4038
+     },
+     "events_processed": {
+      "normal_product": 8627,
+      "anomalous_product": 35516
+     }
+    }
+   },
+   {
+    "seed": 44,
+    "n_scored_events": 43873,
+    "n_products": 6651,
+    "transaction_level": {
+     "counterfeit_product": {
+      "n": 1118,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.7754919499105546,
+       "quarantine": 0.6502683363148479
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.7978533094812165,
+       "quarantine": 0.7522361359570662
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.7978533094812165,
+       "quarantine": 0.7522361359570662
+      }
+     },
+     "custody_break": {
+      "n": 1719,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      }
+     },
+     "normal_product": {
+      "n": 8547,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      }
+     },
+     "normal_row_of_anomalous_product": {
+      "n": 29348,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      }
+     },
+     "tampered_package": {
+      "n": 589,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.9949066213921901,
+       "quarantine": 0.9728353140916808
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.9966044142614601,
+       "quarantine": 0.9932088285229203
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.9966044142614601,
+       "quarantine": 0.9932088285229203
+      }
+     },
+     "temperature_excursion": {
+      "n": 2276,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.019332161687170474,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.8036028119507909,
+       "quarantine": 0.01977152899824253
+      },
+      "combined": {
+       "alert_or_worse": 0.8036028119507909,
+       "quarantine": 0.01977152899824253
+      }
+     },
+     "unauthorized_transfer": {
+      "n": 276,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      }
+     }
+    },
+    "replay": {
+     "normal_products": {
+      "n_products": 1500,
+      "ever_quarantined": 0.0,
+      "quarantined_at_end": 0.0,
+      "quarantine_entries_per_product": 0.0,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null
+     },
+     "counterfeit_products": {
+      "n_products": 1093,
+      "ever_quarantined": 0.7630375114364135,
+      "quarantined_at_end": 0.7630375114364135,
+      "quarantine_entries_per_product": 0.7630375114364135,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null,
+      "counterfeit_events": 1118,
+      "counterfeit_event_quarantined_after_processing": 0.7584973166368515,
+      "counterfeit_event_already_held_on_arrival": 0.03309481216457961
+     },
+     "other_anomalous_products": {
+      "n_products": 4058,
+      "ever_quarantined": 0.14539181862986694,
+      "quarantined_at_end": 0.14539181862986694,
+      "quarantine_entries_per_product": 0.14539181862986694,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null
+     },
+     "events_processed_while_held": {
+      "normal_product": 0,
+      "anomalous_product": 4256
+     },
+     "events_processed": {
+      "normal_product": 8547,
+      "anomalous_product": 35326
+     }
+    }
+   },
+   {
+    "seed": 45,
+    "n_scored_events": 44118,
+    "n_products": 6670,
+    "transaction_level": {
+     "counterfeit_product": {
+      "n": 1147,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.7506538796861377,
+       "quarantine": 0.6259808195292066
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.7907585004359198,
+       "quarantine": 0.7210113339145597
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.7907585004359198,
+       "quarantine": 0.7210113339145597
+      }
+     },
+     "custody_break": {
+      "n": 1753,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      }
+     },
+     "normal_product": {
+      "n": 8542,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      }
+     },
+     "normal_row_of_anomalous_product": {
+      "n": 29523,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      }
+     },
+     "tampered_package": {
+      "n": 552,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.9963768115942029,
+       "quarantine": 0.9764492753623188
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.9963768115942029,
+       "quarantine": 0.9945652173913043
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.9963768115942029,
+       "quarantine": 0.9945652173913043
+      }
+     },
+     "temperature_excursion": {
+      "n": 2326,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0176268271711092,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.7923473774720551,
+       "quarantine": 0.01633705932932072
+      },
+      "combined": {
+       "alert_or_worse": 0.7923473774720551,
+       "quarantine": 0.01633705932932072
+      }
+     },
+     "unauthorized_transfer": {
+      "n": 275,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      }
+     }
+    },
+    "replay": {
+     "normal_products": {
+      "n_products": 1500,
+      "ever_quarantined": 0.0,
+      "quarantined_at_end": 0.0,
+      "quarantine_entries_per_product": 0.0,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null
+     },
+     "counterfeit_products": {
+      "n_products": 1112,
+      "ever_quarantined": 0.737410071942446,
+      "quarantined_at_end": 0.737410071942446,
+      "quarantine_entries_per_product": 0.737410071942446,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null,
+      "counterfeit_events": 1147,
+      "counterfeit_event_quarantined_after_processing": 0.7358326068003488,
+      "counterfeit_event_already_held_on_arrival": 0.037489102005231034
+     },
+     "other_anomalous_products": {
+      "n_products": 4058,
+      "ever_quarantined": 0.1350418925579103,
+      "quarantined_at_end": 0.1350418925579103,
+      "quarantine_entries_per_product": 0.1350418925579103,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null
+     },
+     "events_processed_while_held": {
+      "normal_product": 0,
+      "anomalous_product": 4183
+     },
+     "events_processed": {
+      "normal_product": 8542,
+      "anomalous_product": 35576
+     }
+    }
+   },
+   {
+    "seed": 46,
+    "n_scored_events": 44333,
+    "n_products": 6712,
+    "transaction_level": {
+     "counterfeit_product": {
+      "n": 1135,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.7462555066079295,
+       "quarantine": 0.6202643171806167
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.7762114537444934,
+       "quarantine": 0.718942731277533
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.7762114537444934,
+       "quarantine": 0.718942731277533
+      }
+     },
+     "custody_break": {
+      "n": 1749,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      }
+     },
+     "normal_product": {
+      "n": 8608,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      }
+     },
+     "normal_row_of_anomalous_product": {
+      "n": 29680,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      }
+     },
+     "tampered_package": {
+      "n": 578,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.9965397923875432,
+       "quarantine": 0.9740484429065744
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.9965397923875432,
+       "quarantine": 0.9896193771626297
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.9965397923875432,
+       "quarantine": 0.9896193771626297
+      }
+     },
+     "temperature_excursion": {
+      "n": 2308,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.020363951473136917,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.7993934142114385,
+       "quarantine": 0.01993067590987868
+      },
+      "combined": {
+       "alert_or_worse": 0.7993934142114385,
+       "quarantine": 0.01993067590987868
+      }
+     },
+     "unauthorized_transfer": {
+      "n": 275,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      }
+     }
+    },
+    "replay": {
+     "normal_products": {
+      "n_products": 1500,
+      "ever_quarantined": 0.0,
+      "quarantined_at_end": 0.0,
+      "quarantine_entries_per_product": 0.0,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null
+     },
+     "counterfeit_products": {
+      "n_products": 1106,
+      "ever_quarantined": 0.7341772151898734,
+      "quarantined_at_end": 0.7341772151898734,
+      "quarantine_entries_per_product": 0.7341772151898734,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null,
+      "counterfeit_events": 1135,
+      "counterfeit_event_quarantined_after_processing": 0.7277533039647577,
+      "counterfeit_event_already_held_on_arrival": 0.02907488986784141
+     },
+     "other_anomalous_products": {
+      "n_products": 4106,
+      "ever_quarantined": 0.14247442766682902,
+      "quarantined_at_end": 0.14247442766682902,
+      "quarantine_entries_per_product": 0.14247442766682902,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null
+     },
+     "events_processed_while_held": {
+      "normal_product": 0,
+      "anomalous_product": 4208
+     },
+     "events_processed": {
+      "normal_product": 8608,
+      "anomalous_product": 35725
+     }
+    }
+   },
+   {
+    "seed": 47,
+    "n_scored_events": 44088,
+    "n_products": 6654,
+    "transaction_level": {
+     "counterfeit_product": {
+      "n": 1157,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.7623163353500432,
+       "quarantine": 0.6378565254969749
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.7942955920484011,
+       "quarantine": 0.7320656871218669
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.7942955920484011,
+       "quarantine": 0.7320656871218669
+      }
+     },
+     "custody_break": {
+      "n": 1681,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      }
+     },
+     "normal_product": {
+      "n": 8690,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      }
+     },
+     "normal_row_of_anomalous_product": {
+      "n": 29396,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      }
+     },
+     "tampered_package": {
+      "n": 588,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.9897959183673469,
+       "quarantine": 0.967687074829932
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.9914965986394558,
+       "quarantine": 0.9897959183673469
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.9914965986394558,
+       "quarantine": 0.9897959183673469
+      }
+     },
+     "temperature_excursion": {
+      "n": 2288,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.013111888111888112,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.7972027972027972,
+       "quarantine": 0.016171328671328672
+      },
+      "combined": {
+       "alert_or_worse": 0.7972027972027972,
+       "quarantine": 0.016171328671328672
+      }
+     },
+     "unauthorized_transfer": {
+      "n": 288,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      }
+     }
+    },
+    "replay": {
+     "normal_products": {
+      "n_products": 1500,
+      "ever_quarantined": 0.0,
+      "quarantined_at_end": 0.0,
+      "quarantine_entries_per_product": 0.0,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null
+     },
+     "counterfeit_products": {
+      "n_products": 1124,
+      "ever_quarantined": 0.7402135231316725,
+      "quarantined_at_end": 0.7402135231316725,
+      "quarantine_entries_per_product": 0.7402135231316725,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null,
+      "counterfeit_events": 1157,
+      "counterfeit_event_quarantined_after_processing": 0.7407087294727744,
+      "counterfeit_event_already_held_on_arrival": 0.0449438202247191
+     },
+     "other_anomalous_products": {
+      "n_products": 4030,
+      "ever_quarantined": 0.1401985111662531,
+      "quarantined_at_end": 0.1401985111662531,
+      "quarantine_entries_per_product": 0.1401985111662531,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null
+     },
+     "events_processed_while_held": {
+      "normal_product": 0,
+      "anomalous_product": 4189
+     },
+     "events_processed": {
+      "normal_product": 8690,
+      "anomalous_product": 35398
+     }
+    }
+   },
+   {
+    "seed": 48,
+    "n_scored_events": 44399,
+    "n_products": 6700,
+    "transaction_level": {
+     "counterfeit_product": {
+      "n": 1132,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.734982332155477,
+       "quarantine": 0.6157243816254417
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.7720848056537103,
+       "quarantine": 0.7111307420494699
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.7720848056537103,
+       "quarantine": 0.7111307420494699
+      }
+     },
+     "custody_break": {
+      "n": 1744,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      }
+     },
+     "normal_product": {
+      "n": 8530,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      }
+     },
+     "normal_row_of_anomalous_product": {
+      "n": 29842,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      }
+     },
+     "tampered_package": {
+      "n": 560,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.9946428571428572,
+       "quarantine": 0.9732142857142857
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.9946428571428572,
+       "quarantine": 0.9910714285714286
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.9946428571428572,
+       "quarantine": 0.9910714285714286
+      }
+     },
+     "temperature_excursion": {
+      "n": 2330,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.020600858369098713,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.8085836909871245,
+       "quarantine": 0.022746781115879827
+      },
+      "combined": {
+       "alert_or_worse": 0.8085836909871245,
+       "quarantine": 0.022746781115879827
+      }
+     },
+     "unauthorized_transfer": {
+      "n": 261,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      }
+     }
+    },
+    "replay": {
+     "normal_products": {
+      "n_products": 1500,
+      "ever_quarantined": 0.0,
+      "quarantined_at_end": 0.0,
+      "quarantine_entries_per_product": 0.0,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null
+     },
+     "counterfeit_products": {
+      "n_products": 1107,
+      "ever_quarantined": 0.7217705510388437,
+      "quarantined_at_end": 0.7217705510388437,
+      "quarantine_entries_per_product": 0.7217705510388437,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null,
+      "counterfeit_events": 1132,
+      "counterfeit_event_quarantined_after_processing": 0.7208480565371025,
+      "counterfeit_event_already_held_on_arrival": 0.030918727915194347
+     },
+     "other_anomalous_products": {
+      "n_products": 4093,
+      "ever_quarantined": 0.13926215489860738,
+      "quarantined_at_end": 0.13926215489860738,
+      "quarantine_entries_per_product": 0.13926215489860738,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null
+     },
+     "events_processed_while_held": {
+      "normal_product": 0,
+      "anomalous_product": 4189
+     },
+     "events_processed": {
+      "normal_product": 8530,
+      "anomalous_product": 35869
+     }
+    }
+   },
+   {
+    "seed": 49,
+    "n_scored_events": 44186,
+    "n_products": 6688,
+    "transaction_level": {
+     "counterfeit_product": {
+      "n": 1159,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.7549611734253667,
+       "quarantine": 0.6169111302847282
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.7817083692838654,
+       "quarantine": 0.72648835202761
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.7817083692838654,
+       "quarantine": 0.72648835202761
+      }
+     },
+     "custody_break": {
+      "n": 1693,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      }
+     },
+     "normal_product": {
+      "n": 8635,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      }
+     },
+     "normal_row_of_anomalous_product": {
+      "n": 29493,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      }
+     },
+     "tampered_package": {
+      "n": 589,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.9949066213921901,
+       "quarantine": 0.9728353140916808
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.99830220713073,
+       "quarantine": 0.9949066213921901
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.99830220713073,
+       "quarantine": 0.9949066213921901
+      }
+     },
+     "temperature_excursion": {
+      "n": 2307,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.019939315127871695,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.8084091894234937,
+       "quarantine": 0.016905071521456438
+      },
+      "combined": {
+       "alert_or_worse": 0.8084091894234937,
+       "quarantine": 0.016905071521456438
+      }
+     },
+     "unauthorized_transfer": {
+      "n": 310,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      }
+     }
+    },
+    "replay": {
+     "normal_products": {
+      "n_products": 1500,
+      "ever_quarantined": 0.0,
+      "quarantined_at_end": 0.0,
+      "quarantine_entries_per_product": 0.0,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null
+     },
+     "counterfeit_products": {
+      "n_products": 1131,
+      "ever_quarantined": 0.74447391688771,
+      "quarantined_at_end": 0.74447391688771,
+      "quarantine_entries_per_product": 0.74447391688771,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null,
+      "counterfeit_events": 1159,
+      "counterfeit_event_quarantined_after_processing": 0.7368421052631579,
+      "counterfeit_event_already_held_on_arrival": 0.03796376186367558
+     },
+     "other_anomalous_products": {
+      "n_products": 4057,
+      "ever_quarantined": 0.1404979048558048,
+      "quarantined_at_end": 0.1404979048558048,
+      "quarantine_entries_per_product": 0.1404979048558048,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null
+     },
+     "events_processed_while_held": {
+      "normal_product": 0,
+      "anomalous_product": 4269
+     },
+     "events_processed": {
+      "normal_product": 8635,
+      "anomalous_product": 35551
+     }
+    }
+   },
+   {
+    "seed": 50,
+    "n_scored_events": 44607,
+    "n_products": 6781,
+    "transaction_level": {
+     "counterfeit_product": {
+      "n": 1152,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.7543402777777778,
+       "quarantine": 0.6128472222222222
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.7890625,
+       "quarantine": 0.7300347222222222
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.7890625,
+       "quarantine": 0.7300347222222222
+      }
+     },
+     "custody_break": {
+      "n": 1755,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      }
+     },
+     "normal_product": {
+      "n": 8479,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      }
+     },
+     "normal_row_of_anomalous_product": {
+      "n": 30013,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      }
+     },
+     "tampered_package": {
+      "n": 583,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.9948542024013722,
+       "quarantine": 0.9708404802744426
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.9948542024013722,
+       "quarantine": 0.9914236706689536
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.9948542024013722,
+       "quarantine": 0.9914236706689536
+      }
+     },
+     "temperature_excursion": {
+      "n": 2335,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.023126338329764455,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.788865096359743,
+       "quarantine": 0.017987152034261242
+      },
+      "combined": {
+       "alert_or_worse": 0.788865096359743,
+       "quarantine": 0.017987152034261242
+      }
+     },
+     "unauthorized_transfer": {
+      "n": 290,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      }
+     }
+    },
+    "replay": {
+     "normal_products": {
+      "n_products": 1500,
+      "ever_quarantined": 0.0,
+      "quarantined_at_end": 0.0,
+      "quarantine_entries_per_product": 0.0,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null
+     },
+     "counterfeit_products": {
+      "n_products": 1122,
+      "ever_quarantined": 0.7468805704099821,
+      "quarantined_at_end": 0.7468805704099821,
+      "quarantine_entries_per_product": 0.7468805704099821,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null,
+      "counterfeit_events": 1152,
+      "counterfeit_event_quarantined_after_processing": 0.7456597222222222,
+      "counterfeit_event_already_held_on_arrival": 0.034722222222222224
+     },
+     "other_anomalous_products": {
+      "n_products": 4159,
+      "ever_quarantined": 0.1392161577302236,
+      "quarantined_at_end": 0.1392161577302236,
+      "quarantine_entries_per_product": 0.1392161577302236,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null
+     },
+     "events_processed_while_held": {
+      "normal_product": 0,
+      "anomalous_product": 4454
+     },
+     "events_processed": {
+      "normal_product": 8479,
+      "anomalous_product": 36128
+     }
+    }
+   },
+   {
+    "seed": 51,
+    "n_scored_events": 43848,
+    "n_products": 6647,
+    "transaction_level": {
+     "counterfeit_product": {
+      "n": 1142,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.7495621716287215,
+       "quarantine": 0.6252189141856392
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.7845884413309983,
+       "quarantine": 0.7110332749562172
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.7845884413309983,
+       "quarantine": 0.7110332749562172
+      }
+     },
+     "custody_break": {
+      "n": 1685,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      }
+     },
+     "normal_product": {
+      "n": 8655,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      }
+     },
+     "normal_row_of_anomalous_product": {
+      "n": 29214,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      }
+     },
+     "tampered_package": {
+      "n": 570,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.9964912280701754,
+       "quarantine": 0.9789473684210527
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.9964912280701754,
+       "quarantine": 0.9947368421052631
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.9964912280701754,
+       "quarantine": 0.9947368421052631
+      }
+     },
+     "temperature_excursion": {
+      "n": 2268,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.013668430335097001,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.8020282186948854,
+       "quarantine": 0.01984126984126984
+      },
+      "combined": {
+       "alert_or_worse": 0.8020282186948854,
+       "quarantine": 0.01984126984126984
+      }
+     },
+     "unauthorized_transfer": {
+      "n": 314,
+      "full_pts": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      }
+     }
+    },
+    "replay": {
+     "normal_products": {
+      "n_products": 1500,
+      "ever_quarantined": 0.0,
+      "quarantined_at_end": 0.0,
+      "quarantine_entries_per_product": 0.0,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null
+     },
+     "counterfeit_products": {
+      "n_products": 1115,
+      "ever_quarantined": 0.7246636771300449,
+      "quarantined_at_end": 0.7246636771300449,
+      "quarantine_entries_per_product": 0.7246636771300449,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null,
+      "counterfeit_events": 1142,
+      "counterfeit_event_quarantined_after_processing": 0.7197898423817863,
+      "counterfeit_event_already_held_on_arrival": 0.049912434325744305
+     },
+     "other_anomalous_products": {
+      "n_products": 4032,
+      "ever_quarantined": 0.13740079365079366,
+      "quarantined_at_end": 0.13740079365079366,
+      "quarantine_entries_per_product": 0.13740079365079366,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null
+     },
+     "events_processed_while_held": {
+      "normal_product": 0,
+      "anomalous_product": 4264
+     },
+     "events_processed": {
+      "normal_product": 8655,
+      "anomalous_product": 35193
+     }
+    }
+   }
+  ],
+  "clustered": [
+   {
+    "seed": 42,
+    "n_scored_events": 43854,
+    "n_products": 6655,
+    "transaction_level": {
+     "counterfeit_product": {
+      "n": 1141,
+      "full_pts": {
+       "alert_or_worse": 0.37773882559158634,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.7467134092900964,
+       "quarantine": 0.6178790534618755
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.7703768624014022,
+       "quarantine": 0.7248028045574058
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.8448729184925504,
+       "quarantine": 0.7248028045574058
+      }
+     },
+     "custody_break": {
+      "n": 1684,
+      "full_pts": {
+       "alert_or_worse": 0.09916864608076009,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.09916864608076009,
+       "quarantine": 0.0
+      }
+     },
+     "normal_product": {
+      "n": 8550,
+      "full_pts": {
+       "alert_or_worse": 0.06538011695906433,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.06538011695906433,
+       "quarantine": 0.0
+      }
+     },
+     "normal_row_of_anomalous_product": {
+      "n": 29310,
+      "full_pts": {
+       "alert_or_worse": 0.12401910610713067,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.12401910610713067,
+       "quarantine": 0.0
+      }
+     },
+     "tampered_package": {
+      "n": 577,
+      "full_pts": {
+       "alert_or_worse": 0.15771230502599654,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.9965337954939342,
+       "quarantine": 0.9792027729636048
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.9982668977469671,
+       "quarantine": 0.9930675909878682
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.9982668977469671,
+       "quarantine": 0.9930675909878682
+      }
+     },
+     "temperature_excursion": {
+      "n": 2294,
+      "full_pts": {
+       "alert_or_worse": 0.15693112467306017,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.017000871839581516,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.8034001743679163,
+       "quarantine": 0.024411508282476024
+      },
+      "combined": {
+       "alert_or_worse": 0.8360941586748039,
+       "quarantine": 0.024411508282476024
+      }
+     },
+     "unauthorized_transfer": {
+      "n": 298,
+      "full_pts": {
+       "alert_or_worse": 0.09060402684563758,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.09060402684563758,
+       "quarantine": 0.0
+      }
+     }
+    },
+    "replay": {
+     "normal_products": {
+      "n_products": 1500,
+      "ever_quarantined": 0.0,
+      "quarantined_at_end": 0.0,
+      "quarantine_entries_per_product": 0.0,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null
+     },
+     "counterfeit_products": {
+      "n_products": 1101,
+      "ever_quarantined": 0.7384196185286104,
+      "quarantined_at_end": 0.7384196185286104,
+      "quarantine_entries_per_product": 0.7384196185286104,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null,
+      "counterfeit_events": 1141,
+      "counterfeit_event_quarantined_after_processing": 0.7353198948290973,
+      "counterfeit_event_already_held_on_arrival": 0.03593339176161262
+     },
+     "other_anomalous_products": {
+      "n_products": 4054,
+      "ever_quarantined": 0.14553527380365072,
+      "quarantined_at_end": 0.14553527380365072,
+      "quarantine_entries_per_product": 0.14553527380365072,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null
+     },
+     "events_processed_while_held": {
+      "normal_product": 0,
+      "anomalous_product": 4318
+     },
+     "events_processed": {
+      "normal_product": 8550,
+      "anomalous_product": 35304
+     }
+    }
+   },
+   {
+    "seed": 43,
+    "n_scored_events": 44284,
+    "n_products": 6747,
+    "transaction_level": {
+     "counterfeit_product": {
+      "n": 1164,
+      "full_pts": {
+       "alert_or_worse": 0.37199312714776633,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.7585910652920962,
+       "quarantine": 0.602233676975945
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.7895189003436426,
+       "quarantine": 0.7242268041237113
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.8599656357388317,
+       "quarantine": 0.7242268041237113
+      }
+     },
+     "custody_break": {
+      "n": 1738,
+      "full_pts": {
+       "alert_or_worse": 0.0949367088607595,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.0949367088607595,
+       "quarantine": 0.0
+      }
+     },
+     "normal_product": {
+      "n": 8589,
+      "full_pts": {
+       "alert_or_worse": 0.07742461287693561,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.07742461287693561,
+       "quarantine": 0.0
+      }
+     },
+     "normal_row_of_anomalous_product": {
+      "n": 29582,
+      "full_pts": {
+       "alert_or_worse": 0.11936312622540735,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.11936312622540735,
+       "quarantine": 0.0
+      }
+     },
+     "tampered_package": {
+      "n": 554,
+      "full_pts": {
+       "alert_or_worse": 0.1299638989169675,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.9981949458483754,
+       "quarantine": 0.983754512635379
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 1.0,
+       "quarantine": 0.9981949458483754
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 1.0,
+       "quarantine": 0.9981949458483754
+      }
+     },
+     "temperature_excursion": {
+      "n": 2379,
+      "full_pts": {
+       "alert_or_worse": 0.14291719209751996,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.019335855401429174,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.8007566204287516,
+       "quarantine": 0.018495166036149643
+      },
+      "combined": {
+       "alert_or_worse": 0.8263976460697772,
+       "quarantine": 0.018495166036149643
+      }
+     },
+     "unauthorized_transfer": {
+      "n": 278,
+      "full_pts": {
+       "alert_or_worse": 0.10071942446043165,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.10071942446043165,
+       "quarantine": 0.0
+      }
+     }
+    },
+    "replay": {
+     "normal_products": {
+      "n_products": 1500,
+      "ever_quarantined": 0.0,
+      "quarantined_at_end": 0.0,
+      "quarantine_entries_per_product": 0.0,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null
+     },
+     "counterfeit_products": {
+      "n_products": 1124,
+      "ever_quarantined": 0.744661921708185,
+      "quarantined_at_end": 0.744661921708185,
+      "quarantine_entries_per_product": 0.744661921708185,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null,
+      "counterfeit_events": 1164,
+      "counterfeit_event_quarantined_after_processing": 0.7371134020618557,
+      "counterfeit_event_already_held_on_arrival": 0.041237113402061855
+     },
+     "other_anomalous_products": {
+      "n_products": 4123,
+      "ever_quarantined": 0.1336405529953917,
+      "quarantined_at_end": 0.1336405529953917,
+      "quarantine_entries_per_product": 0.1336405529953917,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null
+     },
+     "events_processed_while_held": {
+      "normal_product": 0,
+      "anomalous_product": 4127
+     },
+     "events_processed": {
+      "normal_product": 8589,
+      "anomalous_product": 35695
+     }
+    }
+   },
+   {
+    "seed": 44,
+    "n_scored_events": 44355,
+    "n_products": 6718,
+    "transaction_level": {
+     "counterfeit_product": {
+      "n": 1115,
+      "full_pts": {
+       "alert_or_worse": 0.37488789237668163,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.768609865470852,
+       "quarantine": 0.6645739910313901
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.8044843049327354,
+       "quarantine": 0.7488789237668162
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.8654708520179372,
+       "quarantine": 0.7488789237668162
+      }
+     },
+     "custody_break": {
+      "n": 1714,
+      "full_pts": {
+       "alert_or_worse": 0.09334889148191365,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.09334889148191365,
+       "quarantine": 0.0
+      }
+     },
+     "normal_product": {
+      "n": 8665,
+      "full_pts": {
+       "alert_or_worse": 0.07443739180611655,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.07443739180611655,
+       "quarantine": 0.0
+      }
+     },
+     "normal_row_of_anomalous_product": {
+      "n": 29678,
+      "full_pts": {
+       "alert_or_worse": 0.11884224004312959,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.11884224004312959,
+       "quarantine": 0.0
+      }
+     },
+     "tampered_package": {
+      "n": 571,
+      "full_pts": {
+       "alert_or_worse": 0.14886164623467601,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.9912434325744308,
+       "quarantine": 0.9719789842381786
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.9912434325744308,
+       "quarantine": 0.9912434325744308
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.9912434325744308,
+       "quarantine": 0.9912434325744308
+      }
+     },
+     "temperature_excursion": {
+      "n": 2319,
+      "full_pts": {
+       "alert_or_worse": 0.15351444588184562,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.02069857697283312,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.7917205692108668,
+       "quarantine": 0.018111254851228976
+      },
+      "combined": {
+       "alert_or_worse": 0.8270806382061233,
+       "quarantine": 0.018111254851228976
+      }
+     },
+     "unauthorized_transfer": {
+      "n": 293,
+      "full_pts": {
+       "alert_or_worse": 0.10580204778156997,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.10580204778156997,
+       "quarantine": 0.0
+      }
+     }
+    },
+    "replay": {
+     "normal_products": {
+      "n_products": 1500,
+      "ever_quarantined": 0.0,
+      "quarantined_at_end": 0.0,
+      "quarantine_entries_per_product": 0.0,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null
+     },
+     "counterfeit_products": {
+      "n_products": 1086,
+      "ever_quarantined": 0.7651933701657458,
+      "quarantined_at_end": 0.7651933701657458,
+      "quarantine_entries_per_product": 0.7651933701657458,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null,
+      "counterfeit_events": 1115,
+      "counterfeit_event_quarantined_after_processing": 0.7560538116591928,
+      "counterfeit_event_already_held_on_arrival": 0.03228699551569507
+     },
+     "other_anomalous_products": {
+      "n_products": 4132,
+      "ever_quarantined": 0.13697967086156826,
+      "quarantined_at_end": 0.13697967086156826,
+      "quarantine_entries_per_product": 0.13697967086156826,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null
+     },
+     "events_processed_while_held": {
+      "normal_product": 0,
+      "anomalous_product": 4018
+     },
+     "events_processed": {
+      "normal_product": 8665,
+      "anomalous_product": 35690
+     }
+    }
+   },
+   {
+    "seed": 45,
+    "n_scored_events": 44228,
+    "n_products": 6711,
+    "transaction_level": {
+     "counterfeit_product": {
+      "n": 1125,
+      "full_pts": {
+       "alert_or_worse": 0.3582222222222222,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.7395555555555555,
+       "quarantine": 0.6142222222222222
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.7786666666666666,
+       "quarantine": 0.7208888888888889
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.8346666666666667,
+       "quarantine": 0.7208888888888889
+      }
+     },
+     "custody_break": {
+      "n": 1771,
+      "full_pts": {
+       "alert_or_worse": 0.09542631281761717,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.09542631281761717,
+       "quarantine": 0.0
+      }
+     },
+     "normal_product": {
+      "n": 8526,
+      "full_pts": {
+       "alert_or_worse": 0.06697161623269998,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.06697161623269998,
+       "quarantine": 0.0
+      }
+     },
+     "normal_row_of_anomalous_product": {
+      "n": 29633,
+      "full_pts": {
+       "alert_or_worse": 0.11915769581210138,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.11915769581210138,
+       "quarantine": 0.0
+      }
+     },
+     "tampered_package": {
+      "n": 565,
+      "full_pts": {
+       "alert_or_worse": 0.16460176991150444,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.9911504424778761,
+       "quarantine": 0.9663716814159292
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.9964601769911504,
+       "quarantine": 0.9911504424778761
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.9964601769911504,
+       "quarantine": 0.9911504424778761
+      }
+     },
+     "temperature_excursion": {
+      "n": 2336,
+      "full_pts": {
+       "alert_or_worse": 0.14383561643835616,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.02011986301369863,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.793236301369863,
+       "quarantine": 0.016695205479452056
+      },
+      "combined": {
+       "alert_or_worse": 0.822345890410959,
+       "quarantine": 0.016695205479452056
+      }
+     },
+     "unauthorized_transfer": {
+      "n": 272,
+      "full_pts": {
+       "alert_or_worse": 0.0661764705882353,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.0661764705882353,
+       "quarantine": 0.0
+      }
+     }
+    },
+    "replay": {
+     "normal_products": {
+      "n_products": 1500,
+      "ever_quarantined": 0.0,
+      "quarantined_at_end": 0.0,
+      "quarantine_entries_per_product": 0.0,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null
+     },
+     "counterfeit_products": {
+      "n_products": 1102,
+      "ever_quarantined": 0.7313974591651543,
+      "quarantined_at_end": 0.7313974591651543,
+      "quarantine_entries_per_product": 0.7313974591651543,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null,
+      "counterfeit_events": 1125,
+      "counterfeit_event_quarantined_after_processing": 0.7262222222222222,
+      "counterfeit_event_already_held_on_arrival": 0.03111111111111111
+     },
+     "other_anomalous_products": {
+      "n_products": 4109,
+      "ever_quarantined": 0.13579946458992456,
+      "quarantined_at_end": 0.13579946458992456,
+      "quarantine_entries_per_product": 0.13579946458992456,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null
+     },
+     "events_processed_while_held": {
+      "normal_product": 0,
+      "anomalous_product": 4182
+     },
+     "events_processed": {
+      "normal_product": 8526,
+      "anomalous_product": 35702
+     }
+    }
+   },
+   {
+    "seed": 46,
+    "n_scored_events": 44074,
+    "n_products": 6727,
+    "transaction_level": {
+     "counterfeit_product": {
+      "n": 1123,
+      "full_pts": {
+       "alert_or_worse": 0.39091718610863757,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.7453250222617988,
+       "quarantine": 0.5983971504897596
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.7791629563668745,
+       "quarantine": 0.7186108637577916
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.8477292965271594,
+       "quarantine": 0.7186108637577916
+      }
+     },
+     "custody_break": {
+      "n": 1728,
+      "full_pts": {
+       "alert_or_worse": 0.09027777777777778,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.09027777777777778,
+       "quarantine": 0.0
+      }
+     },
+     "normal_product": {
+      "n": 8547,
+      "full_pts": {
+       "alert_or_worse": 0.06528606528606529,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.06528606528606529,
+       "quarantine": 0.0
+      }
+     },
+     "normal_row_of_anomalous_product": {
+      "n": 29465,
+      "full_pts": {
+       "alert_or_worse": 0.1224164262684541,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.1224164262684541,
+       "quarantine": 0.0
+      }
+     },
+     "tampered_package": {
+      "n": 583,
+      "full_pts": {
+       "alert_or_worse": 0.12178387650085763,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.9948542024013722,
+       "quarantine": 0.9777015437392796
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.9948542024013722,
+       "quarantine": 0.9914236706689536
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.9948542024013722,
+       "quarantine": 0.9914236706689536
+      }
+     },
+     "temperature_excursion": {
+      "n": 2330,
+      "full_pts": {
+       "alert_or_worse": 0.12660944206008584,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.017167381974248927,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.7974248927038626,
+       "quarantine": 0.018454935622317595
+      },
+      "combined": {
+       "alert_or_worse": 0.8201716738197425,
+       "quarantine": 0.018454935622317595
+      }
+     },
+     "unauthorized_transfer": {
+      "n": 298,
+      "full_pts": {
+       "alert_or_worse": 0.1040268456375839,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.1040268456375839,
+       "quarantine": 0.0
+      }
+     }
+    },
+    "replay": {
+     "normal_products": {
+      "n_products": 1500,
+      "ever_quarantined": 0.0,
+      "quarantined_at_end": 0.0,
+      "quarantine_entries_per_product": 0.0,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null
+     },
+     "counterfeit_products": {
+      "n_products": 1091,
+      "ever_quarantined": 0.7314390467461045,
+      "quarantined_at_end": 0.7314390467461045,
+      "quarantine_entries_per_product": 0.7314390467461045,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null,
+      "counterfeit_events": 1123,
+      "counterfeit_event_quarantined_after_processing": 0.7248441674087266,
+      "counterfeit_event_already_held_on_arrival": 0.03383793410507569
+     },
+     "other_anomalous_products": {
+      "n_products": 4136,
+      "ever_quarantined": 0.1402321083172147,
+      "quarantined_at_end": 0.1402321083172147,
+      "quarantine_entries_per_product": 0.1402321083172147,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null
+     },
+     "events_processed_while_held": {
+      "normal_product": 0,
+      "anomalous_product": 4010
+     },
+     "events_processed": {
+      "normal_product": 8547,
+      "anomalous_product": 35527
+     }
+    }
+   },
+   {
+    "seed": 47,
+    "n_scored_events": 44197,
+    "n_products": 6704,
+    "transaction_level": {
+     "counterfeit_product": {
+      "n": 1154,
+      "full_pts": {
+       "alert_or_worse": 0.36395147313691506,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.7512998266897747,
+       "quarantine": 0.6239168110918544
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.7807625649913345,
+       "quarantine": 0.7270363951473137
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.8500866551126517,
+       "quarantine": 0.7270363951473137
+      }
+     },
+     "custody_break": {
+      "n": 1776,
+      "full_pts": {
+       "alert_or_worse": 0.09065315315315316,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.09065315315315316,
+       "quarantine": 0.0
+      }
+     },
+     "normal_product": {
+      "n": 8491,
+      "full_pts": {
+       "alert_or_worse": 0.06618772818278176,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.06618772818278176,
+       "quarantine": 0.0
+      }
+     },
+     "normal_row_of_anomalous_product": {
+      "n": 29649,
+      "full_pts": {
+       "alert_or_worse": 0.12067860636109144,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.12067860636109144,
+       "quarantine": 0.0
+      }
+     },
+     "tampered_package": {
+      "n": 574,
+      "full_pts": {
+       "alert_or_worse": 0.13588850174216027,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.9930313588850174,
+       "quarantine": 0.9703832752613241
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.9982578397212544,
+       "quarantine": 0.9930313588850174
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 1.0,
+       "quarantine": 0.9930313588850174
+      }
+     },
+     "temperature_excursion": {
+      "n": 2258,
+      "full_pts": {
+       "alert_or_worse": 0.13906111603188662,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.01682905225863596,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.8069087688219664,
+       "quarantine": 0.01948627103631532
+      },
+      "combined": {
+       "alert_or_worse": 0.8321523472099203,
+       "quarantine": 0.01948627103631532
+      }
+     },
+     "unauthorized_transfer": {
+      "n": 295,
+      "full_pts": {
+       "alert_or_worse": 0.10508474576271186,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.10508474576271186,
+       "quarantine": 0.0
+      }
+     }
+    },
+    "replay": {
+     "normal_products": {
+      "n_products": 1500,
+      "ever_quarantined": 0.0,
+      "quarantined_at_end": 0.0,
+      "quarantine_entries_per_product": 0.0,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null
+     },
+     "counterfeit_products": {
+      "n_products": 1124,
+      "ever_quarantined": 0.74644128113879,
+      "quarantined_at_end": 0.74644128113879,
+      "quarantine_entries_per_product": 0.74644128113879,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null,
+      "counterfeit_events": 1154,
+      "counterfeit_event_quarantined_after_processing": 0.7400346620450606,
+      "counterfeit_event_already_held_on_arrival": 0.03292894280762565
+     },
+     "other_anomalous_products": {
+      "n_products": 4080,
+      "ever_quarantined": 0.1377450980392157,
+      "quarantined_at_end": 0.1377450980392157,
+      "quarantine_entries_per_product": 0.1377450980392157,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null
+     },
+     "events_processed_while_held": {
+      "normal_product": 0,
+      "anomalous_product": 4358
+     },
+     "events_processed": {
+      "normal_product": 8491,
+      "anomalous_product": 35706
+     }
+    }
+   },
+   {
+    "seed": 48,
+    "n_scored_events": 44343,
+    "n_products": 6708,
+    "transaction_level": {
+     "counterfeit_product": {
+      "n": 1145,
+      "full_pts": {
+       "alert_or_worse": 0.3895196506550218,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.7414847161572052,
+       "quarantine": 0.6087336244541485
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.7720524017467248,
+       "quarantine": 0.7161572052401747
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.8375545851528384,
+       "quarantine": 0.7161572052401747
+      }
+     },
+     "custody_break": {
+      "n": 1704,
+      "full_pts": {
+       "alert_or_worse": 0.09507042253521127,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.09507042253521127,
+       "quarantine": 0.0
+      }
+     },
+     "normal_product": {
+      "n": 8633,
+      "full_pts": {
+       "alert_or_worse": 0.06590988069037415,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.06590988069037415,
+       "quarantine": 0.0
+      }
+     },
+     "normal_row_of_anomalous_product": {
+      "n": 29681,
+      "full_pts": {
+       "alert_or_worse": 0.12095279808631784,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.12095279808631784,
+       "quarantine": 0.0
+      }
+     },
+     "tampered_package": {
+      "n": 575,
+      "full_pts": {
+       "alert_or_worse": 0.14608695652173914,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.9930434782608696,
+       "quarantine": 0.9739130434782609
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.9930434782608696,
+       "quarantine": 0.9895652173913043
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.9930434782608696,
+       "quarantine": 0.9895652173913043
+      }
+     },
+     "temperature_excursion": {
+      "n": 2309,
+      "full_pts": {
+       "alert_or_worse": 0.13902122130792552,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.01602425292334344,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.7882200086617583,
+       "quarantine": 0.021654395842355997
+      },
+      "combined": {
+       "alert_or_worse": 0.8163707232568211,
+       "quarantine": 0.021654395842355997
+      }
+     },
+     "unauthorized_transfer": {
+      "n": 296,
+      "full_pts": {
+       "alert_or_worse": 0.07094594594594594,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.07094594594594594,
+       "quarantine": 0.0
+      }
+     }
+    },
+    "replay": {
+     "normal_products": {
+      "n_products": 1500,
+      "ever_quarantined": 0.0,
+      "quarantined_at_end": 0.0,
+      "quarantine_entries_per_product": 0.0,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null
+     },
+     "counterfeit_products": {
+      "n_products": 1104,
+      "ever_quarantined": 0.7291666666666666,
+      "quarantined_at_end": 0.7291666666666666,
+      "quarantine_entries_per_product": 0.7291666666666666,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null,
+      "counterfeit_events": 1145,
+      "counterfeit_event_quarantined_after_processing": 0.7275109170305677,
+      "counterfeit_event_already_held_on_arrival": 0.03842794759825328
+     },
+     "other_anomalous_products": {
+      "n_products": 4104,
+      "ever_quarantined": 0.14278752436647174,
+      "quarantined_at_end": 0.14278752436647174,
+      "quarantine_entries_per_product": 0.14278752436647174,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null
+     },
+     "events_processed_while_held": {
+      "normal_product": 0,
+      "anomalous_product": 4155
+     },
+     "events_processed": {
+      "normal_product": 8633,
+      "anomalous_product": 35710
+     }
+    }
+   },
+   {
+    "seed": 49,
+    "n_scored_events": 44043,
+    "n_products": 6694,
+    "transaction_level": {
+     "counterfeit_product": {
+      "n": 1151,
+      "full_pts": {
+       "alert_or_worse": 0.3840139009556907,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.7445699391833188,
+       "quarantine": 0.6003475238922676
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.7836663770634231,
+       "quarantine": 0.7106863596872285
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.8496959165942659,
+       "quarantine": 0.7106863596872285
+      }
+     },
+     "custody_break": {
+      "n": 1695,
+      "full_pts": {
+       "alert_or_worse": 0.08259587020648967,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.08259587020648967,
+       "quarantine": 0.0
+      }
+     },
+     "normal_product": {
+      "n": 8654,
+      "full_pts": {
+       "alert_or_worse": 0.06286110469147216,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.06286110469147216,
+       "quarantine": 0.0
+      }
+     },
+     "normal_row_of_anomalous_product": {
+      "n": 29336,
+      "full_pts": {
+       "alert_or_worse": 0.12636351240796292,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.12636351240796292,
+       "quarantine": 0.0
+      }
+     },
+     "tampered_package": {
+      "n": 599,
+      "full_pts": {
+       "alert_or_worse": 0.15859766277128548,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.989983305509182,
+       "quarantine": 0.9666110183639399
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.993322203672788,
+       "quarantine": 0.988313856427379
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.993322203672788,
+       "quarantine": 0.988313856427379
+      }
+     },
+     "temperature_excursion": {
+      "n": 2303,
+      "full_pts": {
+       "alert_or_worse": 0.13764654798089448,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.019539730785931395,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.7972210160660008,
+       "quarantine": 0.01997394702561876
+      },
+      "combined": {
+       "alert_or_worse": 0.8237082066869301,
+       "quarantine": 0.01997394702561876
+      }
+     },
+     "unauthorized_transfer": {
+      "n": 305,
+      "full_pts": {
+       "alert_or_worse": 0.08524590163934426,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.08524590163934426,
+       "quarantine": 0.0
+      }
+     }
+    },
+    "replay": {
+     "normal_products": {
+      "n_products": 1500,
+      "ever_quarantined": 0.0,
+      "quarantined_at_end": 0.0,
+      "quarantine_entries_per_product": 0.0,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null
+     },
+     "counterfeit_products": {
+      "n_products": 1123,
+      "ever_quarantined": 0.7212822796081924,
+      "quarantined_at_end": 0.7212822796081924,
+      "quarantine_entries_per_product": 0.7212822796081924,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null,
+      "counterfeit_events": 1151,
+      "counterfeit_event_quarantined_after_processing": 0.7141615986099045,
+      "counterfeit_event_already_held_on_arrival": 0.030408340573414423
+     },
+     "other_anomalous_products": {
+      "n_products": 4071,
+      "ever_quarantined": 0.14394497666421027,
+      "quarantined_at_end": 0.14394497666421027,
+      "quarantine_entries_per_product": 0.14394497666421027,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null
+     },
+     "events_processed_while_held": {
+      "normal_product": 0,
+      "anomalous_product": 4279
+     },
+     "events_processed": {
+      "normal_product": 8654,
+      "anomalous_product": 35389
+     }
+    }
+   },
+   {
+    "seed": 50,
+    "n_scored_events": 44619,
+    "n_products": 6757,
+    "transaction_level": {
+     "counterfeit_product": {
+      "n": 1153,
+      "full_pts": {
+       "alert_or_worse": 0.36600173460537727,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.7606244579358196,
+       "quarantine": 0.6097137901127494
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.7909800520381614,
+       "quarantine": 0.738074588031223
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.8577623590633131,
+       "quarantine": 0.738074588031223
+      }
+     },
+     "custody_break": {
+      "n": 1737,
+      "full_pts": {
+       "alert_or_worse": 0.09211283822682786,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.09211283822682786,
+       "quarantine": 0.0
+      }
+     },
+     "normal_product": {
+      "n": 8677,
+      "full_pts": {
+       "alert_or_worse": 0.061311513195805,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.061311513195805,
+       "quarantine": 0.0
+      }
+     },
+     "normal_row_of_anomalous_product": {
+      "n": 29817,
+      "full_pts": {
+       "alert_or_worse": 0.12804775799040816,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.12804775799040816,
+       "quarantine": 0.0
+      }
+     },
+     "tampered_package": {
+      "n": 606,
+      "full_pts": {
+       "alert_or_worse": 0.13861386138613863,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.9933993399339934,
+       "quarantine": 0.966996699669967
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.995049504950495,
+       "quarantine": 0.9917491749174917
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.995049504950495,
+       "quarantine": 0.9917491749174917
+      }
+     },
+     "temperature_excursion": {
+      "n": 2352,
+      "full_pts": {
+       "alert_or_worse": 0.14923469387755103,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.02295918367346939,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.7946428571428571,
+       "quarantine": 0.0195578231292517
+      },
+      "combined": {
+       "alert_or_worse": 0.8244047619047619,
+       "quarantine": 0.0195578231292517
+      }
+     },
+     "unauthorized_transfer": {
+      "n": 277,
+      "full_pts": {
+       "alert_or_worse": 0.09747292418772563,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.09747292418772563,
+       "quarantine": 0.0
+      }
+     }
+    },
+    "replay": {
+     "normal_products": {
+      "n_products": 1500,
+      "ever_quarantined": 0.0,
+      "quarantined_at_end": 0.0,
+      "quarantine_entries_per_product": 0.0,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null
+     },
+     "counterfeit_products": {
+      "n_products": 1125,
+      "ever_quarantined": 0.7564444444444445,
+      "quarantined_at_end": 0.7564444444444445,
+      "quarantine_entries_per_product": 0.7564444444444445,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null,
+      "counterfeit_events": 1153,
+      "counterfeit_event_quarantined_after_processing": 0.753686036426713,
+      "counterfeit_event_already_held_on_arrival": 0.03902862098872507
+     },
+     "other_anomalous_products": {
+      "n_products": 4132,
+      "ever_quarantined": 0.14593417231364955,
+      "quarantined_at_end": 0.14593417231364955,
+      "quarantine_entries_per_product": 0.14593417231364955,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null
+     },
+     "events_processed_while_held": {
+      "normal_product": 0,
+      "anomalous_product": 4455
+     },
+     "events_processed": {
+      "normal_product": 8677,
+      "anomalous_product": 35942
+     }
+    }
+   },
+   {
+    "seed": 51,
+    "n_scored_events": 43828,
+    "n_products": 6635,
+    "transaction_level": {
+     "counterfeit_product": {
+      "n": 1157,
+      "full_pts": {
+       "alert_or_worse": 0.3949870354364736,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.7467588591184097,
+       "quarantine": 0.6076058772687987
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.7778738115816768,
+       "quarantine": 0.7260155574762316
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.8357821953327571,
+       "quarantine": 0.7260155574762316
+      }
+     },
+     "custody_break": {
+      "n": 1712,
+      "full_pts": {
+       "alert_or_worse": 0.08586448598130841,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.08586448598130841,
+       "quarantine": 0.0
+      }
+     },
+     "normal_product": {
+      "n": 8623,
+      "full_pts": {
+       "alert_or_worse": 0.07178476168386873,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.07178476168386873,
+       "quarantine": 0.0
+      }
+     },
+     "normal_row_of_anomalous_product": {
+      "n": 29162,
+      "full_pts": {
+       "alert_or_worse": 0.12708319045332966,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.12708319045332966,
+       "quarantine": 0.0
+      }
+     },
+     "tampered_package": {
+      "n": 578,
+      "full_pts": {
+       "alert_or_worse": 0.17301038062283736,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.9948096885813149,
+       "quarantine": 0.9757785467128027
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.9948096885813149,
+       "quarantine": 0.9930795847750865
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.9948096885813149,
+       "quarantine": 0.9930795847750865
+      }
+     },
+     "temperature_excursion": {
+      "n": 2295,
+      "full_pts": {
+       "alert_or_worse": 0.1503267973856209,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.016122004357298474,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.791285403050109,
+       "quarantine": 0.020479302832244008
+      },
+      "combined": {
+       "alert_or_worse": 0.8209150326797385,
+       "quarantine": 0.020479302832244008
+      }
+     },
+     "unauthorized_transfer": {
+      "n": 301,
+      "full_pts": {
+       "alert_or_worse": 0.07308970099667775,
+       "quarantine": 0.0
+      },
+      "s8_ai_confidence": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc4_cnn": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "sc5_if": {
+       "alert_or_worse": 0.0,
+       "quarantine": 0.0
+      },
+      "combined": {
+       "alert_or_worse": 0.07308970099667775,
+       "quarantine": 0.0
+      }
+     }
+    },
+    "replay": {
+     "normal_products": {
+      "n_products": 1500,
+      "ever_quarantined": 0.0,
+      "quarantined_at_end": 0.0,
+      "quarantine_entries_per_product": 0.0,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null
+     },
+     "counterfeit_products": {
+      "n_products": 1126,
+      "ever_quarantined": 0.7442273534635879,
+      "quarantined_at_end": 0.7442273534635879,
+      "quarantine_entries_per_product": 0.7442273534635879,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null,
+      "counterfeit_events": 1157,
+      "counterfeit_event_quarantined_after_processing": 0.7329299913569577,
+      "counterfeit_event_already_held_on_arrival": 0.036300777873811585
+     },
+     "other_anomalous_products": {
+      "n_products": 4009,
+      "ever_quarantined": 0.14068346221002745,
+      "quarantined_at_end": 0.14068346221002745,
+      "quarantine_entries_per_product": 0.14068346221002745,
+      "releases": 0,
+      "refused_release_attempts": 0,
+      "hold_hours_median": null,
+      "hold_hours_mean": null
+     },
+     "events_processed_while_held": {
+      "normal_product": 0,
+      "anomalous_product": 4406
+     },
+     "events_processed": {
+      "normal_product": 8623,
+      "anomalous_product": 35205
+     }
+    }
+   }
+  ]
+ },
+ "runtime_s": 15770.210355043411
+}

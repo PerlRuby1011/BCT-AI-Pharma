@@ -1,6 +1,14 @@
 OPTION 11 -- UNIFIED ENFORCEMENT (SC-4 + SC-5 + SC-7) UNDER LIVE INFERENCE
 Pre-registration. Written 2026-10-05, BEFORE the run. Frozen once committed.
 
+ADDENDUM (5 Oct 2026, after the run): this retest REUSED the same generator,
+seeds, models and evaluation samples whose full-score results had already been
+examined. Predictions were written before execution, but the observations are
+not an independent confirmatory sample. A later correction run
+(ROUND2_replay_PROTOCOL.txt) replaced its end-of-period custody features with
+decision-time features and its transaction-level union with a chronological
+state-machine replay; the manuscript reports that run.
+
 STATUS / HONESTY NOTE
 This is POST-HOC MOTIVATED. It was written after seeing the item-1 result
 (results/full_pts_live_results.json): the full eight-component PTS flags 0.0%

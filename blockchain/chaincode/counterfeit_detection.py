@@ -10,7 +10,9 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Any, Dict, Set
 
-from blockchain.chaincode.product_state_machine import ProductStateMachine
+from blockchain.chaincode.product_state_machine import (
+    ProductStateMachine, load_machine, save_machine,
+)
 from blockchain.chaincode.smart_contract_base import SmartContractBase
 from utils import get_logger
 
@@ -29,6 +31,7 @@ class CounterfeitDetectionContract(SmartContractBase):
         self,
         quarantine_threshold: float = QUARANTINE_THRESHOLD,
         alert_threshold: float = ALERT_THRESHOLD,
+        world_state: Dict[str, Any] | None = None,
     ) -> None:
         """Initialize the contract with configurable PTS thresholds.
 
@@ -36,11 +39,12 @@ class CounterfeitDetectionContract(SmartContractBase):
             quarantine_threshold: PTS value below which a product is
                 automatically quarantined.
             alert_threshold: PTS value below which a quality alert is raised.
+            world_state: Optional world state shared with the cold-chain
+                contract, so SC-4, SC-5 and SC-7 act on one product machine.
         """
-        super().__init__(contract_name="CounterfeitDetectionContract")
+        super().__init__(contract_name="CounterfeitDetectionContract", world_state=world_state)
         self.quarantine_threshold = quarantine_threshold
         self.alert_threshold = alert_threshold
-        self._machines: Dict[str, ProductStateMachine] = {}
 
     def invoke(self, function: str, args: Dict[str, Any]) -> Any:
         """Dispatch to the named contract function.
@@ -115,8 +119,20 @@ class CounterfeitDetectionContract(SmartContractBase):
         record["verification_count"] += 1
         record["cnn_authenticity_scores"].append(cnn_authenticity_score)
         record["last_tamper_class"] = tamper_class
-        self.put_state(key, record)
+        # Round-2 review: SC-4 now enforces through the shared product machine.
+        machine = self._machine(product_id)
+        machine.cnn_reading(len(machine.history), cnn_authenticity_score)
+        self._save(machine, record)
         return record
+
+    def _save(self, machine: ProductStateMachine, record: Dict[str, Any]) -> None:
+        """Persist the machine and mirror its status onto the product record."""
+        save_machine(self, machine)
+        record["status"] = _STATUS_LABEL[machine.state]
+        record["quarantine_reasons"] = sorted(machine.quarantine_reasons)
+        record["alert_conditions"] = sorted(machine.alert_conditions)
+        record["status_updated_at"] = datetime.now(timezone.utc).isoformat()
+        self.put_state(f"product_{machine.product_id}", record)
 
     def update_trust_score(self, product_id: str, trust_score: float) -> Dict[str, Any]:
         """Update a product's PTS and apply automated quarantine/alert logic.
@@ -151,24 +167,18 @@ class CounterfeitDetectionContract(SmartContractBase):
         machine = self._machine(product_id)
         machine.pts_update(len(machine.history), trust_score)
         record["trust_score"] = trust_score
-        record["status"] = _STATUS_LABEL[machine.state]
-        record["quarantine_reasons"] = sorted(machine.quarantine_reasons)
+        self._save(machine, record)
         if record["status"] == "QUARANTINE":
             logger.warning("Product %s QUARANTINE (reasons %s), PTS=%.4f",
                            product_id, record["quarantine_reasons"], trust_score)
         elif record["status"] == "ALERT":
             logger.info("Product %s flagged ALERT: PTS=%.4f", product_id, trust_score)
-
-        record["status_updated_at"] = datetime.now(timezone.utc).isoformat()
-        self.put_state(key, record)
         return record
 
     def _machine(self, product_id: str) -> ProductStateMachine:
-        """Per-product enforcement state machine (kept alongside world state)."""
-        if product_id not in self._machines:
-            self._machines[product_id] = ProductStateMachine(
-                product_id, tau_q=self.quarantine_threshold, tau_a=self.alert_threshold)
-        return self._machines[product_id]
+        """Load the product's enforcement machine from (shared) world state."""
+        return load_machine(self, product_id, tau_q=self.quarantine_threshold,
+                            tau_a=self.alert_threshold)
 
     def release_quarantine(self, product_id: str, role: str, reason_code: str) -> Dict[str, Any]:
         """Authorised release of an open quarantine (QA / regulator only)."""
@@ -178,10 +188,7 @@ class CounterfeitDetectionContract(SmartContractBase):
             raise KeyError(f"Product {product_id} is not registered")
         machine = self._machine(product_id)
         machine.release(len(machine.history), role, reason_code)
-        record["status"] = _STATUS_LABEL[machine.state]
-        record["quarantine_reasons"] = []
-        record["status_updated_at"] = datetime.now(timezone.utc).isoformat()
-        self.put_state(key, record)
+        self._save(machine, record)
         return record
 
     def get_product_status(self, product_id: str) -> Dict[str, Any]:

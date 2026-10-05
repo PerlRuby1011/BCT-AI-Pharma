@@ -45,14 +45,17 @@ class SmartContractBase(ABC):
     (e.g. automatic quarantine) without requiring a live network.
     """
 
-    def __init__(self, contract_name: str) -> None:
-        """Initialize an empty world state and ledger for this contract.
+    def __init__(self, contract_name: str, world_state: Optional[Dict[str, Any]] = None) -> None:
+        """Initialize the world state and ledger for this contract.
 
         Args:
             contract_name: Human-readable name of the chaincode contract.
+            world_state: Optional dict SHARED with other contracts on the same
+                channel (as Fabric chaincodes on one channel can read each
+                other's state). Default: a private, empty world state.
         """
         self.contract_name = contract_name
-        self._world_state: Dict[str, Any] = {}
+        self._world_state: Dict[str, Any] = world_state if world_state is not None else {}
         self.ledger: List[Transaction] = []
 
     def put_state(self, key: str, value: Any) -> None:

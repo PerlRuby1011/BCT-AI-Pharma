@@ -55,8 +55,12 @@ class ProductStateMachine:
                  theta_w: float = 0.70, theta_c: float = 0.90,
                  max_gap_minutes: float = 60.0,
                  release_roles: tuple = DEFAULT_RELEASE_ROLES,
-                 cnn_q: float = 0.50, cnn_a: float = 0.75) -> None:
+                 cnn_q: float = 0.50, cnn_a: float = 0.75,
+                 monitoring_start: Optional[float] = None) -> None:
         self.product_id = product_id
+        # Round-2 review: a telemetry gap must be detectable even when the
+        # FIRST reading never arrives, so monitoring has an explicit start.
+        self.monitoring_start = monitoring_start
         self.cnn_q, self.cnn_a = cnn_q, cnn_a
         self.latest_cnn: Optional[float] = None
         self.tau_q, self.tau_a = tau_q, tau_a
@@ -138,14 +142,52 @@ class ProductStateMachine:
         self._log(t, "cnn_reading", before, {"p_authentic": p_authentic})
         return self.state
 
+    def start_monitoring(self, t: float) -> None:
+        """Set the time from which a missing first reading counts as a gap."""
+        self.monitoring_start = t
+
     def check_telemetry(self, t: float) -> str:
-        """Raise TELEMETRY_GAP if no reading within max_gap_minutes."""
+        """Raise TELEMETRY_GAP if no reading within max_gap_minutes.
+
+        The reference is the last reading, or -- if none has arrived yet --
+        the monitoring start time, so an absent first reading is detected.
+        With neither set, no gap can be judged and nothing changes.
+        """
         self._require_not_disposed("check_telemetry")
         before = self.state
-        if self.last_reading_t is not None and t - self.last_reading_t > self.max_gap_minutes:
+        ref = self.last_reading_t if self.last_reading_t is not None else self.monitoring_start
+        if ref is not None and t - ref > self.max_gap_minutes:
             self.alert_conditions.add(GAP_A)
         self._log(t, "check_telemetry", before, {})
         return self.state
+
+    # ------------------------------------------------------------ persistence
+    _SCALARS = ("product_id", "tau_q", "tau_a", "theta_w", "theta_c", "max_gap_minutes",
+                "cnn_q", "cnn_a", "monitoring_start", "disposed", "latest_pts", "latest_if",
+                "latest_cnn", "last_reading_t")
+
+    def to_dict(self) -> Dict[str, Any]:
+        """JSON-serialisable snapshot for world state (sets become sorted lists)."""
+        d = {k: getattr(self, k) for k in self._SCALARS}
+        d.update(release_roles=list(self.release_roles),
+                 quarantine_reasons=sorted(self.quarantine_reasons),
+                 alert_conditions=sorted(self.alert_conditions),
+                 history=[dict(h) for h in self.history])
+        return d
+
+    @classmethod
+    def from_dict(cls, d: Dict[str, Any]) -> "ProductStateMachine":
+        """Restore a machine exactly as saved by :meth:`to_dict`."""
+        m = cls(d["product_id"], tau_q=d["tau_q"], tau_a=d["tau_a"], theta_w=d["theta_w"],
+                theta_c=d["theta_c"], max_gap_minutes=d["max_gap_minutes"],
+                release_roles=tuple(d["release_roles"]), cnn_q=d["cnn_q"], cnn_a=d["cnn_a"],
+                monitoring_start=d["monitoring_start"])
+        for k in ("disposed", "latest_pts", "latest_if", "latest_cnn", "last_reading_t"):
+            setattr(m, k, d[k])
+        m.quarantine_reasons = set(d["quarantine_reasons"])
+        m.alert_conditions = set(d["alert_conditions"])
+        m.history = [dict(h) for h in d["history"]]
+        return m
 
     def hold(self, t: float, role: str, reason_code: str) -> str:
         """An authorised party places a manual quarantine hold."""
@@ -190,3 +232,37 @@ class ProductStateMachine:
         self.disposed = True
         self._log(t, "dispose", before, {"role": role, "reason_code": reason_code})
         return self.state
+
+
+# ---------------------------------------------------------------- shared store
+# All contracts that enforce on a product (SC-4 packaging, SC-5 cold chain,
+# SC-7 trust score) load and save ONE machine per product under this key in a
+# shared world state, so their decisions cannot diverge.
+def machine_key(product_id: str) -> str:
+    return f"psm_{product_id}"
+
+
+def load_machine(contract: Any, product_id: str, **defaults: Any) -> ProductStateMachine:
+    """Load the product's machine from the contract's world state, or create one."""
+    saved = contract.get_state(machine_key(product_id))
+    return ProductStateMachine.from_dict(saved) if saved else ProductStateMachine(product_id, **defaults)
+
+
+def save_machine(contract: Any, machine: ProductStateMachine) -> None:
+    contract.put_state(machine_key(machine.product_id), machine.to_dict())
+
+
+STATUS_LABEL = {ACTIVE: "OK", ALERT: "ALERT", QUARANTINE: "QUARANTINE", DISPOSED: "DISPOSED"}
+
+
+def sync_product_record(contract: Any, machine: ProductStateMachine) -> Optional[Dict[str, Any]]:
+    """Mirror the machine's status onto the product record, if one is registered."""
+    key = f"product_{machine.product_id}"
+    record = contract.get_state(key)
+    if record is None:
+        return None
+    record["status"] = STATUS_LABEL[machine.state]
+    record["quarantine_reasons"] = sorted(machine.quarantine_reasons)
+    record["alert_conditions"] = sorted(machine.alert_conditions)
+    contract.put_state(key, record)
+    return record

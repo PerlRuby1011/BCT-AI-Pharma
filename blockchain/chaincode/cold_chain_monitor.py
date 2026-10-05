@@ -9,6 +9,9 @@ from __future__ import annotations
 
 from typing import Any, Dict, List
 
+from blockchain.chaincode.product_state_machine import (
+    load_machine, save_machine, sync_product_record,
+)
 from blockchain.chaincode.smart_contract_base import SmartContractBase
 
 WARNING_THRESHOLD = 0.7
@@ -22,6 +25,8 @@ class ColdChainMonitorContract(SmartContractBase):
         self,
         warning_threshold: float = WARNING_THRESHOLD,
         critical_threshold: float = CRITICAL_THRESHOLD,
+        world_state: Dict[str, Any] | None = None,
+        max_gap_minutes: float = 60.0,
     ) -> None:
         """Initialize the contract with configurable anomaly-score thresholds.
 
@@ -30,8 +35,14 @@ class ColdChainMonitorContract(SmartContractBase):
                 warning alert is issued.
             critical_threshold: Anomaly score above which the shipment is
                 automatically quarantined.
+            world_state: Optional world state shared with the counterfeit
+                contract. Each reading updates the shipment record AND the
+                shipped product's enforcement machine (mapping: one shipment
+                carries one product_id, set at registration).
+            max_gap_minutes: Telemetry gap that raises an alert.
         """
-        super().__init__(contract_name="ColdChainMonitorContract")
+        super().__init__(contract_name="ColdChainMonitorContract", world_state=world_state)
+        self.max_gap_minutes = max_gap_minutes
         self.warning_threshold = warning_threshold
         self.critical_threshold = critical_threshold
 
@@ -54,6 +65,7 @@ class ColdChainMonitorContract(SmartContractBase):
             "record_sensor_reading": self.record_sensor_reading,
             "get_shipment_status": self.get_shipment_status,
             "get_alerts": self.get_alerts,
+            "check_telemetry": self.check_telemetry,
         }
         if function not in dispatch:
             raise ValueError(f"Unknown chaincode function: {function}")
@@ -61,7 +73,26 @@ class ColdChainMonitorContract(SmartContractBase):
         self._record_transaction(function, args, result)
         return result
 
-    def register_shipment(self, shipment_id: str, product_id: str, target_temp_c: float) -> Dict[str, Any]:
+    def _product_machine(self, product_id: str):
+        return load_machine(self, product_id, theta_w=self.warning_threshold,
+                            theta_c=self.critical_threshold, max_gap_minutes=self.max_gap_minutes)
+
+    def check_telemetry(self, shipment_id: str, t: float) -> Dict[str, Any]:
+        """Raise a telemetry-gap alert on the shipped product if readings are overdue.
+
+        Counts from the last reading, or from monitoring start if no reading
+        has ever arrived (round-2 review: absent first reading).
+        """
+        record = self.get_shipment_status(shipment_id)
+        machine = self._product_machine(record["product_id"])
+        machine.check_telemetry(t)
+        save_machine(self, machine)
+        sync_product_record(self, machine)
+        return {"shipment_id": shipment_id, "product_status": machine.state,
+                "alert_conditions": sorted(machine.alert_conditions)}
+
+    def register_shipment(self, shipment_id: str, product_id: str, target_temp_c: float,
+                          t: float = 0.0) -> Dict[str, Any]:
         """Register a new cold-chain shipment.
 
         Args:
@@ -81,10 +112,15 @@ class ColdChainMonitorContract(SmartContractBase):
             "alerts": [],
         }
         self.put_state(f"shipment_{shipment_id}", record)
+        machine = self._product_machine(product_id)
+        if machine.monitoring_start is None:
+            machine.start_monitoring(t)
+        save_machine(self, machine)
         return record
 
     def record_sensor_reading(
-        self, shipment_id: str, temperature_c: float, anomaly_score: float
+        self, shipment_id: str, temperature_c: float, anomaly_score: float,
+        t: float | None = None,
     ) -> Dict[str, Any]:
         """Record a sensor reading and its Isolation Forest anomaly score.
 
@@ -125,6 +161,12 @@ class ColdChainMonitorContract(SmartContractBase):
             )
 
         self.put_state(key, record)
+        # Round-2 review: SC-5 also drives the shipped product's machine.
+        machine = self._product_machine(record["product_id"])
+        machine.cold_chain_reading(len(machine.history) if t is None else t, anomaly_score)
+        save_machine(self, machine)
+        sync_product_record(self, machine)
+        record["product_status"] = machine.state
         return record
 
     def get_shipment_status(self, shipment_id: str) -> Dict[str, Any]:
