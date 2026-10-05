@@ -21,3 +21,6 @@ results/*.tmp
 results/signal_cache/
 results/o9_c1_cachegen.json
 results/o9_c2_cachegen.json
+results/o10_c1_cachegen.json
+results/o10_c2_cachegen.json
+results/*_smoke.json

@@ -142,7 +142,11 @@ def _apply_shortcut_routing(df: pd.DataFrame, rng: np.random.Generator) -> pd.Da
     DATA-GENERATION CHANGE. Counterfeit pharmaceuticals predominantly enter
     the legitimate supply chain at the wholesale distribution tier rather
     than at manufacture -- Mackey and Nayyar (2017) attribute 67% of
-    incidents to the wholesale level against 11% to manufacturing. A product
+    incidents to the wholesale level against 11% to manufacturing.
+    NOTE (5 Oct 2026): that attribution could not be verified against the
+    source (only the abstract was accessible, and it gives no such split).
+    Treat wholesale concentration as a scenario assumption fixed in advance,
+    not a sourced statistic. The code is unchanged. A product
     entering at that tier has not traversed the manufacturer -> distributor
     leg a legitimate product traverses, so its observable custody chain is
     shorter by approximately one upstream handoff.
