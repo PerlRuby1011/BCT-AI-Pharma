@@ -24,3 +24,7 @@ results/o9_c2_cachegen.json
 results/o10_c1_cachegen.json
 results/o10_c2_cachegen.json
 results/*_smoke.json
+
+# Round-4 model checkpoints (187 MB per session): kept locally, fingerprints committed
+results/models_v1/*/*.pt
+results/models_v1/*/*.pkl

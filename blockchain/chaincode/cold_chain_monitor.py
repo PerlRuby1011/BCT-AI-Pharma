@@ -10,7 +10,7 @@ from __future__ import annotations
 from typing import Any, Dict, List
 
 from blockchain.chaincode.product_state_machine import (
-    load_machine, save_machine, sync_product_record,
+    load_machine, save_machine, sync_product_record, sync_shipment_records,
 )
 from blockchain.chaincode.smart_contract_base import SmartContractBase
 
@@ -88,6 +88,7 @@ class ColdChainMonitorContract(SmartContractBase):
         machine.check_telemetry(t)
         save_machine(self, machine)
         sync_product_record(self, machine)
+        sync_shipment_records(self, machine)
         return {"shipment_id": shipment_id, "product_status": machine.state,
                 "alert_conditions": sorted(machine.alert_conditions)}
 
@@ -120,7 +121,7 @@ class ColdChainMonitorContract(SmartContractBase):
 
     def record_sensor_reading(
         self, shipment_id: str, temperature_c: float, anomaly_score: float,
-        t: float | None = None,
+        t: float, received_t: float | None = None,
     ) -> Dict[str, Any]:
         """Record a sensor reading and its Isolation Forest anomaly score.
 
@@ -132,6 +133,9 @@ class ColdChainMonitorContract(SmartContractBase):
             shipment_id: Shipment the reading belongs to.
             temperature_c: Measured temperature in Celsius.
             anomaly_score: Isolation Forest anomaly score in [0, 1].
+            t: Event time of the reading (minutes since the simulation
+                epoch); required. Late readings are handled by the product
+                machine's late-event policy.
 
         Returns:
             The updated shipment state record.
@@ -143,31 +147,28 @@ class ColdChainMonitorContract(SmartContractBase):
         record = self.get_state(key)
         if record is None:
             raise KeyError(f"Shipment {shipment_id} is not registered")
+        # Reject future-dated evidence BEFORE touching the shipment log.
+        self._product_machine(record["product_id"])._check_not_future(
+            t, received_t, "cold_chain_reading")
 
         record["readings"].append(
-            {"temperature_c": temperature_c, "anomaly_score": anomaly_score}
+            {"t": t, "temperature_c": temperature_c, "anomaly_score": anomaly_score}
         )
-
+        # The alert list is an append-only log; the shipment's STATUS is a
+        # view of the product machine (7th review: no divergent shipment hold).
         if anomaly_score > self.critical_threshold:
-            record["status"] = "quarantined"
-            record["alerts"].append(
-                {"level": "critical", "anomaly_score": anomaly_score, "action": "auto_quarantine"}
-            )
+            record["alerts"].append({"t": t, "level": "critical", "anomaly_score": anomaly_score,
+                                     "action": "auto_quarantine"})
         elif anomaly_score > self.warning_threshold:
-            if record["status"] != "quarantined":
-                record["status"] = "warning"
-            record["alerts"].append(
-                {"level": "warning", "anomaly_score": anomaly_score, "action": "notify_logistics"}
-            )
-
+            record["alerts"].append({"t": t, "level": "warning", "anomaly_score": anomaly_score,
+                                     "action": "notify_logistics"})
         self.put_state(key, record)
-        # Round-2 review: SC-5 also drives the shipped product's machine.
         machine = self._product_machine(record["product_id"])
-        machine.cold_chain_reading(len(machine.history) if t is None else t, anomaly_score)
+        machine.cold_chain_reading(t, anomaly_score, source=shipment_id, received_t=received_t)
         save_machine(self, machine)
         sync_product_record(self, machine)
-        record["product_status"] = machine.state
-        return record
+        sync_shipment_records(self, machine)
+        return self.get_state(key)
 
     def get_shipment_status(self, shipment_id: str) -> Dict[str, Any]:
         """Query the current on-chain state of a shipment.

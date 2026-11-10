@@ -305,3 +305,74 @@ experiment is approved:
   proxy design. Deriving provenance from realized custody chains is
   therefore mandatory, not optional; the pre-registration requires
   abandoning the redesign rather than shipping the partial version.
+
+## Release 1.1.0 (prepared 2026-11-02 to 2026-11-10) — reference values separated from computed results
+
+- `config.yaml:baseline_comparison` renamed to `bcca2026_reference_values` and
+  labelled as BCCA 2026 conference-reported reference values, not computed.
+  Recall-localization inputs moved to `recall_localization_model`.
+- `build_baseline_comparison_table`, `simulate_per_run_detection_rates`
+  (Gaussian jitter around the configured values), `compute_improvement_ratios`
+  and `compute_relative_improvement` moved to `historical/bcca2026_reference.py`
+  (algorithm unchanged; outputs now tagged with a provenance marker).
+- `run_full_pipeline` no longer returns `baseline_comparison`,
+  `improvement_ratios` or `relative_improvement`. `recall_localization` is kept
+  and carries a `basis` field stating that it is calculated, not observed.
+- New guard `evaluation/result_guards.py`; `write_results`,
+  `orchestrate.save_json`, the live-inference writer and the review-sensitivity
+  writer refuse tagged material.
+- Notebook section 6 (bar charts of the configured table) removed.
+- New tests: `tests/test_reference_value_isolation.py`.
+- Second pass (same release, before publication): moved `lstm/cnn/isolation_forest.target_metrics`,
+  the `statistical_validation` t-statistics and the `monte_carlo` conference values into
+  `bcca2026_reference_values`; removed `target_metrics`, Monte Carlo `paper_reference` and
+  `real_world_range` from outputs; calibration diagnostic now compares with the computed
+  AI-Only rate and never overwrites an existing output file; notebook plots computed
+  metrics only; guard documentation corrected (marker detection only); new stub-based
+  output tests `tests/test_reference_outputs_stubbed.py`.
+- Earlier entries in this log and archived results are unchanged.
+- Third pass (same release, before publication, prepared 2026-11-05; documentation only, no code or result changed):
+  README section mapping each record cited by the IEEE Access methods article;
+  `preregistration/README.md` aligned with the article's audit-limited wording on the
+  BCCA 2026 figures ("not computed by this repository … the audited records do not
+  establish the run that generated them", replacing "design targets, not measured
+  results"), and a table stating what establishes each repair document's timing
+  (geometric-mean repair marked exploratory: no pre-run plan located);
+  `results/live_inference.log` (execution log of 28 July 2026) added to version
+  control; per-seed supplement added under `supplement/per_seed/`.
+- Fourth pass (same release, before publication, 2026-11-05; documentation only):
+  the redesign is described as a "redesign with a written protocol" (dated
+  2026-07-28, first committed alongside the results on 2026-07-29; the run log
+  names the protocol but not its contents); "published unedited" replaced by
+  "posted alongside the results"; attribution of the zero-power finding aligned
+  (co-author review and a separate internal AI-assisted review).
+- Fifth pass (same release, before publication, 2026-11-05; documentation only): README
+  path note rewritten for the final package layout (this release as
+  `release/1.1.0/`), and a table of the code version used for each analysis.
+- Sixth pass (same release, before publication, 2026-11-06; documentation only):
+  `results/live_inference.log` described as the execution log containing the
+  28 July 2026 runs (lines 1-141; later entries are October 2026 runs), in the
+  README map and the reading guide.
+- Seventh pass (same release, before publication, 2026-11-10; documentation only):
+  README opens with a pointer for readers of the IEEE Access article and
+  states the archive DOIs (version 10.5281/zenodo.24097169, concept
+  10.5281/zenodo.21987357) in place of placeholders; a note explains the
+  `FIX_PROMPT_*` / `DEBUG_PROMPT_*` working notes, which are kept unchanged;
+  `preregistration/README.md` states the OPTION2 protocol's dating (dated the
+  day of the run, first committed with its results) instead of calling it
+  frozen and its predictions pre-execution.
+  The heading of `supplement/per_seed/per_seed_supplement.md` no longer
+  says "DRAFT, not yet in the staged package"; its content is unchanged.
+- Eighth pass (same release, before publication, 2026-11-10; documentation only):
+  temporary publication-status statements replaced by durable wording
+  (README "From release 1.1.0:", `docs/releases/1.1.0.md` status line, the
+  release heading and pass labels in this file). Original records in
+  `preregistration/` are unchanged.
+- Public release (2026-11-10): published as one commit on top of the public
+  main branch. Files used only by a separate manuscript by the same authors
+  (40 files: its Round 3-4, V2-V3, inspection and time-tie analyses, export
+  tooling, their results and tests) are not part of the public release; three
+  of its code files remain because the post-review checkpoint probe imports
+  them. Dockerfile and docker-compose.yml keep the public `main.py` default.
+  The README's opening describes this release instead of the separate
+  manuscript's reproduction guide.

@@ -74,6 +74,7 @@ from evaluation.run_simulation import (  # noqa: E402
     run_single_simulation_run,
 )
 from evaluation.baseline_comparison import compute_recall_localization  # noqa: E402
+from evaluation.result_guards import assert_no_reference_values  # noqa: E402
 from evaluation.statistical_validation import compute_statistical_validation_from_runs  # noqa: E402
 
 try:
@@ -646,6 +647,8 @@ def run_phase(
 
 
 def save_json(path: Path, obj: Any) -> None:
+    # Computed results only: refuse conference-reported reference values.
+    assert_no_reference_values(obj, context=f"orchestrator output {path.name}")
     path.parent.mkdir(parents=True, exist_ok=True)
     safe = _sanitize_for_json(obj)
     with open(path, "w", encoding="utf-8") as handle:
@@ -872,7 +875,8 @@ def generate_report(
         cold = s6.get("cold_chain_detection")
         md.append(f"- Cold chain detection: {_fmt_pct(cold, 1)}")
         if recall_loc:
-            md.append(f"- Recall localization: {recall_loc['bct_ai_time_minutes']:.1f} minutes")
+            md.append(f"- Recall localization: {recall_loc['bct_ai_time_minutes']:.1f} minutes "
+                      "(calculated from assumed TPS and AI overhead; not observed)")
         md.append(
             f"- Paired t-test (detection): t(9)={_fmt_num(s6.get('t_statistic'), 2)}, "
             f"p={_fmt_num(s6.get('p_value'), 4)}, Cohen's d={_fmt_num(s6.get('cohens_d'), 2)}"

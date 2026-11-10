@@ -121,11 +121,11 @@ def test_contract_keeps_quarantine_until_authorised_release():
     from blockchain.chaincode.counterfeit_detection import CounterfeitDetectionContract
     c = CounterfeitDetectionContract()
     c.invoke("register_product", {"product_id": "X", "drug_class": "A", "manufacturer": "M"})
-    assert c.invoke("update_trust_score", {"product_id": "X", "trust_score": 0.40})["status"] == "QUARANTINE"
-    assert c.invoke("update_trust_score", {"product_id": "X", "trust_score": 0.95})["status"] == "QUARANTINE"
+    assert c.invoke("update_trust_score", {"product_id": "X", "trust_score": 0.40, "t": 1.0})["status"] == "QUARANTINE"
+    assert c.invoke("update_trust_score", {"product_id": "X", "trust_score": 0.95, "t": 2.0})["status"] == "QUARANTINE"
     with pytest.raises(TransitionError):
-        c.invoke("release_quarantine", {"product_id": "X", "role": "DISTRIBUTOR", "reason_code": "x"})
-    out = c.invoke("release_quarantine", {"product_id": "X", "role": "QA", "reason_code": "retest"})
+        c.invoke("release_quarantine", {"product_id": "X", "role": "DISTRIBUTOR", "reason_code": "x", "t": 3.0})
+    out = c.invoke("release_quarantine", {"product_id": "X", "role": "QA", "reason_code": "retest", "t": 3.0})
     assert out["status"] == "OK"
 
 
@@ -153,3 +153,39 @@ def test_threshold_boundaries():
     assert m.pts_update(1, 0.75) == ACTIVE               # tau_a itself is not alert
     assert m.cold_chain_reading(2, 0.70) == ACTIVE       # theta_w is strict
     assert m.cold_chain_reading(3, 0.90) == ALERT        # theta_c is strict
+
+
+# ---- Round-3 release policy: evidence for each open reason must be re-observed
+def test_release_needs_new_evidence_for_each_open_reason():
+    m = sm()
+    m.cnn_reading(0, 0.30)                       # packaging hold, PTS/IF never observed
+    with pytest.raises(TransitionError):
+        m.release(1, "QA", "no new scan yet")    # was allowed before the fix
+    m.cnn_reading(2, 0.95)
+    assert m.release(3, "QA", "rescan authentic") == ACTIVE
+
+
+def test_absent_unrelated_evidence_does_not_block_release():
+    m = sm()
+    m.cnn_reading(0, 0.30)
+    m.cnn_reading(1, 0.90)                       # no PTS, no IF ever: not open reasons
+    assert m.release(2, "QA", "rescan") == ACTIVE
+
+
+def test_reading_at_same_time_as_hold_does_not_count():
+    m = sm()
+    m.pts_update(5, 0.30)
+    with pytest.raises(TransitionError):
+        m.release(6, "QA", "x")                  # only the triggering reading exists
+    m.pts_update(7, 0.90)
+    assert m.release(8, "QA", "recovered") == ACTIVE
+
+
+def test_overlapping_reasons_each_need_evidence():
+    m = sm()
+    m.pts_update(0, 0.30); m.cold_chain_reading(1, 0.95)
+    m.pts_update(2, 0.90)                        # PTS recovered, cold chain not re-read
+    with pytest.raises(TransitionError):
+        m.release(3, "QA", "x")
+    m.cold_chain_reading(4, 0.10)
+    assert m.release(5, "QA", "both cleared") == ACTIVE

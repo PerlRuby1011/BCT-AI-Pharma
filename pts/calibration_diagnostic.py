@@ -3,8 +3,14 @@
 Motivation
 ----------
 The full 10-seed orchestrator run measured a BCT-AI counterfeit detection
-rate of 71.4% +/- 1.4%, below the AI-Only Table VI baseline of 78.2%. Three
-calibration changes were proposed:
+rate of 71.4% +/- 1.4%. The original version of this diagnostic compared each
+variant with 78.2%, the BCCA 2026 conference-reported AI-Only value. From
+release 1.1.0 it compares each variant with the AI-Only detection computed in
+the same runs instead; the conference value is a reference value, not a
+computed result, and is available only from historical/bcca2026_reference.py.
+The archived outputs (results/pts_calibration_diagnostic*.json) were produced
+by the original version and are kept unchanged. Three calibration changes
+were proposed:
 
   Fix A -- raise Class A's AI-confidence weight w8 from 0.10 to 0.20, with
            the residual 0.80 redistributed proportionally across w1, w2 and
@@ -45,6 +51,7 @@ from __future__ import annotations
 import copy
 import json
 import sys
+import time
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -57,11 +64,14 @@ if str(REPO_ROOT) not in sys.path:
 from evaluation.run_simulation import run_single_simulation_run  # noqa: E402
 from pts.product_trust_score import validate_drug_class_weights  # noqa: E402
 from utils import load_config  # noqa: E402
+from evaluation.result_guards import assert_no_reference_values  # noqa: E402
 
 N_SEEDS = 5
 TRANSACTIONS_PER_RUN = 50_000
 BASE_SEED = 42
-AI_ONLY_BASELINE_PCT = 78.2
+# Release 1.1.0: the hard-coded conference AI-Only value (78.2%) was removed.
+# Comparisons use the computed AI-Only detection of the same runs.
+OUT_PATH = REPO_ROOT / "results" / "pts_calibration_diagnostic.json"
 
 
 def apply_fix_a(config: Dict[str, Any], new_w8: float = 0.20) -> Dict[str, Any]:
@@ -216,7 +226,7 @@ def main() -> None:
 
     header = (
         f"\n\n{'Variant':<30} {'Detection':>12} {'d vs base':>11} "
-        f"{'Quarantine':>12} {'d vs base':>11} {'>78.2%?':>9}"
+        f"{'Quarantine':>12} {'d vs base':>11} {'>AI-Only?':>10}"
     )
     print(header)
     print("-" * len(header))
@@ -228,19 +238,35 @@ def main() -> None:
             f"{(det_pct - baseline_det * 100):>+10.2f} "
             f"{r['recall_mean'] * 100:>11.2f}% "
             f"{(r['recall_mean'] - baseline_rec) * 100:>+10.2f} "
-            f"{('YES' if det_pct > AI_ONLY_BASELINE_PCT else 'no'):>9}"
+            f"{('YES' if r['detection_mean'] > r['ai_only_detection_mean'] else 'no'):>10}"
         )
 
-    out_path = REPO_ROOT / "results" / "pts_calibration_diagnostic.json"
+    payload = build_payload(results)
+    out_path = write_payload(payload)
+    print(f"\nWrote {out_path}")
+
+
+def build_payload(results: Dict[str, Dict[str, Any]]) -> Dict[str, Any]:
+    """Output record: computed values only (no conference reference value)."""
     payload = {
         "n_seeds": N_SEEDS,
         "transactions_per_run": TRANSACTIONS_PER_RUN,
         "base_seed": BASE_SEED,
-        "ai_only_baseline_pct": AI_ONLY_BASELINE_PCT,
+        "comparison": "each variant vs the AI-Only detection computed in the same runs",
         "results": results,
     }
-    out_path.write_text(json.dumps(payload, indent=2))
-    print(f"\nWrote {out_path}")
+    assert_no_reference_values(payload, context="PTS calibration diagnostic output")
+    return payload
+
+
+def write_payload(payload: Dict[str, Any], out_path: Path = OUT_PATH) -> Path:
+    """Write ``payload``; never overwrite an existing (archived) file."""
+    if out_path.exists():
+        out_path = out_path.with_name(f"{out_path.stem}_{time.strftime('%Y%m%d_%H%M%S')}.json")
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    with out_path.open("x") as handle:
+        handle.write(json.dumps(payload, indent=2))
+    return out_path
 
 
 if __name__ == "__main__":

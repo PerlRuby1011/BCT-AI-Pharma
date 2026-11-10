@@ -1,0 +1,129 @@
+[
+ [
+  "S1 Phase 1 baseline: max |per-seed change vs baseline| (pp)",
+  0.0
+ ],
+ [
+  "S1 Phase 2 data quality: max |per-seed change vs baseline| (pp)",
+  2.4348
+ ],
+ [
+  "S1 Phase 3 IF contamination: max |per-seed change vs baseline| (pp)",
+  0.0
+ ],
+ [
+  "S1 Phase 4 LSTM search: max |per-seed change vs baseline| (pp)",
+  0.0
+ ],
+ [
+  "S1 Phase 5 CNN overlap: max |per-seed change vs baseline| (pp)",
+  0.0
+ ],
+ [
+  "S1 Phase 6 combined: max |per-seed change vs baseline| (pp)",
+  2.4348
+ ],
+ [
+  "S2 ARM0 mean integrated detection (%)",
+  71.91
+ ],
+ [
+  "S2 ARM0b mean integrated detection (%)",
+  72.19
+ ],
+ [
+  "S2 ARM1 mean integrated detection (%)",
+  0.0
+ ],
+ [
+  "S2 ARM2 mean integrated detection (%)",
+  0.0
+ ],
+ [
+  "S2 ARM3 mean integrated detection (%)",
+  0.0
+ ],
+ [
+  "S2 ARM4 mean integrated detection (%)",
+  92.29
+ ],
+ [
+  "S2 ARM5 mean integrated detection (%)",
+  87.53
+ ],
+ [
+  "S2 ARM4 rerun (Arm 5 execution) identical per seed to first execution",
+  true
+ ],
+ [
+  "S3 mean difference (pp)",
+  4.757
+ ],
+ [
+  "S3 t(9)",
+  19.74
+ ],
+ [
+  "S3 d_z",
+  6.24
+ ],
+ [
+  "S3 95% CI (pp, t=2.262)",
+  [
+   4.21,
+   5.3
+  ]
+ ],
+ [
+  "S3 positive in all seeds",
+  true
+ ],
+ [
+  "S4 ARM4 mean FPR (%)",
+  12.34
+ ],
+ [
+  "S4 ARM5 mean FPR (%)",
+  12.33
+ ],
+ [
+  "S5 Arm 6b mean detection (%)",
+  98.81
+ ],
+ [
+  "S6 Geometric mean, design mean (pp)",
+  1.53
+ ],
+ [
+  "S6 Geometric mean, held-out mean (pp)",
+  1.97
+ ],
+ [
+  "S6 Shortcut routing, design mean (pp)",
+  4.63
+ ],
+ [
+  "S6 Shortcut routing, held-out mean (pp)",
+  3.52
+ ],
+ [
+  "S6 Arithmetic mean, design mean (pp)",
+  0.99
+ ],
+ [
+  "S6 Arithmetic mean, held-out mean (pp)",
+  1.64
+ ],
+ [
+  "S6 Unclipped trust, design mean (pp)",
+  9.94
+ ],
+ [
+  "S6 Unclipped trust, held-out mean (pp)",
+  9.76
+ ],
+ [
+  "S6 shrinkage max |FPR change| (pp)",
+  0.0
+ ]
+]

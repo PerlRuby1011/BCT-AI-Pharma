@@ -145,11 +145,6 @@ lstm:
   n_val_samples: 500
   n_test_samples: 500
 
-  target_metrics:
-    mape: 7.3
-    r2: 0.89
-    auc_roc: 0.94
-    f1: 0.86
 
 # ---------------------------------------------------------------------------
 # CNN packaging verification
@@ -192,13 +187,6 @@ cnn:
   max_epochs: 15
   early_stopping_patience: 5
 
-  target_metrics:
-    Authentic: {precision: 0.992, recall: 0.994, f1: 0.993}
-    "Hologram Mismatch": {precision: 0.978, recall: 0.969, f1: 0.973}
-    "Printing Defects": {precision: 0.965, recall: 0.958, f1: 0.961}
-    "Seal Broken": {precision: 0.982, recall: 0.977, f1: 0.979}
-    "Package Resealed": {precision: 0.971, recall: 0.963, f1: 0.967}
-    weighted_avg: {precision: 0.983, recall: 0.981, f1: 0.982}
 
 # ---------------------------------------------------------------------------
 # Isolation Forest cold chain anomaly detection
@@ -221,13 +209,6 @@ isolation_forest:
     - "Calibration Drift"
     - "Door Opening"
 
-  target_metrics:
-    "Gradual Drift": {detection: 0.94, fpr: 0.03, latency_min: 12.3, latency_std_min: 4.7}
-    "Sudden Spike": {detection: 0.98, fpr: 0.02, latency_min: 0.8, latency_std_min: 0.3}
-    "Cyclic Variation": {detection: 0.91, fpr: 0.05, latency_min: 24.1, latency_std_min: 8.2}
-    "Calibration Drift": {detection: 0.87, fpr: 0.04, latency_min: 36.5, latency_std_min: 12.1}
-    "Door Opening": {detection: 0.99, fpr: 0.01, latency_min: 0.2, latency_std_min: 0.1}
-    overall: {detection: 0.94, fpr: 0.03, latency_min: 8.6, latency_std_min: 5.1}
 
 # ---------------------------------------------------------------------------
 # Product Trust Score (Section III-C)
@@ -314,9 +295,18 @@ pts:
     excursion_scenarios: ["no_excursion", "minor_excursion", "major_excursion"]
 
 # ---------------------------------------------------------------------------
-# Baseline comparison (Table VI)
+# BCCA 2026 conference-reported reference values -- NOT COMPUTED RESULTS
 # ---------------------------------------------------------------------------
-baseline_comparison:
+# These are the percentages and times reported in the BCCA 2026 conference
+# paper (Table VI, Section V-C). They are not computed by this repository and
+# are not reproduced by it. Only historical/bcca2026_reference.py may read
+# this section; the computed-results workflow is checked so that it cannot
+# include them (tests/test_reference_value_isolation.py). Computed detection
+# comes from the proxy-score decision rule (evaluation/run_simulation.py) and
+# the live-inference pipeline (evaluation/live_inference.py).
+# Renamed from ``baseline_comparison`` in release 1.1.0.
+bcca2026_reference_values:
+  provenance: "BCCA 2026 conference-reported reference value; read from configuration, not computed"
   Traditional:
     detection_rate_pct: 23.4
     localization_time_hours: 72.3
@@ -333,51 +323,82 @@ baseline_comparison:
     detection_rate_pct: 96.8
     localization_time_hours: 0.0783333  # 4.7 minutes
     missed_detection_pct: 0.0
-
-  # Paper (Section V-C): "The integrated framework achieved 96.8% counterfeit
-  # detection -- a 4.1x improvement over blockchain-only. Recall localization
-  # across 847 locations completed in 2.8 minutes with 100% accuracy."
-  # tps/ai_overhead_ms match Table III's sustained-load level and the
-  # separately reported 82ms AI-inference overhead (blockchain.ai_inference_overhead_ms).
   recall_localization:
-    n_locations: 847
-    tps: 2500
     paper_stated_time_minutes: 2.8
     paper_stated_accuracy_pct: 100.0
-  # Paper's own text states "4.1x improvement over blockchain-only," but
-  # 96.8/41.7 = 2.32x, not 4.1x -- 96.8/23.4 (Traditional) = 4.14x is the
-  # arithmetic match. Both are reported for transparency (Section V-C).
+  # The conference text says "4.1x improvement over blockchain-only", but
+  # 96.8/41.7 = 2.32x; 96.8/23.4 (Traditional) = 4.14x is the arithmetic match.
   paper_stated_improvement_ratio: 4.1
+  # Component metrics reported in the conference paper (moved from
+  # lstm/cnn/isolation_forest.target_metrics in release 1.1.0).
+  lstm_metrics:
+      mape: 7.3
+      r2: 0.89
+      auc_roc: 0.94
+      f1: 0.86
+  cnn_metrics:
+      Authentic: {precision: 0.992, recall: 0.994, f1: 0.993}
+      "Hologram Mismatch": {precision: 0.978, recall: 0.969, f1: 0.973}
+      "Printing Defects": {precision: 0.965, recall: 0.958, f1: 0.961}
+      "Seal Broken": {precision: 0.982, recall: 0.977, f1: 0.979}
+      "Package Resealed": {precision: 0.971, recall: 0.963, f1: 0.967}
+      weighted_avg: {precision: 0.983, recall: 0.981, f1: 0.982}
+  isolation_forest_metrics:
+      "Gradual Drift": {detection: 0.94, fpr: 0.03, latency_min: 12.3, latency_std_min: 4.7}
+      "Sudden Spike": {detection: 0.98, fpr: 0.02, latency_min: 0.8, latency_std_min: 0.3}
+      "Cyclic Variation": {detection: 0.91, fpr: 0.05, latency_min: 24.1, latency_std_min: 8.2}
+      "Calibration Drift": {detection: 0.87, fpr: 0.04, latency_min: 36.5, latency_std_min: 12.1}
+      "Door Opening": {detection: 0.99, fpr: 0.01, latency_min: 0.2, latency_std_min: 0.1}
+      overall: {detection: 0.94, fpr: 0.03, latency_min: 8.6, latency_std_min: 5.1}
+  # Conference-reported paired t-tests (moved from statistical_validation).
+  statistical_tests:
+    counterfeit_detection_ttest:
+      t_statistic: 6.42
+      degrees_of_freedom: 9
+      p_value_max: 0.01
+    recall_efficiency_ttest:
+      t_statistic: 7.11
+      degrees_of_freedom: 9
+      p_value_max: 0.01
+  # Conference-reported Monte Carlo degradation figures (moved from monte_carlo).
+  monte_carlo:
+    sensor_drift:
+      baseline_detection: 0.940
+      degraded_detection: 0.907
+    mobile_image_variability:
+      baseline_detection: 0.968
+      degraded_detection: 0.939
+    adversarial_gan_counterfeits:
+      detection: 0.914
+    real_world_range: [0.91, 0.95]
+
+# ---------------------------------------------------------------------------
+# Recall-localization model (calculated estimate, not an observation)
+# ---------------------------------------------------------------------------
+# Inputs to evaluation.baseline_comparison.compute_recall_localization:
+# per_location_seconds = 1/tps + blockchain.ai_inference_overhead_ms/1000.
+# tps is an assumed sustained-load level, not a deployed-network measurement.
+recall_localization_model:
+  n_locations: 847
+  tps: 2500
 
 # ---------------------------------------------------------------------------
 # Statistical validation (Section IV-C)
 # ---------------------------------------------------------------------------
+# Conference-reported t-statistics moved to
+# bcca2026_reference_values.statistical_tests in release 1.1.0.
 statistical_validation:
   n_runs: 10
   confidence_level: 0.95
-  counterfeit_detection_ttest:
-    t_statistic: 6.42
-    degrees_of_freedom: 9
-    p_value_max: 0.01
-  recall_efficiency_ttest:
-    t_statistic: 7.11
-    degrees_of_freedom: 9
-    p_value_max: 0.01
 
 # ---------------------------------------------------------------------------
 # Monte Carlo degradation bounds (Section IV-B)
 # ---------------------------------------------------------------------------
+# Inputs only. Conference-reported detection values and the "real-world
+# range" moved to bcca2026_reference_values.monte_carlo in release 1.1.0.
 monte_carlo:
   sensor_drift:
     perturbation_celsius: 1.5
-    baseline_detection: 0.940
-    degraded_detection: 0.907
-  mobile_image_variability:
-    baseline_detection: 0.968
-    degraded_detection: 0.939
-  adversarial_gan_counterfeits:
-    detection: 0.914
-  real_world_range: [0.91, 0.95]
 
 # ---------------------------------------------------------------------------
 # Output paths

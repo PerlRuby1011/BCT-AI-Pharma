@@ -360,13 +360,13 @@ def test_pts_to_smart_contract_chain_for_three_products() -> None:
     quarantine_pts = compute_pts_for_drug_class(_quarantine_product_state(), "A", pts_config)["pts"]
 
     clear_result = contract.invoke(
-        "update_trust_score", {"product_id": "clear_1", "trust_score": clear_pts}
+        "update_trust_score", {"product_id": "clear_1", "trust_score": clear_pts, "t": 0.0}
     )
     alert_result = contract.invoke(
-        "update_trust_score", {"product_id": "alert_1", "trust_score": alert_pts}
+        "update_trust_score", {"product_id": "alert_1", "trust_score": alert_pts, "t": 0.0}
     )
     quarantine_result = contract.invoke(
-        "update_trust_score", {"product_id": "quarantine_1", "trust_score": quarantine_pts}
+        "update_trust_score", {"product_id": "quarantine_1", "trust_score": quarantine_pts, "t": 0.0}
     )
 
     assert clear_pts >= 0.75

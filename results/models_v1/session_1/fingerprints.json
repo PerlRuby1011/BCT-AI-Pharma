@@ -1,0 +1,33 @@
+{
+ "cnn_published": {
+  "state_dict_sha256": "a1948e77ce2397267451ed64023973f2cec3693304282d2becf00bb7cf4df2fb",
+  "train_f1": 1.0,
+  "probe_p_authentic_sha256": "c04a8466cb3e1750f577d3ac5c07c52bcd5642bd937e0a9e42358b208715db99",
+  "probe_p_authentic_mean": 0.9431157481286342
+ },
+ "cnn_degraded": {
+  "state_dict_sha256": "ed3e2a09f48dc8accf87352bf085827a5920e75ccd661c482a960c1f923f8e67",
+  "train_f1": 1.0
+ },
+ "if_published": {
+  "pickle_sha256": "5c5d372bc5818d1c395b172f78c2f147dda565ff618c32a6965eaa99f131b0f7",
+  "calibration": [
+   0.38455093041034394,
+   0.6921659090319385
+  ],
+  "train_detection": 0.96,
+  "probe_scores_sha256": "b579ad02844878ba96dee18cbcc15078240d3452ca75cc6c4fb2e1e71f67ef05"
+ },
+ "if_degraded": {
+  "pickle_sha256": "17f93c29af5ca278f8e591dec84764ada92a3ca2c25539255edf5096e3b8d625",
+  "calibration": [
+   0.3789844019018542,
+   0.6323360628155354
+  ],
+  "train_detection": 0.9666666666666666
+ },
+ "round3_log_reference": {
+  "cnn_published_f1": 1.0,
+  "if_published_detection": 0.96
+ }
+}

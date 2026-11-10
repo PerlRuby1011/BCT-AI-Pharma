@@ -30,6 +30,7 @@ if str(REPO_ROOT) not in sys.path:
 from ai_modules import cnn_verification as cnn_mod
 from ai_modules import isolation_forest_detector as if_mod
 from evaluation.live_inference import run_live_inference_seed, split_timeline
+from evaluation.result_guards import assert_no_reference_values
 from evaluation.run_simulation import _json_default, _sanitize_for_json, run_single_simulation_run
 from evaluation.statistical_validation import compute_statistical_validation_from_runs
 from simulation.anomaly_injector import inject_anomalies
@@ -303,6 +304,7 @@ def main() -> None:
         "arms": arms,
         "total_minutes": round((time.time() - t0) / 60, 1),
     }
+    assert_no_reference_values(output, context="live-inference results")
     out_path = RESULTS_DIR / args.out if args.out else OUT_PATH
     out_path.parent.mkdir(parents=True, exist_ok=True)
     with open(out_path, "w", encoding="utf-8") as fh:

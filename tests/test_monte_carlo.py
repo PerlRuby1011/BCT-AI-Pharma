@@ -46,9 +46,10 @@ def test_sensor_drift_monte_carlo_returns_expected_keys(if_results, config) -> N
         "baseline_detection_std",
         "degraded_detection_mean",
         "degraded_detection_std",
-        "paper_reference",
     ):
         assert key in result
+    # Release 1.1.0: conference-reported values are no longer in the output.
+    assert "paper_reference" not in result
     assert 0.0 <= result["baseline_detection_mean"] <= 1.0
     assert 0.0 <= result["degraded_detection_mean"] <= 1.0
 

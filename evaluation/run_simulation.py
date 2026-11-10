@@ -19,12 +19,8 @@ from ai_modules import isolation_forest_detector as if_mod
 from ai_modules import lstm_forecasting as lstm_mod
 from blockchain.chaincode.counterfeit_detection import CounterfeitDetectionContract
 from blockchain.fabric_network import build_simulator_from_config
-from evaluation.baseline_comparison import (
-    build_baseline_comparison_table,
-    compute_improvement_ratios,
-    compute_recall_localization,
-    compute_relative_improvement,
-)
+from evaluation.baseline_comparison import compute_recall_localization
+from evaluation.result_guards import assert_no_reference_values
 from evaluation.statistical_validation import compute_statistical_validation_from_runs
 from pts.product_trust_score import (
     ProductState,
@@ -296,7 +292,8 @@ def run_lstm_pipeline(config: Dict[str, Any]) -> Dict[str, Any]:
         config: Full project configuration.
 
     Returns:
-        Dictionary with ``metrics`` and ``target_metrics``.
+        Dictionary with ``metrics`` (computed). Conference-reported LSTM
+        figures are not included (see historical/bcca2026_reference.py).
     """
     logger.info("Training LSTM demand forecasting model...")
     lstm_cfg = config["lstm"]
@@ -318,7 +315,7 @@ def run_lstm_pipeline(config: Dict[str, Any]) -> Dict[str, Any]:
     )
     metrics = lstm_mod.evaluate_lstm(model, model_config, lstm_cfg["n_test_samples"], seed=seed + 999)
     logger.info("LSTM evaluation metrics: %s", metrics)
-    return {"metrics": metrics, "target_metrics": lstm_cfg["target_metrics"]}
+    return {"metrics": metrics}
 
 
 def run_cnn_pipeline(config: Dict[str, Any]) -> Dict[str, Any]:
@@ -328,7 +325,8 @@ def run_cnn_pipeline(config: Dict[str, Any]) -> Dict[str, Any]:
         config: Full project configuration.
 
     Returns:
-        Dictionary with ``metrics``, ``target_metrics``, and ``quantization``.
+        Dictionary with ``metrics`` and ``quantization`` (computed).
+        Conference-reported CNN figures are not included.
     """
     logger.info("Training CNN packaging verification model...")
     cnn_cfg = config["cnn"]
@@ -358,7 +356,6 @@ def run_cnn_pipeline(config: Dict[str, Any]) -> Dict[str, Any]:
 
     return {
         "metrics": metrics,
-        "target_metrics": cnn_cfg["target_metrics"],
         "quantization": quantization,
         "_artifacts": {"model": model, "model_config": model_config},
     }
@@ -371,7 +368,8 @@ def run_isolation_forest_pipeline(config: Dict[str, Any]) -> Dict[str, Any]:
         config: Full project configuration.
 
     Returns:
-        Dictionary with ``metrics`` (per anomaly type + overall) and ``target_metrics``.
+        Dictionary with ``metrics`` (per anomaly type + overall, computed).
+        Conference-reported Isolation Forest figures are not included.
     """
     logger.info("Training Isolation Forest cold chain detector...")
     if_cfg = config["isolation_forest"]
@@ -390,7 +388,6 @@ def run_isolation_forest_pipeline(config: Dict[str, Any]) -> Dict[str, Any]:
     logger.info("Isolation Forest overall metrics: %s", metrics["overall"])
     return {
         "metrics": metrics,
-        "target_metrics": if_cfg["target_metrics"],
         "_artifacts": {"model": model, "model_config": model_config, "calibration": calibration},
     }
 
@@ -425,8 +422,8 @@ def simulate_sensor_drift_monte_carlo(
         seed: Random seed.
 
     Returns:
-        Dictionary with baseline/degraded detection mean and standard error,
-        plus the paper's reference values for comparison.
+        Dictionary with computed baseline/degraded detection mean and
+        standard error (no conference-reported values).
     """
     from ai_modules.isolation_forest_detector import (
         ANOMALY_TYPES,
@@ -484,10 +481,6 @@ def simulate_sensor_drift_monte_carlo(
         "baseline_detection_std": float(baseline_detections.std(ddof=1) / np.sqrt(n_samples)),
         "degraded_detection_mean": float(degraded_detections.mean()),
         "degraded_detection_std": float(degraded_detections.std(ddof=1) / np.sqrt(n_samples)),
-        "paper_reference": {
-            "baseline_detection": mc_cfg["baseline_detection"],
-            "degraded_detection": mc_cfg["degraded_detection"],
-        },
     }
 
 
@@ -499,19 +492,20 @@ def simulate_mobile_image_variability_monte_carlo(
     Uses the already-trained CNN model (no retraining) to classify
     freshly generated packaging images, once as generated and once with
     added brightness-shift and motion-blur-proxy Gaussian noise simulating
-    mobile-device image capture, converging toward the paper's 96.8% ->
-    93.9% degradation.
+    mobile-device image capture. (The BCCA 2026 conference reported
+    96.8% -> 93.9%; that pair is a conference-reported figure, not a target
+    this function is fitted to.)
 
     Args:
         cnn_results: Output of :func:`run_cnn_pipeline` (must include ``_artifacts``).
-        config: Full project configuration (uses ``monte_carlo.mobile_image_variability``).
+        config: Full project configuration (unused; kept for a uniform signature).
         n_samples: Approximate number of Monte Carlo image trials (rounded to
             a whole number of images per class).
         seed: Random seed.
 
     Returns:
-        Dictionary with baseline/degraded detection accuracy and the paper's
-        reference values for comparison.
+        Dictionary with computed baseline/degraded detection accuracy (no
+        conference-reported values).
     """
     import torch
 
@@ -519,7 +513,6 @@ def simulate_mobile_image_variability_monte_carlo(
 
     model = cnn_results["_artifacts"]["model"]
     model_config = cnn_results["_artifacts"]["model_config"]
-    mc_cfg = config["monte_carlo"]["mobile_image_variability"]
 
     n_per_class = max(1, n_samples // len(model_config.class_names))
     images, _, tamper_labels = generate_synthetic_packaging_images(
@@ -542,10 +535,6 @@ def simulate_mobile_image_variability_monte_carlo(
         "n_samples": len(images),
         "baseline_detection_mean": float(np.mean(baseline_preds == tamper_labels)),
         "degraded_detection_mean": float(np.mean(perturbed_preds == tamper_labels)),
-        "paper_reference": {
-            "baseline_detection": mc_cfg["baseline_detection"],
-            "degraded_detection": mc_cfg["degraded_detection"],
-        },
     }
 
 
@@ -564,19 +553,19 @@ def simulate_adversarial_gan_monte_carlo(
     packaging images and perturbs each image by ``epsilon`` in the
     sign-of-gradient direction that most increases classification loss,
     simulating a sophisticated (GAN-refined) counterfeit designed to evade
-    detection. Compares against the paper's reported 91.4% adversarial
-    detection accuracy.
+    detection. (The conference reported 91.4% adversarial detection; that
+    figure is a conference-reported value and is not part of this output.)
 
     Args:
         cnn_results: Output of :func:`run_cnn_pipeline` (must include ``_artifacts``).
-        config: Full project configuration (uses ``monte_carlo.adversarial_gan_counterfeits``).
+        config: Full project configuration (unused; kept for a uniform signature).
         n_samples: Approximate number of tampered images to attack.
         epsilon: FGSM perturbation magnitude (L-infinity budget) in [0, 1] pixel-value units.
         seed: Random seed.
 
     Returns:
         Dictionary with baseline/adversarial detection accuracy on tampered
-        images and the paper's reference value for comparison.
+        images (computed; no conference-reported value).
     """
     import torch
     import torch.nn as nn
@@ -585,7 +574,6 @@ def simulate_adversarial_gan_monte_carlo(
 
     model = cnn_results["_artifacts"]["model"]
     model_config = cnn_results["_artifacts"]["model_config"]
-    mc_cfg = config["monte_carlo"]["adversarial_gan_counterfeits"]
 
     n_tamper_classes = len(model_config.class_names) - 1
     n_per_class = max(1, n_samples // n_tamper_classes)
@@ -615,7 +603,6 @@ def simulate_adversarial_gan_monte_carlo(
         "epsilon": epsilon,
         "baseline_detection_mean": float(np.mean(baseline_preds == tamper_labels)),
         "adversarial_detection_mean": float(np.mean(adv_preds == tamper_labels)),
-        "paper_reference": {"adversarial_detection": mc_cfg["detection"]},
     }
 
 
@@ -630,11 +617,11 @@ def run_monte_carlo_pipeline(
         isolation_forest_results: Output of :func:`run_isolation_forest_pipeline`.
 
     Returns:
-        Dictionary with ``sensor_drift``, ``mobile_image_variability``,
-        ``adversarial_gan_counterfeits`` (each with real simulated
-        mean/std and the paper's reference values), and ``real_world_range``
-        (passed through from config, as the paper does not derive this
-        range from a specific simulation).
+        Dictionary with ``sensor_drift``, ``mobile_image_variability`` and
+        ``adversarial_gan_counterfeits``, each holding computed values only.
+        Release 1.1.0 removed the conference-reported ``paper_reference``
+        values and the configured ``real_world_range`` from this output; they
+        are available, tagged, from historical/bcca2026_reference.py.
     """
     logger.info("Running Monte Carlo degradation simulations (1000 samples each)...")
     sensor_drift = simulate_sensor_drift_monte_carlo(isolation_forest_results, config, n_samples=1000)
@@ -653,7 +640,6 @@ def run_monte_carlo_pipeline(
         "sensor_drift": sensor_drift,
         "mobile_image_variability": mobile_image,
         "adversarial_gan_counterfeits": adversarial,
-        "real_world_range": config["monte_carlo"]["real_world_range"],
     }
 
 
@@ -708,7 +694,7 @@ def run_pts_pipeline(config: Dict[str, Any]) -> Dict[str, Any]:
                 {"product_id": product_id, "drug_class": drug_class, "manufacturer": "mfg_sim"},
             )
             contract.invoke(
-                "update_trust_score", {"product_id": product_id, "trust_score": result["pts"]}
+                "update_trust_score", {"product_id": product_id, "trust_score": result["pts"], "t": 0.0}
             )
 
         pts_array = np.array(pts_values)
@@ -825,10 +811,10 @@ def run_full_pipeline(config: Dict[str, Any]) -> Dict[str, Any]:
     cnn_results = run_cnn_pipeline(config)
     isolation_forest_results = run_isolation_forest_pipeline(config)
     pts_results = run_pts_pipeline(config)
-    baseline_table = build_baseline_comparison_table(config)
-    baseline_improvement = compute_relative_improvement(config)
+    # Release 1.1.0: the conference-reported Table VI values (and ratios of
+    # them) are no longer part of computed results; see
+    # historical/bcca2026_reference.py.
     recall_localization = compute_recall_localization(config)
-    improvement_ratios = compute_improvement_ratios(config)
     statistical_validation = compute_statistical_validation_from_runs(per_run_results)
     monte_carlo_results = run_monte_carlo_pipeline(config, cnn_results, isolation_forest_results)
 
@@ -849,12 +835,7 @@ def run_full_pipeline(config: Dict[str, Any]) -> Dict[str, Any]:
         "cnn": cnn_results,
         "isolation_forest": isolation_forest_results,
         "pts": pts_results,
-        "baseline_comparison": {
-            "table": baseline_table.to_dict(orient="records"),
-            "relative_improvement": baseline_improvement,
-        },
         "recall_localization": recall_localization,
-        "improvement_ratios": improvement_ratios,
         "statistical_validation": statistical_validation,
         "monte_carlo": monte_carlo_results,
         "simulation_results_table": simulation_results_table,
@@ -868,6 +849,10 @@ def write_results(results: Dict[str, Any], config: Dict[str, Any]) -> None:
         results: Output of :func:`run_full_pipeline`.
         config: Full project configuration (used to resolve output paths).
     """
+    # Refuse to write if any conference-reported reference value (or a
+    # jitter-generated sample derived from one) reached the results.
+    assert_no_reference_values(results, context="run_full_pipeline results")
+
     results_dir = resolve_path(config["paths"]["results_dir"])
     results_dir.mkdir(parents=True, exist_ok=True)
 

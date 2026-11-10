@@ -8,12 +8,11 @@ metric through the real PTS formula and smart-contract quarantine logic),
 and computes 95% confidence intervals for headline metrics.
 
 The resulting t-statistics are computed from real per-run variance, not
-reverse-engineered to match a target value -- they will differ from the
-paper's reported ``t(9) = 6.42`` (counterfeit detection) / ``t(9) = 7.11``
-(recall efficiency), which were measured on the paper's full-scale
-(2.3M-transaction) simulation. That is expected: this repository runs a
-laptop-scale equivalent (10 x 230,000 transactions) and reports whatever
-statistic genuinely emerges from it.
+reverse-engineered to match a target value. They differ from the BCCA 2026
+conference-reported ``t(9) = 6.42`` (counterfeit detection) / ``t(9) = 7.11``
+(recall efficiency), which are conference-reported values not reproduced by
+this repository. This repository runs 10 x 230,000 transactions and reports
+whatever statistic emerges from those runs.
 """
 from __future__ import annotations
 
@@ -128,11 +127,8 @@ def compute_statistical_validation_from_runs(
             "bct_ai_recall_efficiency": confidence_interval_95(bct_ai_recall),
         },
         "note": (
-            "t-statistics are computed from 10 genuinely independent "
-            "230,000-transaction runs (laptop scale), not reverse-engineered "
-            "to match the paper's full-scale (2.3M-transaction) reported "
-            "values of t(9)=6.42 (counterfeit detection) / t(9)=7.11 "
-            "(recall efficiency); differing from those exact figures is "
-            "expected."
+            "t-statistics are computed from the per-run values above "
+            "(independent simulation runs), not fitted to any target. "
+            "Conference-reported t-statistics are not part of this output."
         ),
     }
