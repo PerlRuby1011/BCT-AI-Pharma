@@ -72,13 +72,31 @@ def reference_values(config) -> Set[float]:
     return {v for v in vals if v not in TRIVIAL}
 
 
-def assert_clean(obj: Any, config) -> None:
+def assert_clean(obj: Any, config, allowed_paths: Set[str] = frozenset()) -> None:
     assert not find_reference_values(obj), find_reference_values(obj)
     bad_keys = FORBIDDEN_KEYS & set(_keys(obj))
     assert not bad_keys, f"reference keys in output: {bad_keys}"
     ref = reference_values(config)
-    hits = [(p, v) for p, v in _numeric_leaves(obj) if round(v, 6) in ref]
+    hits = [(p, v) for p, v in _numeric_leaves(obj) if round(v, 6) in ref and p not in allowed_paths]
     assert not hits, f"reference values in output: {hits[:10]}"
+
+
+def _monte_carlo_allowed_paths(out: dict, epsilon: float = None) -> Set[str]:
+    """Paths whose value cannot be evidence of a copied reference number.
+
+    With a stub model and a small trial count, a detection mean is a fraction
+    k/n of the ``n_samples`` trials (e.g. 4/20 = 0.2, 1/20 = 0.05), which can
+    coincide with a coarse reference value by chance. Such a leaf is allowed
+    only if it is exactly k/n for an integer k; the FGSM ``epsilon`` echoed
+    from the function argument is allowed only if it equals that argument.
+    """
+    n = out["n_samples"]
+    allowed = {p for p, v in _numeric_leaves(out)
+               if p.endswith("_mean") and abs(v * n - round(v * n)) < 1e-9}
+    if epsilon is not None:
+        assert out["epsilon"] == epsilon
+        allowed.add("$.epsilon")
+    return allowed
 
 
 # --------------------------------------------------------------------------- stubs
@@ -191,12 +209,12 @@ def _stub_cnn_results():
 
 def test_mobile_image_monte_carlo_output_with_stub_model(config) -> None:
     out = rs.simulate_mobile_image_variability_monte_carlo(_stub_cnn_results(), config, n_samples=20)
-    assert_clean(out, config)
+    assert_clean(out, config, _monte_carlo_allowed_paths(out))
 
 
 def test_adversarial_monte_carlo_output_with_stub_model(config) -> None:
-    out = rs.simulate_adversarial_gan_monte_carlo(_stub_cnn_results(), config, n_samples=20)
-    assert_clean(out, config)
+    out = rs.simulate_adversarial_gan_monte_carlo(_stub_cnn_results(), config, n_samples=20, epsilon=0.05)
+    assert_clean(out, config, _monte_carlo_allowed_paths(out, epsilon=0.05))
 
 
 # --------------------------------------------------------------------------- statistical validation
